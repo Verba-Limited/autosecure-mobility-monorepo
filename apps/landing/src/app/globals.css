@@ -1,0 +1,76 @@
+@import "tailwindcss";
+@import "@autosecure/config/tokens.css";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f1b3d;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+.scroll-reveal {
+  --reveal-delay: 0ms;
+}
+
+.scroll-reveal[data-reveal-ready="true"][data-reveal-visible="false"] {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+}
+
+.scroll-reveal[data-reveal-ready="true"][data-reveal-visible="true"] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    opacity 700ms ease,
+    transform 700ms cubic-bezier(0.2, 0.65, 0.2, 1);
+  transition-delay: var(--reveal-delay);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal[data-reveal-variant="fade-left"][data-reveal-ready="true"][data-reveal-visible="false"] {
+  transform: translate3d(32px, 0, 0);
+}
+
+.scroll-reveal[data-reveal-variant="fade-right"][data-reveal-ready="true"][data-reveal-visible="false"] {
+  transform: translate3d(-32px, 0, 0);
+}
+
+.scroll-reveal[data-reveal-variant="zoom-in"][data-reveal-ready="true"][data-reveal-visible="false"] {
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+
+  .scroll-reveal,
+  .scroll-reveal[data-reveal-ready="true"][data-reveal-visible="false"],
+  .scroll-reveal[data-reveal-ready="true"][data-reveal-visible="true"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

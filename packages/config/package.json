@@ -1,0 +1,10 @@
+{
+  "name": "@autosecure/config",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./base.tsconfig.json",
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    "./base.tsconfig.json": "./base.tsconfig.json"
+  }
+}

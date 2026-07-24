@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "@autosecure/config/tokens.css";
+
+@theme inline {
+  --font-sans: var(--font-outfit);
+}
+
+body {
+  color: var(--color-portal-ink);
+}

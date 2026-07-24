@@ -1,0 +1,37 @@
+/**
+ * Shared design tokens for all autoSecure Mobility apps (Tailwind v4, CSS-first config).
+ * Source of truth: pulled from the completed landing app's globals.css.
+ *
+ * Each app imports this in its globals.css:
+ *
+ *   @import "tailwindcss";
+ *   @import "@autosecure/config/tokens.css";
+ */
+@theme {
+  --font-sans: var(--font-outfit);
+
+  /* autoSecure brand palette */
+  --color-navy-950: #0a1330;
+  --color-navy-900: #0f1b3d;
+  --color-navy-800: #16234a;
+  --color-navy-700: #202f5e;
+  --color-navy-600: #354578;
+
+  --color-gold-600: #c9922e;
+  --color-gold-500: #dba53f;
+  --color-gold-400: #e6bb5f;
+  --color-gold-100: #fbecd2;
+
+  --color-cream-100: #fdf3e0;
+  --color-cream-50: #fdf8ee;
+
+  --color-brand-green-600: #16a34a;
+  --color-brand-green-500: #22c55e;
+
+  /* Portal (supplier/admin dashboard) palette — distinct product surface from the marketing site */
+  --color-portal-ink: #0a0f1e;
+  --color-portal-blue-600: #1b49e0;
+  --color-portal-blue-700: #2547c9;
+  --color-portal-surface: #f5f6f8;
+  --color-portal-border: #e4e6eb;
+}
