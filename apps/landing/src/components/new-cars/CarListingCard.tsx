@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { MessageCircle, Play } from "lucide-react";
 import { getCategoryStyles } from "@/data/categoryStyles";
 import type { Car } from "@/data/cars";
@@ -100,12 +101,12 @@ export function CarListingCard({ car }: { car: Car }) {
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <a
-            href={`#${car.id}`}
+          <Link
+            href={`/new-cars/${car.id}`}
             className="flex h-11 items-center justify-center rounded-[8px] bg-[#EEF3FF] text-[13px] font-black text-[#2454D6] transition-colors hover:bg-[#E0E9FF]"
           >
             View Details
-          </a>
+          </Link>
 
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
