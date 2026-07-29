@@ -26,7 +26,6 @@ export type PartProduct = {
   ratingCount: number;
   tag?: string;
   tagClassName?: string;
-  /** Path to the product photo in /public, e.g. "/images/parts/alloy-wheel-set.jpg" */
   image: string;
 };
 
@@ -74,7 +73,7 @@ export const PART_PRODUCTS: PartProduct[] = [
     ratingCount: 128,
     tag: "OEM Spec",
     tagClassName: "bg-white text-[#F59E0B]",
-    image: "/images/icons/⚙️.png", // TODO: update to your actual path
+    image: "/images/icons/%23U2699%23Ufe0f.png",
   },
   {
     id: "carbon-fibre-spoiler",
@@ -89,7 +88,7 @@ export const PART_PRODUCTS: PartProduct[] = [
     ratingCount: 64,
     tag: "Carbon Fibre",
     tagClassName: "bg-white/15 text-white",
-    image: "/images/icons/🏎️.png", // TODO: update to your actual path
+    image: "/images/icons/%23L01f3ce%23Ufe0f.png",
   },
   {
     id: "matrix-led-headlight",
@@ -102,7 +101,7 @@ export const PART_PRODUCTS: PartProduct[] = [
     name: "Matrix LED Headlight Set",
     price: 156_000,
     ratingCount: 212,
-    image: "/images/icons/💡.png", // TODO: update to your actual path
+    image: "/images/icons/%23L01f4a1.png",
   },
   {
     id: "performance-brake-kit",
@@ -115,7 +114,7 @@ export const PART_PRODUCTS: PartProduct[] = [
     name: "Performance Brake Kit (Front)",
     price: 112_000,
     ratingCount: 89,
-    image: "/images/icons/🛞.png", // TODO: update to your actual path
+    image: "/images/icons/%23L01f6de.png",
   },
   {
     id: "stainless-cat-back-exhaust",
@@ -128,7 +127,7 @@ export const PART_PRODUCTS: PartProduct[] = [
     name: "Stainless Cat-Back Exhaust",
     price: 195_000,
     ratingCount: 47,
-    image: "/images/icons/💨.png", // TODO: update to your actual path
+    image: "/images/icons/%23L01f4a8.png",
   },
   {
     id: "coilover-suspension-kit",
@@ -141,6 +140,6 @@ export const PART_PRODUCTS: PartProduct[] = [
     name: "Coilover Suspension Kit",
     price: 385_000,
     ratingCount: 73,
-    image: "/images/icons/🔩.png", // TODO: update to your actual path
+    image: "/images/icons/%23L01f529.png",
   },
 ];

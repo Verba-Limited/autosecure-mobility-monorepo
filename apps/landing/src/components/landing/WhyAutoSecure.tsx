@@ -1,35 +1,33 @@
-import { MessageCircle, Search, ShieldCheck, Zap } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { ImagePlaceholder } from "../ui/ImagePlaceholder";
 
 type Point = {
   icon: string;
   title: string;
-  // image: string;
   description: string;
 };
 
 const POINTS: Point[] = [
   {
-    icon: "/images/icons/🛡️.png",
+    icon: "/images/icons/%23L01f6e1%23Ufe0f.png",
     title: "Verified Suppliers",
     description:
       "Every dealer and supplier undergoes a rigorous verification process before listing. No fake listings, ever.",
   },
   {
-    icon: "/images/icons/🔍.png",
+    icon: "/images/icons/%23L01f50d.png",
     title: "Full Inspection Reports",
     description:
-      "Every used vehicle comes with a comprehensive 50-point inspection report — engine, brakes, body, electronics.",
+      "Every used vehicle comes with a comprehensive 50-point inspection report - engine, brakes, body, electronics.",
   },
   {
-    icon: "/images/icons/💬.png",
+    icon: "/images/icons/%23L01f4ac.png",
     title: "Direct WhatsApp",
     description:
       "No middlemen. Chat directly with the verified seller. Average response time is under 2 minutes.",
   },
   {
-    icon: "/images/icons/⚡.png",
+    icon: "/images/icons/%23U26a1.png",
     title: "Real-Time Pricing",
     description:
       "Parts pricing updates instantly based on your delivery choice. No hidden fees. What you see is what you pay.",
@@ -59,11 +57,6 @@ export function WhyAutoSecure() {
               delay={index * 90}
             >
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-navy-900/5">
-                {/* <point.icon
-                  className="h-5 w-5 text-navy-900"
-                  strokeWidth={1.75}
-                /> */}
-
                 <ImagePlaceholder
                   label=""
                   className="h-9 w-9"

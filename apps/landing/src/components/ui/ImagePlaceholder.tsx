@@ -32,7 +32,7 @@ export function ImagePlaceholder({
           src={src}
           alt={label}
           fill
-          className="object-cover"
+          className="object-contain"
           sizes="100vw"
         />
       </div>
