@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Footer } from "@/components/landing/Footer";
 import { Header } from "@/components/landing/Header";
 import { PartsExplorer } from "@/components/parts/PartsExplorer";
+import { getCatalogParts } from "@/lib/catalog-api";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Aftermarket Parts | autoSecure Mobility",
@@ -10,7 +13,9 @@ export const metadata: Metadata = {
     "Automotive parts with delivery options and direct WhatsApp support.",
 };
 
-export default function PartsPage() {
+export default async function PartsPage() {
+  const products = await getCatalogParts();
+
   return (
     <>
       <Header />
@@ -32,7 +37,7 @@ export default function PartsPage() {
           </p>
 
           <div className="mt-7">
-            <PartsExplorer />
+            <PartsExplorer products={products} />
           </div>
         </div>
       </main>

@@ -3,7 +3,9 @@ import Link from "next/link";
 import { Footer } from "@/components/landing/Footer";
 import { Header } from "@/components/landing/Header";
 import { UsedCarsExplorer } from "@/components/used-cars/UsedCarsExplorer";
-import { USED_CARS } from "@/data/usedCars";
+import { getCatalogUsedCars } from "@/lib/catalog-api";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Used Cars & Deals | autoSecure Mobility",
@@ -11,7 +13,9 @@ export const metadata: Metadata = {
     "Certified pre-owned vehicles with full inspection reports and direct WhatsApp support.",
 };
 
-export default function UsedCarsPage() {
+export default async function UsedCarsPage() {
+  const cars = await getCatalogUsedCars();
+
   return (
     <>
       <Header />
@@ -26,7 +30,7 @@ export default function UsedCarsPage() {
           </nav>
 
           <div className="mt-6">
-            <UsedCarsExplorer cars={USED_CARS} />
+            <UsedCarsExplorer cars={cars} />
           </div>
         </div>
       </main>

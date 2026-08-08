@@ -3,7 +3,9 @@ import Link from "next/link";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 import { NewCarsExplorer } from "@/components/new-cars/NewCarsExplorer";
-import { CARS } from "@/data/cars";
+import { getCatalogVehicles } from "@/lib/catalog-api";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Brand-New Vehicles | autoSecure Mobility",
@@ -11,7 +13,9 @@ export const metadata: Metadata = {
     "Factory-fresh cars from top manufacturers. Specs, video, and flexible pricing.",
 };
 
-export default function NewCarsPage() {
+export default async function NewCarsPage() {
+  const cars = await getCatalogVehicles();
+
   return (
     <>
       <Header />
@@ -34,7 +38,7 @@ export default function NewCarsPage() {
           </p>
 
           <div className="mt-8">
-            <NewCarsExplorer cars={CARS} />
+            <NewCarsExplorer cars={cars} />
           </div>
         </div>
       </main>

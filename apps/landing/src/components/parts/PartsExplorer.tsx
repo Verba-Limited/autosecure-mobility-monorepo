@@ -1,27 +1,72 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Search } from "lucide-react";
 import {
   DELIVERY_OPTIONS,
   PART_CATEGORIES,
-  PART_PRODUCTS,
   type PartCategory,
+  type PartProduct,
 } from "@/data/parts";
 import { PartProductCard } from "@/components/parts/PartProductCard";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { fetchParts } from "@/lib/catalog-api";
 
 type ActiveCategory = (typeof PART_CATEGORIES)[number];
 
-export function PartsExplorer() {
+function SkeletonCard() {
+  return (
+    <div className="animate-pulse rounded-2xl border border-[#DDE6F2] bg-white overflow-hidden">
+      <div className="h-44 bg-slate-100" />
+      <div className="p-4 space-y-3">
+        <div className="h-3 w-1/2 rounded bg-slate-100" />
+        <div className="h-4 w-2/3 rounded bg-slate-200" />
+        <div className="h-3 w-full rounded bg-slate-100" />
+        <div className="h-5 w-1/3 rounded bg-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+export function PartsExplorer({
+  products: initialProducts,
+}: {
+  products: PartProduct[];
+}) {
+  const [products, setProducts] = useState<PartProduct[]>(initialProducts);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] =
     useState<ActiveCategory>("All Parts");
   const [query, setQuery] = useState("");
 
-  const products = useMemo(() => {
+  // Fetch real PART inventory from browser
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const mapped = await fetchParts();
+        if (!cancelled && mapped.length > 0) {
+          setProducts(mapped);
+        }
+      } catch {
+        // Keep server-provided fallback
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
 
-    return PART_PRODUCTS.filter((product) => {
+    return products.filter((product) => {
       const matchesCategory =
         activeCategory === "All Parts" ||
         product.category === (activeCategory as PartCategory);
@@ -33,7 +78,7 @@ export function PartsExplorer() {
 
       return matchesCategory && matchesQuery;
     });
-  }, [activeCategory, query]);
+  }, [activeCategory, products, query]);
 
   return (
     <div>
@@ -100,9 +145,15 @@ export function PartsExplorer() {
         </button>
       </ScrollReveal>
 
-      {products.length > 0 ? (
+      {isLoading ? (
         <div className="mt-16 grid gap-x-7 gap-y-8 md:grid-cols-2 xl:grid-cols-4">
-          {products.map((product, index) => (
+          {[1, 2, 3, 4].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      ) : filtered.length > 0 ? (
+        <div className="mt-16 grid gap-x-7 gap-y-8 md:grid-cols-2 xl:grid-cols-4">
+          {filtered.map((product, index) => (
             <ScrollReveal key={product.id} delay={(index % 4) * 80}>
               <PartProductCard product={product} />
             </ScrollReveal>
@@ -110,9 +161,7 @@ export function PartsExplorer() {
         </div>
       ) : (
         <ScrollReveal className="mt-16 rounded-2xl border border-dashed border-[#DDE6F2] py-16 text-center">
-          <p className="text-base font-black text-[#071225]">
-            No matching parts
-          </p>
+          <p className="text-base font-black text-[#071225]">No matching parts</p>
           <p className="mt-1 text-sm font-semibold text-[#8CA0C0]">
             Try another category or search term.
           </p>

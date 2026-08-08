@@ -21,12 +21,12 @@ const LINK_COLUMNS = [
     ],
   },
   {
-    title: "Suppliers",
+    title: "Company",
     links: [
-      { href: "/#suppliers", label: "Supplier Portal" },
-      { href: "/#suppliers", label: "List a Vehicle" },
-      { href: "/#suppliers", label: "List a Part" },
-      { href: "/#suppliers", label: "Dashboard" },
+      { href: "/#suppliers", label: "For Suppliers" },
+      { href: "mailto:hello@autosecure.ng", label: "Request Access" },
+      { href: "/#process", label: "How It Works" },
+      { href: "/#why-autosecure", label: "Why autoSecure" },
     ],
   },
 ];

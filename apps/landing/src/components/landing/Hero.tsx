@@ -124,6 +124,7 @@ export function Hero() {
               src="/images/cars/featured-car.jpg"
               tone="dark"
               className="aspect-3/2 w-full"
+              objectFit="cover"
             />
 
             <div className="absolute inset-x-0 top-0 flex items-center justify-between p-5">

@@ -9,7 +9,6 @@ const NAV_LINKS = [
   { label: "New Cars", href: "/new-cars" },
   { label: "Used Cars", href: "/used-cars" },
   { label: "Parts", href: "/parts" },
-  // { label: "Supplier Portal", href: "/#suppliers" },
 ];
 
 export function Header() {

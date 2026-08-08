@@ -6,6 +6,7 @@ type ImagePlaceholderProps = {
   className?: string;
   src?: string;
   tone?: "light" | "dark";
+  objectFit?: "contain" | "cover";
 };
 
 /**
@@ -19,6 +20,7 @@ export function ImagePlaceholder({
   className = "",
   src,
   tone = "light",
+  objectFit = "contain",
 }: ImagePlaceholderProps) {
   const toneClasses =
     tone === "dark"
@@ -32,7 +34,7 @@ export function ImagePlaceholder({
           src={src}
           alt={label}
           fill
-          className="object-contain"
+          className={objectFit === "cover" ? "object-cover" : "object-contain"}
           sizes="100vw"
         />
       </div>

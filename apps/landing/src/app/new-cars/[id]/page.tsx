@@ -1,44 +1,30 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
-import { VehicleDetailsView } from "@/components/new-cars/VehicleDetailsView";
-import { CARS } from "@/data/cars";
+import { VehicleDetailClient } from "@/components/new-cars/VehicleDetailClient";
 
-type PageProps = {
-  params: Promise<{ id: string }>;
-};
-
-export async function generateStaticParams() {
-  return CARS.map((car) => ({ id: car.id }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
-}: PageProps): Promise<Metadata> {
-  const { id } = await params;
-  const car = CARS.find((item) => item.id === id);
-
-  if (!car) {
-    return {
-      title: "Vehicle Not Found | autoSecure Mobility",
-    };
-  }
-
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
   return {
-    title: `${car.brand} ${car.model} | autoSecure Mobility`,
-    description: `View details, specs, and checkout options for the ${car.brand} ${car.model}.`,
+    title: "Vehicle Details | autoSecure Mobility",
+    description:
+      "View full specs, pricing, and contact the supplier for this brand-new vehicle on autoSecure Mobility.",
   };
+  void params; // id is used client-side
 }
 
-export default async function NewCarDetailsPage({ params }: PageProps) {
+export default async function NewCarDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
-  const car = CARS.find((item) => item.id === id);
-
-  if (!car) {
-    notFound();
-  }
 
   return (
     <>
@@ -55,15 +41,7 @@ export default async function NewCarDetailsPage({ params }: PageProps) {
             </Link>
           </nav>
 
-          <h1 className="mt-6 text-5xl font-black leading-none tracking-[-0.055em] text-[#071225] sm:text-[58px]">
-            Brand-New <span className="text-[#1588A0]">Vehicles</span>
-          </h1>
-          <p className="mt-6 max-w-2xl text-[17px] font-semibold leading-7 text-[#8CA0C0]">
-            Factory-fresh cars from top manufacturers. Specs, video, and
-            flexible pricing.
-          </p>
-
-          <VehicleDetailsView car={car} />
+          <VehicleDetailClient id={id} />
         </div>
       </main>
       <Footer />

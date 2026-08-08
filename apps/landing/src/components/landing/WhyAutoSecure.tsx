@@ -36,7 +36,7 @@ const POINTS: Point[] = [
 
 export function WhyAutoSecure() {
   return (
-    <section className="bg-white px-6 py-24 lg:px-16">
+    <section id="why-autosecure" className="bg-white px-6 py-24 lg:px-16">
       <div className="mx-auto max-w-7xl">
         <ScrollReveal className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center rounded-full bg-cream-100 px-4 py-1.5 text-xs font-semibold text-gold-600">

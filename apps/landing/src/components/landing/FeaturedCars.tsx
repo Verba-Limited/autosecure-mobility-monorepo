@@ -1,4 +1,4 @@
-import { ArrowRight, Camera, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle, Play } from "lucide-react";
 import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
@@ -90,14 +90,19 @@ export function FeaturedCars() {
                   label={`${car.brand} ${car.model}`}
                   className="h-48 w-full"
                   src={car.image}
+                  objectFit="cover"
                 />
                 <span
                   className={`absolute left-3 top-3 rounded-full px-3 py-1.5 text-[11px] font-extrabold uppercase leading-none ${car.badgeClassName}`}
                 >
                   {car.badge}
                 </span>
-                <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-md bg-white/90">
-                  <Camera className="h-3.5 w-3.5 text-navy-900" />
+                <span className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-md bg-white/95 shadow-sm">
+                  <Play
+                    className="h-3.5 w-3.5 text-[#8BA0BF]"
+                    fill="currentColor"
+                    strokeWidth={2.5}
+                  />
                 </span>
               </div>
 

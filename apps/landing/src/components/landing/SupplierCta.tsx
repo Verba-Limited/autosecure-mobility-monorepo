@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { Mail } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 const BULLETS = [
@@ -42,17 +42,17 @@ export function SupplierCta() {
 
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-col">
             <a
-              href="#suppliers"
+              href="mailto:hello@autosecure.ng?subject=Supplier%20portal%20access%20request"
               className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-gold-500 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-gold-400"
             >
-              Access Supplier Portal
-              <ArrowRight className="h-4 w-4" />
+              Request Supplier Access
+              <Mail className="h-4 w-4" />
             </a>
             <a
-              href="#suppliers"
+              href="mailto:hello@autosecure.ng?subject=Supplier%20onboarding%20question"
               className="inline-flex items-center justify-center whitespace-nowrap rounded-xl border border-white/15 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/5"
             >
-              Learn More
+              Contact Sales
             </a>
           </div>
         </div>

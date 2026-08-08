@@ -22,8 +22,11 @@ const stepLabels = [
   "Review",
 ];
 
-function formatNaira(value: number) {
-  return `\u20A6${value.toLocaleString("en-NG")}`;
+function formatNaira(value?: number) {
+  if (value === undefined || value === null || isNaN(Number(value))) {
+    return "N/A";
+  }
+  return `\u20A6${Number(value).toLocaleString("en-NG")}`;
 }
 
 function CheckoutProgress({ currentStep }: { currentStep: CheckoutStep }) {
@@ -375,6 +378,8 @@ export function VehicleDetailsView({ car }: { car: Car }) {
               href={`https://wa.me/?text=${encodeURIComponent(
                 `Hi, I'm interested in the ${car.brand} ${car.model} listed on autoSecure Mobility.`,
               )}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex h-11 items-center justify-center gap-1.5 rounded-[8px] bg-[#25D366] text-[13px] font-black text-white transition-colors hover:bg-[#20BD5A]"
             >
               <MessageCircle className="h-3.5 w-3.5" fill="currentColor" />

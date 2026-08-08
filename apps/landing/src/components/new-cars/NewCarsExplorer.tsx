@@ -1,11 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { CATEGORY_FILTERS } from "@/data/categoryStyles";
 import type { Car } from "@/data/cars";
+import { CARS } from "@/data/cars";
 import { CarListingCard } from "@/components/new-cars/CarListingCard";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import {
+  fetchNewCars,
+} from "@/lib/catalog-api";
 
 type SortOption = "price-asc" | "price-desc";
 
@@ -14,11 +18,50 @@ const SORT_LABELS: Record<SortOption, string> = {
   "price-desc": "Price: High to Low",
 };
 
-export function NewCarsExplorer({ cars }: { cars: Car[] }) {
+function SkeletonCard() {
+  return (
+    <div className="animate-pulse rounded-2xl border border-[#DDE6F2] bg-white overflow-hidden">
+      <div className="h-52 bg-slate-100" />
+      <div className="p-5 space-y-3">
+        <div className="h-4 w-2/3 rounded bg-slate-100" />
+        <div className="h-3 w-1/2 rounded bg-slate-100" />
+        <div className="h-5 w-1/3 rounded bg-slate-200" />
+      </div>
+    </div>
+  );
+}
+
+export function NewCarsExplorer({ cars: initialCars }: { cars: Car[] }) {
+  const [cars, setCars] = useState<Car[]>(initialCars);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] =
     useState<(typeof CATEGORY_FILTERS)[number]>("All");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortOption>("price-asc");
+
+  // Fetch real inventory from browser (bypasses server-side timeout issues)
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const mapped = await fetchNewCars();
+        if (!cancelled && mapped.length > 0) {
+          setCars(mapped);
+        }
+      } catch {
+        // Keep initialCars (static fallback)
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const results = useMemo(() => {
     let filtered = cars;
@@ -97,12 +140,24 @@ export function NewCarsExplorer({ cars }: { cars: Car[] }) {
 
       <ScrollReveal delay={80}>
         <p className="mt-14 text-sm font-black text-[#8CA0C0]">
-          Showing{" "}
-          <span className="text-[#071225]">{results.length}</span> results
+          {isLoading ? (
+            "Loading inventory…"
+          ) : (
+            <>
+              Showing{" "}
+              <span className="text-[#071225]">{results.length}</span> results
+            </>
+          )}
         </p>
       </ScrollReveal>
 
-      {results.length > 0 ? (
+      {isLoading ? (
+        <div className="mt-8 grid gap-x-7 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      ) : results.length > 0 ? (
         <div className="mt-8 grid gap-x-7 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
           {results.map((car, index) => (
             <ScrollReveal key={car.id} delay={(index % 3) * 90}>

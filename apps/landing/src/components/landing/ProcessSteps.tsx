@@ -34,7 +34,7 @@ const STEPS = [
 
 export function ProcessSteps() {
   return (
-    <section className="bg-[#111B2F] px-6 py-24 lg:px-8">
+    <section id="process" className="bg-[#111B2F] px-6 py-24 lg:px-8">
       <div className="mx-auto max-w-[1180px] text-center">
         <ScrollReveal>
           <span className="inline-flex h-6 items-center rounded-full border border-[#C9943A]/45 bg-[#C9943A]/15 px-4 text-[10px] font-black uppercase text-[#E0AE5A]">
