@@ -105,10 +105,37 @@ export function VehicleDetailClient({ id }: { id: string }) {
 
   const title =
     (vehicle?.title ??
-    `${vehicle?.brand ?? ""} ${vehicle?.model ?? ""}`.trim()) ||
+      `${vehicle?.brand ?? ""} ${vehicle?.model ?? ""}`.trim()) ||
     "Vehicle";
   const price = vehicle ? readPrice(vehicle) : 0;
   const image = vehicle?.images?.[0];
+
+  // Only include tiles for fields that actually have data
+  const specs = vehicle
+    ? [
+        { label: "Fuel", value: vehicle.fuelType ?? null },
+        { label: "Transmission", value: vehicle.transmission ?? null },
+        {
+          label: "Seats",
+          value: vehicle.seatingCapacity
+            ? String(vehicle.seatingCapacity)
+            : null,
+        },
+        { label: "Body Type", value: vehicle.bodyType ?? null },
+        { label: "Drive Type", value: vehicle.driveType ?? null },
+        {
+          label: "Engine",
+          value: vehicle.engineType ?? vehicle.engineCapacity ?? null,
+        },
+        { label: "Horsepower", value: vehicle.horsepower ?? null },
+        { label: "Top Speed", value: vehicle.topSpeed ?? null },
+        { label: "Fuel Economy", value: vehicle.fuelEconomy ?? null },
+        {
+          label: "Mileage",
+          value: vehicle.mileage ? `${vehicle.mileage} km` : null,
+        },
+      ].filter((s) => s.value)
+    : [];
 
   if (loading) {
     return (
@@ -182,6 +209,20 @@ export function VehicleDetailClient({ id }: { id: string }) {
             {title}
           </h1>
 
+          {/* Deal badges */}
+          {vehicle.dealBadges && vehicle.dealBadges.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {vehicle.dealBadges.map((badge) => (
+                <span
+                  key={badge}
+                  className="rounded-full bg-[#FFF0F2] px-3 py-1.5 text-[11px] font-black text-[#EF3D48]"
+                >
+                  {badge}
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Feature badges */}
           <div className="mt-4 flex flex-wrap gap-2">
             {vehicle.condition && (
@@ -204,6 +245,11 @@ export function VehicleDetailClient({ id }: { id: string }) {
                 {vehicle.color}
               </span>
             )}
+            {vehicle.interiorColor && (
+              <span className="rounded-full border border-[#DDE6F2] px-3 py-1.5 text-[11px] font-black text-[#5A7090]">
+                Interior: {vehicle.interiorColor}
+              </span>
+            )}
           </div>
 
           {vehicle.description && (
@@ -212,34 +258,43 @@ export function VehicleDetailClient({ id }: { id: string }) {
             </p>
           )}
 
-          {/* Specs */}
-          <div className="mt-6 grid grid-cols-3 gap-3">
-            {[
-              { label: "Fuel", value: vehicle.fuelType ?? "N/A" },
-              {
-                label: "Transmission",
-                value: vehicle.transmission ?? "N/A",
-              },
-              {
-                label: "Seats",
-                value: vehicle.seatingCapacity
-                  ? String(vehicle.seatingCapacity)
-                  : "N/A",
-              },
-            ].map((spec) => (
-              <div
-                key={spec.label}
-                className="rounded-xl border border-[#DDE6F2] bg-[#F8FAFD] p-3 text-center"
-              >
-                <p className="text-[13px] font-black text-[#071225]">
-                  {spec.value}
-                </p>
-                <p className="mt-0.5 text-[10px] font-semibold text-[#A0AEC7]">
-                  {spec.label}
-                </p>
+          {/* Specs — only renders tiles for present fields */}
+          {specs.length > 0 && (
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {specs.map((spec) => (
+                <div
+                  key={spec.label}
+                  className="rounded-xl border border-[#DDE6F2] bg-[#F8FAFD] p-3 text-center"
+                >
+                  <p className="text-[13px] font-black text-[#071225]">
+                    {spec.value}
+                  </p>
+                  <p className="mt-0.5 text-[10px] font-semibold text-[#A0AEC7]">
+                    {spec.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Key features */}
+          {vehicle.keyFeatures && vehicle.keyFeatures.length > 0 && (
+            <div className="mt-6">
+              <p className="text-[12px] font-black uppercase tracking-wide text-[#8CA0C0]">
+                Key Features
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {vehicle.keyFeatures.map((feature) => (
+                  <span
+                    key={feature}
+                    className="rounded-[6px] bg-[#EEF3FF] px-3 py-1 text-[11px] font-black text-[#2454D6]"
+                  >
+                    {feature}
+                  </span>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
 
           {/* Pricing */}
           <div className="mt-6">
@@ -259,23 +314,6 @@ export function VehicleDetailClient({ id }: { id: string }) {
                 {formatNaira(vehicle.pricing.financing.downPayment)}
               </p>
             )}
-          </div>
-
-          {/* Pricing tab row */}
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            {["Outright", "Finance", "Lease"].map((tab, i) => (
-              <button
-                key={tab}
-                type="button"
-                className={`h-9 rounded-[8px] text-[12px] font-black transition-colors ${
-                  i === 0
-                    ? "bg-[#2454D6] text-white"
-                    : "border border-[#DDE6F2] bg-white text-[#7788A8] hover:bg-[#F6F8FC]"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
           </div>
 
           {/* Actions */}

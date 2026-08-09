@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
+import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
 
 interface FieldWrapperProps {
   label: string;
@@ -27,27 +27,31 @@ export function TextField({ label, ...props }: TextFieldProps) {
   );
 }
 
-interface SelectFieldProps {
+type SelectFieldProps = {
   label: string;
   placeholder: string;
-  options?: string[];
-}
+  options?: (string | { value: string; label: string })[];
+} & SelectHTMLAttributes<HTMLSelectElement>;
 
-export function SelectField({ label, placeholder, options = [] }: SelectFieldProps) {
+export function SelectField({ label, placeholder, options = [], ...props }: SelectFieldProps) {
   return (
     <FieldWrapper label={label}>
       <select
-        defaultValue=""
         className={`${inputClasses} appearance-none text-slate-400 [&:has(option:checked:not([value='']))]:text-portal-ink`}
+        {...props}
       >
         <option value="" disabled>
           {placeholder}
         </option>
-        {options.map((option) => (
-          <option key={option} value={option} className="text-portal-ink">
-            {option}
-          </option>
-        ))}
+        {options.map((option) => {
+          const val = typeof option === "string" ? option : option.value;
+          const lbl = typeof option === "string" ? option : option.label;
+          return (
+            <option key={val} value={val} className="text-portal-ink">
+              {lbl}
+            </option>
+          );
+        })}
       </select>
     </FieldWrapper>
   );

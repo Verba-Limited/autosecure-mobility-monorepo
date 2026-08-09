@@ -42,7 +42,7 @@ export function ListingsTable({
         )}
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="w-full min-w-160 not-odd:text-left text-sm">
           <thead>
             <tr className="text-xs font-semibold tracking-wide text-slate-400">
               <th className="pb-3 font-semibold">VEHICLE / PART</th>

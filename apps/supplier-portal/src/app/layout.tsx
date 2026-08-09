@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+import { AuthHydrator } from "@/components/auth/AuthHydrator";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${outfit.variable} h-full antialiased`}>
       <body className="min-h-full overflow-x-hidden bg-portal-surface font-sans">
+        <AuthHydrator />
         {children}
       </body>
     </html>

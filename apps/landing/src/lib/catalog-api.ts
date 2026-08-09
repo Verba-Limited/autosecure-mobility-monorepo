@@ -72,12 +72,26 @@ export type ApiInventoryItem = {
   transmission?: string;
   fuelType?: string;
   color?: string;
+  interiorColor?: string;
   seatingCapacity?: number;
   mileage?: string | number;
+  engineCapacity?: string;
+  engineType?: string;
+  horsepower?: string;
+  driveType?: string;
+  topSpeed?: string;
+  fuelEconomy?: string;
+  bodyType?: string;
+  inStock?: boolean;
+  keyFeatures?: string[];
+  dealBadges?: string[];
+  // Part-specific fields
   partName?: string;
   partCategory?: string;
+  oemNumber?: string;
+  warranty?: string;
   vehicleCompatibility?: string[];
-  inStock?: boolean;
+  deliveryOptions?: string[];
   views?: number;
   isFeatured?: boolean;
   createdAt?: string;

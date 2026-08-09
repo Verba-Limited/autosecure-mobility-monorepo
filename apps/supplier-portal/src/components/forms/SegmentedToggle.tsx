@@ -2,16 +2,35 @@
 
 import { useState } from "react";
 
+interface SegmentedToggleProps {
+  label: string;
+  options: string[];
+  defaultValue?: string;
+  value?: string;
+  onChange?: (val: string) => void;
+}
+
 export function SegmentedToggle({
   label,
   options,
   defaultValue,
-}: {
-  label: string;
-  options: string[];
-  defaultValue?: string;
-}) {
-  const [selected, setSelected] = useState(defaultValue ?? options[0]);
+  value,
+  onChange,
+}: SegmentedToggleProps) {
+  const [internalSelected, setInternalSelected] = useState(
+    defaultValue ?? options[0],
+  );
+
+  const isControlled = value !== undefined && onChange !== undefined;
+  const currentSelected = isControlled ? value : internalSelected;
+
+  function handleSelect(option: string) {
+    if (isControlled) {
+      onChange(option);
+    } else {
+      setInternalSelected(option);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -21,9 +40,9 @@ export function SegmentedToggle({
           <button
             key={option}
             type="button"
-            onClick={() => setSelected(option)}
+            onClick={() => handleSelect(option)}
             className={`flex-1 rounded-md py-2 text-sm font-medium transition-colors ${
-              selected === option
+              currentSelected === option
                 ? "bg-slate-100 text-portal-blue-600"
                 : "text-slate-400 hover:text-slate-600"
             }`}

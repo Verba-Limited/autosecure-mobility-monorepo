@@ -1,10 +1,14 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import type { NavItem } from "@/lib/nav-items";
 import { mainNavItems, manageNavItems } from "@/lib/nav-items";
-import Image from "next/image";
+import { supplierPortalApi } from "@/lib/supplier-api";
+import { getApiItems, getApiTotalItems } from "@/lib/supplier-listing-mappers";
+import { LogoutButton } from "./LogoutButton";
 
 function NavLink({ item }: { item: NavItem }) {
   const pathname = usePathname();
@@ -44,29 +48,72 @@ function NavLink({ item }: { item: NavItem }) {
 }
 
 export function Sidebar() {
+  const [listingCount, setListingCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadListingCount() {
+      try {
+        const payload = await supplierPortalApi.getListings(1, 1);
+        const total = getApiTotalItems(payload) ?? getApiItems(payload).length;
+
+        if (isMounted) {
+          setListingCount(total);
+        }
+      } catch {
+        if (isMounted) {
+          setListingCount(null);
+        }
+      }
+    }
+
+    loadListingCount();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const manageItems = useMemo(
+    () =>
+      manageNavItems.map((item) =>
+        item.href === "/my-listings" && listingCount !== null
+          ? { ...item, badge: listingCount }
+          : item,
+      ),
+    [listingCount],
+  );
+
   return (
     <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 overflow-y-auto border-r border-portal-border bg-white px-4 py-6 md:flex md:flex-col">
-      <nav className="flex flex-1 flex-col gap-6">
-        <div>
-          <p className="mb-2 px-3 text-xs font-semibold tracking-wide text-slate-400">
-            MAIN
-          </p>
-          <div className="flex flex-col gap-1">
-            {mainNavItems.map((item) => (
-              <NavLink key={item.href} item={item} />
-            ))}
+      <nav className="flex flex-1 flex-col justify-between">
+        <div className="flex flex-col gap-6">
+          <div>
+            <p className="mb-2 px-3 text-xs font-semibold tracking-wide text-slate-400">
+              MAIN
+            </p>
+            <div className="flex flex-col gap-1">
+              {mainNavItems.map((item) => (
+                <NavLink key={item.href} item={item} />
+              ))}
+            </div>
+          </div>
+
+          <div className="border-t border-portal-border pt-5">
+            <p className="mb-2 px-3 text-xs font-semibold tracking-wide text-slate-400">
+              MANAGE
+            </p>
+            <div className="flex flex-col gap-1">
+              {manageItems.map((item) => (
+                <NavLink key={item.href} item={item} />
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="border-t border-portal-border pt-5">
-          <p className="mb-2 px-3 text-xs font-semibold tracking-wide text-slate-400">
-            MANAGE
-          </p>
-          <div className="flex flex-col gap-1">
-            {manageNavItems.map((item) => (
-              <NavLink key={item.href} item={item} />
-            ))}
-          </div>
+        <div className="border-t border-portal-border pt-4">
+          <LogoutButton variant="nav" />
         </div>
       </nav>
     </aside>

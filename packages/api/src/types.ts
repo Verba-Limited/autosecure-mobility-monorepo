@@ -76,8 +76,18 @@ export type CreateCarListingPayload = {
   condition: VehicleCondition;
   transmission: Transmission;
   fuelType: FuelType;
+  mileage?: number;
+  engineCapacity?: string;
+  horsepower?: string;
+  engineType?: string;
+  driveType?: string;
+  topSpeed?: string;
+  fuelEconomy?: string;
+  bodyType?: string;
+  inStock?: boolean;
   color: string;
   seatingCapacity: number;
+  keyFeatures?: string[];
 };
 
 export type CreatePartListingPayload = {
@@ -87,9 +97,11 @@ export type CreatePartListingPayload = {
   pricing: Pricing;
   partName: string;
   partCategory: string;
+  oemNumber?: string;
   brand: string;
   inStock: boolean;
   vehicleCompatibility: string[];
+  warranty?: string;
   deliveryOptions: DeliveryOption[];
 };
 

@@ -34,7 +34,7 @@ export const manageNavItems: NavItem[] = [
     label: "My Listings",
     href: "/my-listings",
     iconSrc: "/nav-icons/%F0%9F%93%8B.png",
-    badge: 8,
+    // badge is injected dynamically by Sidebar.tsx from the live API count
     badgeClassName: "bg-portal-ink text-white",
   },
   {

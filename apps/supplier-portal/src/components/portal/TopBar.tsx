@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { LogoutButton } from "./LogoutButton";
 
 interface TopBarProps {
   supplierName?: string;
@@ -7,10 +10,12 @@ interface TopBarProps {
 }
 
 export function TopBar({
-  supplierName = "AutoSecure Ltd",
-  supplierTier = "Premium Supplier",
+  supplierName,
+  supplierTier = "Supplier",
 }: TopBarProps) {
-  const initial = supplierName.trim().charAt(0).toUpperCase();
+  const isLoaded = Boolean(supplierName);
+  const displayName = supplierName ?? "";
+  const initial = displayName.trim().charAt(0).toUpperCase();
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 bg-portal-ink px-4 md:px-6">
@@ -36,23 +41,39 @@ export function TopBar({
 
       <div className="flex items-center gap-4">
         <Link
-          href="/"
+          href="http://localhost:3001"
           className="hidden items-center gap-1.5 text-sm text-white/60 hover:text-white sm:flex font-medium"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Site
         </Link>
+
         <div className="flex items-center gap-2 rounded-lg bg-white/10 px-2.5 py-1.5">
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-linear-to-r from-[#1D3EB8] via-[#0D9488]  text-xs font-bold text-white">
-            {initial}
+          {/* Avatar initial or shimmer */}
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#1D3EB8] via-[#0D9488] text-xs font-bold text-white">
+            {isLoaded ? initial : (
+              <span className="h-3 w-3 rounded-full bg-white/30 animate-pulse" />
+            )}
           </span>
+
           <div className="hidden leading-tight sm:block">
-            <p className="text-xs font-bold text-white">{supplierName}</p>
-            <p className="text-[11px] text-white/40 text-normal">
-              {supplierTier}
-            </p>
+            {isLoaded ? (
+              <>
+                <p className="text-xs font-bold text-white">{displayName}</p>
+                <p className="text-[11px] text-white/40">{supplierTier}</p>
+              </>
+            ) : (
+              /* Shimmer placeholders while profile loads */
+              <div className="space-y-1">
+                <div className="h-2.5 w-24 animate-pulse rounded bg-white/20" />
+                <div className="h-2 w-16 animate-pulse rounded bg-white/10" />
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Sign-out button with label on md+ screens */}
+        <LogoutButton />
       </div>
     </header>
   );
