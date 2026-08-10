@@ -35,6 +35,11 @@ const TABS: { key: TabKey; label: string; category?: PortalListingRow["category"
 
 // No dummy fallback data — empty state UI is shown instead
 
+interface ListingIdentity {
+  _id?: string;
+  id?: string;
+}
+
 export function MyListingsClient() {
   const [payload, setPayload] = useState<unknown>(null);
   const [query, setQuery] = useState("");
@@ -46,9 +51,9 @@ export function MyListingsClient() {
     if (!window.confirm("Delete this listing? This cannot be undone.")) return;
     try {
       await supplierPortalApi.deleteListing(id);
-      setPayload((current) => {
+      setPayload((current: unknown) => {
         const items = getApiItems(current).filter((item) => {
-          const record = item as { _id?: string; id?: string };
+          const record = item as ListingIdentity;
           return record._id !== id && record.id !== id;
         });
         return { data: { items } };
