@@ -10,13 +10,14 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@autosecure/api": "*",
+    "@autosecure/types": "*",
+    "@autosecure/ui": "*",
     "lucide-react": "^1.25.0",
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "@autosecure/api": "*",
-    "@autosecure/ui": "*",
-    "@autosecure/types": "*"
+    "react-toastify": "^11.1.0"
   },
   "devDependencies": {
     "@autosecure/config": "*",

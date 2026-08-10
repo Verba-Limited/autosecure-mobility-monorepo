@@ -1,0 +1,9 @@
+"use client";
+
+import type { InputHTMLAttributes, ReactNode } from "react";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+
+export function AuthField({ label, ...props }: { label: string } & InputHTMLAttributes<HTMLInputElement>) { return <label className="flex flex-col gap-2.5"><span className="text-base font-bold text-black">{label}</span><input {...props} className="h-14 rounded-2xl border border-slate-300 bg-white px-5 text-base font-medium text-portal-ink shadow-[0_12px_24px_rgba(15,23,42,0.06)] outline-none transition placeholder:text-[#9AA7BD] focus:border-portal-blue-600 focus:ring-2 focus:ring-portal-blue-600/15" /></label>; }
+export function PasswordField({ label, ...props }: { label: string } & InputHTMLAttributes<HTMLInputElement>) { const [visible, setVisible] = useState(false); return <label className="flex flex-col gap-2.5"><span className="text-sm font-semibold text-[#64748B]">{label}</span><span className="flex h-14 items-center rounded-2xl border border-slate-300 bg-white px-5 shadow-[0_12px_24px_rgba(15,23,42,0.06)] focus-within:border-portal-blue-600 focus-within:ring-2 focus-within:ring-portal-blue-600/15"><input {...props} type={visible ? "text" : "password"} className="min-w-0 flex-1 bg-transparent text-base font-medium text-portal-ink outline-none"/><button type="button" onClick={() => setVisible(!visible)} className="ml-3 p-1 text-slate-500" aria-label={visible ? "Hide password" : "Show password"}>{visible ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}</button></span></label>; }
+export function AuthButton({ children, disabled }: { children: ReactNode; disabled?: boolean }) { return <button type="submit" disabled={disabled} className="flex h-14 w-full items-center justify-center rounded-2xl bg-[#2944C5] text-lg font-bold tracking-wide text-white transition-colors hover:bg-portal-blue-700 disabled:cursor-not-allowed disabled:opacity-60">{children}</button>; }

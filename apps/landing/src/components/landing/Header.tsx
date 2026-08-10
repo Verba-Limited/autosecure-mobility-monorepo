@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import { clearCustomerSession, getCustomerEmail } from "@/lib/auth-api";
 
 const NAV_LINKS = [
   { label: "New Cars", href: "/new-cars" },
@@ -13,6 +14,17 @@ const NAV_LINKS = [
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    setIsSignedIn(Boolean(getCustomerEmail()));
+  }, []);
+
+  function signOut() {
+    clearCustomerSession();
+    setIsSignedIn(false);
+    setIsOpen(false);
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#E6EDF6] bg-white/95 backdrop-blur">
@@ -52,12 +64,11 @@ export function Header() {
             ))}
           </nav>
 
-          <Link
-            href="/new-cars"
-            className="inline-flex h-11 items-center rounded-[8px] bg-[#2454D6] px-6 text-[14px] font-black text-white shadow-[0_8px_16px_rgba(36,84,214,0.25)] transition-colors hover:bg-[#1E49C4]"
-          >
-            Browse Cars
-          </Link>
+          {isSignedIn ? (
+            <button type="button" onClick={signOut} className="inline-flex h-11 items-center rounded-[8px] bg-[#2454D6] px-6 text-[14px] font-black text-white shadow-[0_8px_16px_rgba(36,84,214,0.25)] transition-colors hover:bg-[#1E49C4]">Sign out</button>
+          ) : (
+            <Link href="/login" className="inline-flex h-11 items-center rounded-[8px] bg-[#2454D6] px-6 text-[14px] font-black text-white shadow-[0_8px_16px_rgba(36,84,214,0.25)] transition-colors hover:bg-[#1E49C4]">Sign in</Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -85,13 +96,11 @@ export function Header() {
               </Link>
             ))}
 
-            <Link
-              href="/new-cars"
-              onClick={() => setIsOpen(false)}
-              className="mt-5 flex h-11 items-center justify-center rounded-lg bg-[#2454D6] text-[14px] font-bold text-white hover:bg-[#1E49C4]"
-            >
-              Browse Cars
-            </Link>
+            {isSignedIn ? (
+              <button type="button" onClick={signOut} className="mt-5 flex h-11 w-full items-center justify-center rounded-lg bg-[#2454D6] text-[14px] font-bold text-white hover:bg-[#1E49C4]">Sign out</button>
+            ) : (
+              <Link href="/login" onClick={() => setIsOpen(false)} className="mt-5 flex h-11 items-center justify-center rounded-lg bg-[#2454D6] text-[14px] font-bold text-white hover:bg-[#1E49C4]">Sign in</Link>
+            )}
           </nav>
         </div>
       )}
