@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ChevronRight, CircleAlert, MessageCircle, Search } from "lucide-react";
 import type { Car } from "@/data/cars";
+import { getCustomerEmail } from "@/lib/auth-api";
 
 type CheckoutStep = 1 | 2 | 3 | 4;
 
@@ -261,6 +263,7 @@ function CheckoutModal({
 }
 
 export function VehicleDetailsView({ car }: { car: Car }) {
+  const router = useRouter();
   const [checkoutStep, setCheckoutStep] = useState<CheckoutStep | null>(null);
 
   return (
@@ -374,17 +377,24 @@ export function VehicleDetailsView({ car }: { car: Car }) {
             >
               Buy Now
             </button>
-            <a
-              href={`https://wa.me/?text=${encodeURIComponent(
-                `Hi, I'm interested in the ${car.brand} ${car.model} listed on autoSecure Mobility.`,
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => {
+                if (!getCustomerEmail()) {
+                  router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+                  return;
+                }
+                window.open(
+                  `https://wa.me/?text=${encodeURIComponent(`Hi, I'm interested in the ${car.brand} ${car.model} listed on autoSecure Mobility.`)}`,
+                  "_blank",
+                  "noopener,noreferrer",
+                );
+              }}
               className="flex h-11 items-center justify-center gap-1.5 rounded-[8px] bg-[#25D366] text-[13px] font-black text-white transition-colors hover:bg-[#20BD5A]"
             >
               <MessageCircle className="h-3.5 w-3.5" fill="currentColor" />
               WhatsApp
-            </a>
+            </button>
           </div>
         </aside>
       </div>

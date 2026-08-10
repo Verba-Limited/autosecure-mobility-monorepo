@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MessageCircle, X } from "lucide-react";
+import { toast } from "react-toastify";
+import { getCustomerEmail } from "@/lib/auth-api";
 
 interface InquireModalProps {
   isOpen: boolean;
@@ -25,14 +28,30 @@ export function InquireModal({
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const customerEmail = getCustomerEmail();
 
   // Focus phone field when modal opens
   useEffect(() => {
     if (isOpen) {
       setError(null);
+      if (!customerEmail) {
+        const query = searchParams.toString();
+        const next = `${pathname}${query ? `?${query}` : ""}`;
+        toast.error(
+          <span>
+            Sign in or create an account to contact this supplier. <button type="button" onClick={() => router.push(`/login?next=${encodeURIComponent(next)}`)} className="ml-1 font-bold underline">Sign in</button>
+          </span>,
+        );
+        onClose();
+        return;
+      }
+      setEmail(customerEmail);
       setTimeout(() => phoneRef.current?.focus(), 60);
     }
-  }, [isOpen]);
+  }, [customerEmail, isOpen, onClose, pathname, router, searchParams]);
 
   // Close on Escape key
   useEffect(() => {
@@ -58,11 +77,13 @@ export function InquireModal({
 
   if (!isOpen) return null;
 
+  if (!customerEmail) return null;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!phone.trim()) {
-      setError("Phone number is required.");
+    if (!phone.trim() || !email.trim()) {
+      setError("Phone number and email address are required.");
       phoneRef.current?.focus();
       return;
     }
@@ -142,15 +163,15 @@ export function InquireModal({
 
           <div className="inquire-modal-field">
             <label htmlFor="inquire-email" className="inquire-modal-label">
-              Email Address
-              <span className="inquire-modal-optional"> (optional)</span>
+              Account Email Address
+              <span className="inquire-modal-required" aria-hidden="true"> *</span>
             </label>
             <input
               id="inquire-email"
               type="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              readOnly
               disabled={isSubmitting}
               className="inquire-modal-input"
               autoComplete="email"

@@ -372,9 +372,17 @@ async function clientPost(
   body: InquireData,
 ): Promise<InquireResponse> {
   const url = `${apiBase()}${path}`;
+  const accessToken =
+    typeof window === "undefined"
+      ? null
+      : localStorage.getItem("autosecure_customer_access_token");
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(15_000),
   });
