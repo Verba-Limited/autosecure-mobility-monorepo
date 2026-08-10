@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CheckCircle2, AlertCircle, ArrowLeft, Send } from "lucide-react";
 import { supplierPortalApi } from "@/lib/supplier-api";
-import { getApiItems, mapListingRow, type PortalListingRow } from "@/lib/supplier-listing-mappers";
+import {
+  getApiItems,
+  mapListingRow,
+  type PortalListingRow,
+} from "@/lib/supplier-listing-mappers";
 
 type SubmitState = "idle" | "loading" | "submitting" | "success" | "error";
 
@@ -37,8 +41,7 @@ export function SubmitListingClient({ id }: { id: string }) {
         const found = items
           .map(mapListingRow)
           .find(
-            (row): row is PortalListingRow =>
-              row !== null && (row.id === id),
+            (row): row is PortalListingRow => row !== null && row.id === id,
           );
 
         if (isMounted) {
@@ -71,13 +74,15 @@ export function SubmitListingClient({ id }: { id: string }) {
         router.push("/my-listings");
       }, 2000);
     } catch (err: unknown) {
-      const errorObj = err as { payload?: { message?: unknown }; message?: unknown };
-      const msg =
-        errorObj.payload?.message
-          ? Array.isArray(errorObj.payload.message)
-            ? errorObj.payload.message.join(", ")
-            : String(errorObj.payload.message)
-          : typeof errorObj.message === "string"
+      const errorObj = err as {
+        payload?: { message?: unknown };
+        message?: unknown;
+      };
+      const msg = errorObj.payload?.message
+        ? Array.isArray(errorObj.payload.message)
+          ? errorObj.payload.message.join(", ")
+          : String(errorObj.payload.message)
+        : typeof errorObj.message === "string"
           ? errorObj.message
           : "Failed to submit listing. Please try again.";
       setErrorMessage(msg);
@@ -107,8 +112,8 @@ export function SubmitListingClient({ id }: { id: string }) {
             Submit for Approval
           </h1>
           <p className="mt-1.5 text-sm text-[#64748B]">
-            Review your listing details below and submit it for admin review. Once
-            approved, it will appear live on the marketplace.
+            Review your listing details below and submit it for admin review.
+            Once approved, it will appear live on the marketplace.
           </p>
         </div>
 
@@ -117,10 +122,12 @@ export function SubmitListingClient({ id }: { id: string }) {
           <div className="mb-6 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-5">
             <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
             <div>
-              <p className="font-bold text-emerald-800">Submitted successfully!</p>
+              <p className="font-bold text-emerald-800">
+                Submitted successfully!
+              </p>
               <p className="mt-0.5 text-sm text-emerald-700">
-                Your listing has been sent for admin review. You will be notified
-                once it is approved. Redirecting to your listings…
+                Your listing has been sent for admin review. You will be
+                notified once it is approved. Redirecting to your listings…
               </p>
             </div>
           </div>
@@ -156,10 +163,14 @@ export function SubmitListingClient({ id }: { id: string }) {
             <dl className="grid grid-cols-1 gap-y-4 sm:grid-cols-2">
               <div>
                 <dt className="text-xs font-semibold text-slate-400">Title</dt>
-                <dd className="mt-0.5 font-black text-portal-ink">{listing.name}</dd>
+                <dd className="mt-0.5 font-black text-portal-ink">
+                  {listing.name}
+                </dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold text-slate-400">Category</dt>
+                <dt className="text-xs font-semibold text-slate-400">
+                  Category
+                </dt>
                 <dd className="mt-0.5">
                   <span
                     className={`inline-block rounded-md px-2.5 py-1 text-xs font-black ${CATEGORY_STYLES[listing.category]}`}
@@ -170,10 +181,14 @@ export function SubmitListingClient({ id }: { id: string }) {
               </div>
               <div>
                 <dt className="text-xs font-semibold text-slate-400">Price</dt>
-                <dd className="mt-0.5 font-black text-portal-ink">{listing.price}</dd>
+                <dd className="mt-0.5 font-black text-portal-ink">
+                  {listing.price}
+                </dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold text-slate-400">Current Status</dt>
+                <dt className="text-xs font-semibold text-slate-400">
+                  Current Status
+                </dt>
                 <dd className="mt-0.5">
                   <span
                     className={`inline-block rounded-md px-2.5 py-1 text-xs font-black ${STATUS_STYLES[listing.status]}`}
@@ -184,17 +199,23 @@ export function SubmitListingClient({ id }: { id: string }) {
               </div>
               <div>
                 <dt className="text-xs font-semibold text-slate-400">Views</dt>
-                <dd className="mt-0.5 font-semibold text-portal-ink">{listing.views}</dd>
+                <dd className="mt-0.5 font-semibold text-portal-ink">
+                  {listing.views}
+                </dd>
               </div>
               <div>
-                <dt className="text-xs font-semibold text-slate-400">Listing ID</dt>
-                <dd className="mt-0.5 font-mono text-xs text-slate-500">{id}</dd>
+                <dt className="text-xs font-semibold text-slate-400">
+                  Listing ID
+                </dt>
+                <dd className="mt-0.5 font-mono text-xs text-slate-500">
+                  {id}
+                </dd>
               </div>
             </dl>
           ) : (
             <p className="text-sm text-slate-500">
-              Listing details could not be loaded. You can still submit using the
-              ID: <span className="font-mono font-semibold">{id}</span>
+              Listing details could not be loaded. You can still submit using
+              the ID: <span className="font-mono font-semibold">{id}</span>
             </p>
           )}
         </div>
@@ -211,18 +232,19 @@ export function SubmitListingClient({ id }: { id: string }) {
               </span>
               Our team reviews your listing for accuracy and compliance.
             </li>
-            <li className="flex items-start gap-2">
+            {/* <li className="flex items-start gap-2">
               <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-portal-blue-600 text-[10px] font-black text-white">
                 2
               </span>
               You will be notified via email once it is approved or if changes
               are needed.
-            </li>
+            </li> */}
             <li className="flex items-start gap-2">
               <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-portal-blue-600 text-[10px] font-black text-white">
-                3
+                2
               </span>
-              Approved listings go live on the autoSecure marketplace immediately.
+              Approved listings go live on the autoSecure marketplace
+              immediately.
             </li>
           </ol>
         </div>

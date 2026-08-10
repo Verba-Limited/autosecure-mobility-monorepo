@@ -42,6 +42,23 @@ export function MyListingsClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState<number | null>(null);
 
+  async function handleDelete(id: string) {
+    if (!window.confirm("Delete this listing? This cannot be undone.")) return;
+    try {
+      await supplierPortalApi.deleteListing(id);
+      setPayload((current) => {
+        const items = getApiItems(current).filter((item) => {
+          const record = item as { _id?: string; id?: string };
+          return record._id !== id && record.id !== id;
+        });
+        return { data: { items } };
+      });
+      setTotalItems((current) => (current === null ? null : Math.max(0, current - 1)));
+    } catch {
+      window.alert("We could not delete this listing. Please try again.");
+    }
+  }
+
   useEffect(() => {
     let isMounted = true;
 
@@ -308,7 +325,7 @@ export function MyListingsClient() {
                         <button className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-black text-portal-ink hover:bg-slate-50">
                           Mark Sold
                         </button>
-                        <button className="rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-black text-red-500 hover:bg-red-100">
+                        <button type="button" onClick={() => handleDelete(listing.id)} className="rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-black text-red-500 hover:bg-red-100">
                           Delete
                         </button>
                       </div>

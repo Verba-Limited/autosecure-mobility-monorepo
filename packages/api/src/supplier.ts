@@ -63,6 +63,13 @@ export function createSupplierApi(client: ApiClient) {
       });
     },
 
+    deleteListing(accessToken: string, id: string) {
+      return client.request(`/inventory/${id}`, {
+        method: "DELETE",
+        accessToken,
+      });
+    },
+
     uploadListingMedia(accessToken: string, id: string, files: File[]) {
       const formData = new FormData();
       files.forEach((file) => formData.append("files", file));

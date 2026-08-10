@@ -97,6 +97,9 @@ export const supplierPortalApi = {
   updateListing(id: string, payload: unknown) {
     return withSupplierAuth((token) => supplierApi.updateListing(token, id, payload));
   },
+  deleteListing(id: string) {
+    return withSupplierAuth((token) => supplierApi.deleteListing(token, id));
+  },
   uploadListingMedia(id: string, files: File[]) {
     return withSupplierAuth((token) =>
       supplierApi.uploadListingMedia(token, id, files),

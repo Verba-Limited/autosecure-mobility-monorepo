@@ -37,13 +37,13 @@ export const manageNavItems: NavItem[] = [
     // badge is injected dynamically by Sidebar.tsx from the live API count
     badgeClassName: "bg-portal-ink text-white",
   },
-  {
-    label: "Inquiries",
-    href: "/inquiries",
-    iconSrc: "/nav-icons/%F0%9F%92%AC.png",
-    badge: 3,
-    badgeClassName: "bg-brand-green-500 text-white",
-  },
+  // {
+  //   label: "Inquiries",
+  //   href: "/inquiries",
+  //   iconSrc: "/nav-icons/%F0%9F%92%AC.png",
+  //   badge: 3,
+  //   badgeClassName: "bg-brand-green-500 text-white",
+  // },
   {
     label: "Settings",
     href: "/settings",
