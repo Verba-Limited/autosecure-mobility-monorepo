@@ -35,6 +35,10 @@ const DELIVERY_OPTIONS: { label: string; value: DeliveryOption }[] = [
   { label: "Economy Shipping", value: "ECONOMY" },
 ];
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
 export function ListAPartClient() {
   const router = useRouter();
 
@@ -140,8 +144,12 @@ export function ListAPartClient() {
       console.log("[FORM SUBMIT] Creating part listing payload:", payload);
 
       // Step 1: Create part listing draft
-      const response = (await supplierPortalApi.createPartListing(payload)) as any;
-      const listingId = response?._id ?? response?.data?._id;
+      const response: unknown = await supplierPortalApi.createPartListing(payload);
+      const responseRecord = isRecord(response) ? response : undefined;
+      const dataRecord = isRecord(responseRecord?.data) ? responseRecord.data : undefined;
+      const listingId =
+        (typeof responseRecord?._id === "string" && responseRecord._id) ||
+        (typeof dataRecord?._id === "string" && dataRecord._id);
 
       if (!listingId) {
         throw new Error("Failed to obtain created listing ID from server.");
@@ -165,14 +173,18 @@ export function ListAPartClient() {
       setTimeout(() => {
         router.push("/my-listings");
       }, 1500);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[FORM SUBMIT ERROR]", err);
+      const payload = isRecord(err) && isRecord(err.payload) ? err.payload : undefined;
+      const message = payload?.message;
       const msg =
-        err?.payload?.message
-          ? Array.isArray(err.payload.message)
-            ? err.payload.message.join(", ")
-            : String(err.payload.message)
-          : err.message || "Failed to save part listing. Please check your inputs.";
+        message
+          ? Array.isArray(message)
+            ? message.join(", ")
+            : String(message)
+          : err instanceof Error
+            ? err.message
+            : "Failed to save part listing. Please check your inputs.";
       setError(msg);
     } finally {
       setIsSubmitting(false);
