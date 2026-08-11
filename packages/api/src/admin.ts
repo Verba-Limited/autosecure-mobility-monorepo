@@ -94,5 +94,28 @@ export function createAdminApi(client: ApiClient) {
         accessToken,
       });
     },
+
+    // Contact messages
+    getContactMessages(accessToken: string, page = 1, limit = 10) {
+      return client.request(`/admin/contact-messages?page=${page}&limit=${limit}`, {
+        accessToken,
+      });
+    },
+
+    getContactMessagesStats(accessToken: string) {
+      return client.request(`/admin/contact-messages/stats`, { accessToken });
+    },
+
+    getContactMessage(accessToken: string, id: string) {
+      return client.request(`/admin/contact-messages/${id}`, { accessToken });
+    },
+
+    updateContactMessageStatus(accessToken: string, id: string, status: string) {
+      return client.request(`/admin/contact-messages/${id}/status`, {
+        method: "PATCH",
+        accessToken,
+        body: { status },
+      });
+    },
   };
 }
