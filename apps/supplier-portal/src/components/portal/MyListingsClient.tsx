@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ClipboardList, Loader2, Plus, Search } from "lucide-react";
+import { ClipboardList, Edit, Loader2, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { supplierPortalApi } from "@/lib/supplier-api";
 import {
@@ -11,6 +11,7 @@ import {
   mapListingRow,
   type PortalListingRow,
 } from "@/lib/supplier-listing-mappers";
+import { EditListingModal } from "./EditListingModal";
 
 const TYPE_STYLES = {
   "NEW CAR": "bg-portal-blue-600/10 text-portal-blue-600",
@@ -33,11 +34,11 @@ const TABS: { key: TabKey; label: string; category?: PortalListingRow["category"
   { key: "parts", label: "Parts", category: "PART" },
 ];
 
-// No dummy fallback data — empty state UI is shown instead
-
 interface ListingIdentity {
   _id?: string;
   id?: string;
+  name?: string;
+  title?: string;
 }
 
 export function MyListingsClient() {
@@ -46,6 +47,9 @@ export function MyListingsClient() {
   const [activeTab, setActiveTab] = useState<TabKey>("all");
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState<number | null>(null);
+
+  // Edit Listing state
+  const [editingListing, setEditingListing] = useState<PortalListingRow | null>(null);
 
   async function handleDelete(id: string) {
     if (!window.confirm("Delete this listing? This cannot be undone.")) return;
@@ -62,6 +66,28 @@ export function MyListingsClient() {
     } catch {
       window.alert("We could not delete this listing. Please try again.");
     }
+  }
+
+  function handleSavedListing(updated: PortalListingRow) {
+    setPayload((current: unknown) => {
+      const items = getApiItems(current).map((item) => {
+        const record = item as ListingIdentity & Record<string, unknown>;
+        if (record._id === updated.id || record.id === updated.id) {
+          return {
+            ...record,
+            title: updated.name,
+            name: updated.name,
+            price: updated.price,
+            category: updated.category,
+            status: updated.status,
+            condition: updated.condition,
+            description: updated.description,
+          };
+        }
+        return record;
+      });
+      return { data: { items } };
+    });
   }
 
   useEffect(() => {
@@ -93,14 +119,12 @@ export function MyListingsClient() {
     };
   }, []);
 
-  // All listings (unfiltered by tab) for counts
   const allListings = useMemo(() => {
     return getApiItems(payload)
       .map(mapListingRow)
       .filter((listing): listing is PortalListingRow => listing !== null);
   }, [payload]);
 
-  // Tab counts always reflect the full list (not the search query)
   const counts = useMemo(
     () => ({
       all: totalItems ?? allListings.length,
@@ -111,7 +135,6 @@ export function MyListingsClient() {
     [allListings, totalItems],
   );
 
-  // Apply tab filter then search query
   const listings = useMemo(() => {
     const activeTabDef = TABS.find((t) => t.key === activeTab);
     let filtered = allListings;
@@ -132,12 +155,20 @@ export function MyListingsClient() {
 
   return (
     <>
+      {/* Edit Modal */}
+      <EditListingModal
+        listing={editingListing}
+        isOpen={Boolean(editingListing)}
+        onClose={() => setEditingListing(null)}
+        onSaved={handleSavedListing}
+      />
+
       <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-portal-ink">
+          <h1 className="text-2xl font-black tracking-tight text-portal-ink sm:text-3xl">
             My Listings
           </h1>
-          <p className="mt-1.5 flex items-center gap-2 text-sm font-medium text-[#64748B]">
+          <p className="mt-1.5 flex items-center gap-2 text-xs font-medium text-[#64748B] sm:text-sm">
             {isLoading && (
               <Loader2 className="h-3.5 w-3.5 animate-spin text-portal-blue-600" />
             )}
@@ -155,8 +186,8 @@ export function MyListingsClient() {
         </Link>
       </div>
 
-      <div className="mb-6 flex flex-col gap-4 rounded-xl border border-portal-border bg-white p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between">
-        <div className="inline-flex w-full rounded-lg bg-slate-100 p-1 text-sm font-bold text-[#64748B] sm:w-auto">
+      <div className="mb-6 flex flex-col gap-4 rounded-xl border border-portal-border bg-white p-4 shadow-sm sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="inline-flex w-full overflow-x-auto rounded-lg bg-slate-100 p-1 text-xs font-bold text-[#64748B] sm:w-auto sm:text-sm">
           {TABS.map((tab) => {
             const count = counts[tab.key];
             const isActive = activeTab === tab.key;
@@ -166,7 +197,7 @@ export function MyListingsClient() {
                 id={`tab-${tab.key}`}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
-                className={`rounded-md px-4 py-2 whitespace-nowrap transition-colors ${
+                className={`rounded-md px-3.5 py-2 whitespace-nowrap transition-colors ${
                   isActive
                     ? "bg-white text-portal-blue-600 shadow-sm"
                     : "hover:text-portal-ink"
@@ -187,7 +218,7 @@ export function MyListingsClient() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <label className="relative">
+          <label className="relative flex-1 sm:flex-none">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748B]" />
             <input
               value={query}
@@ -196,7 +227,7 @@ export function MyListingsClient() {
               className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 text-sm font-medium text-portal-ink outline-none focus:border-portal-blue-600 focus:ring-2 focus:ring-portal-blue-600/15 sm:w-64"
             />
           </label>
-          <select className="h-10 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-portal-ink outline-none focus:border-portal-blue-600 focus:ring-2 focus:ring-portal-blue-600/15">
+          <select className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm font-bold text-portal-ink outline-none focus:border-portal-blue-600 focus:ring-2 focus:ring-portal-blue-600/15">
             <option>Sort by: Most Recent</option>
             <option>Sort by: Most Viewed</option>
             <option>Sort by: Price</option>
@@ -204,7 +235,105 @@ export function MyListingsClient() {
         </div>
       </div>
 
-      <div className="min-w-0 overflow-hidden rounded-xl border border-portal-border bg-white shadow-sm">
+      {/* Mobile Listing Cards (visible on screens < 768px) */}
+      <div className="block space-y-4 md:hidden">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-portal-border bg-white p-8">
+            <Loader2 className="h-7 w-7 animate-spin text-portal-blue-600" />
+            <span className="mt-3 text-sm font-medium text-slate-400">Fetching listings…</span>
+          </div>
+        ) : listings.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-portal-border bg-white p-8 text-center">
+            <ClipboardList className="h-10 w-10 text-slate-300" />
+            <p className="mt-2 text-sm font-bold text-portal-ink">
+              {query ? "No results found" : "No listings yet"}
+            </p>
+          </div>
+        ) : (
+          listings.map((listing) => (
+            <div
+              key={listing.id}
+              className="rounded-xl border border-portal-border bg-white p-4 shadow-xs"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-portal-border bg-slate-100">
+                    <Image
+                      src={listing.iconSrc}
+                      alt=""
+                      width={22}
+                      height={22}
+                      aria-hidden="true"
+                    />
+                  </span>
+                  <div>
+                    <h3 className="font-bold text-portal-ink">{listing.name}</h3>
+                    <p className="text-xs text-slate-400">{listing.added}</p>
+                  </div>
+                </div>
+                <span
+                  className={`rounded-md px-2.5 py-1 text-xs font-bold ${TYPE_STYLES[listing.category]}`}
+                >
+                  {listing.category}
+                </span>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+                <div>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase">Price</p>
+                  <p className="text-sm font-black text-portal-ink">{listing.price}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase">Views / Leads</p>
+                  <p className="text-xs font-bold text-slate-700">
+                    {listing.views} views • {listing.leads} leads
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-slate-400 uppercase">Status</p>
+                  <span
+                    className={`inline-flex items-center gap-1.5 text-xs font-extrabold ${STATUS_STYLES[listing.status].split(" ")[0]}`}
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full ${STATUS_STYLES[listing.status].split(" ")[1]}`}
+                    />
+                    {listing.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingListing(listing)}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-portal-ink hover:bg-slate-50"
+                >
+                  <Edit className="h-3.5 w-3.5 text-portal-blue-600" />
+                  Edit
+                </button>
+                {listing.status === "Pending" && (
+                  <Link
+                    href={`/my-listings/submit/${listing.id}`}
+                    className="flex-1 text-center rounded-lg border border-portal-blue-600/30 bg-portal-blue-600/10 px-3 py-2 text-xs font-bold text-portal-blue-600"
+                  >
+                    Submit
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleDelete(listing.id)}
+                  className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 p-2 text-red-500 hover:bg-red-100"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table View (visible on screens >= 768px) */}
+      <div className="hidden min-w-0 overflow-hidden rounded-xl border border-portal-border bg-white shadow-sm md:block">
         <div className="w-full overflow-x-auto">
           <table className="w-full min-w-[1080px] table-fixed text-left text-sm">
             <colgroup>
@@ -316,7 +445,11 @@ export function MyListingsClient() {
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
                       <div className="flex items-center gap-2 whitespace-nowrap">
-                        <button className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-black text-portal-ink hover:bg-slate-50">
+                        <button
+                          type="button"
+                          onClick={() => setEditingListing(listing)}
+                          className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-black text-portal-ink hover:bg-slate-50"
+                        >
                           Edit
                         </button>
                         {listing.status === "Pending" && (
@@ -327,9 +460,6 @@ export function MyListingsClient() {
                             Submit
                           </Link>
                         )}
-                        <button className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-black text-portal-ink hover:bg-slate-50">
-                          Mark Sold
-                        </button>
                         <button type="button" onClick={() => handleDelete(listing.id)} className="rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-black text-red-500 hover:bg-red-100">
                           Delete
                         </button>

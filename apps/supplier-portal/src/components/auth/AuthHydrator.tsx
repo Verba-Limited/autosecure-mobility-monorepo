@@ -19,26 +19,40 @@ export function AuthHydrator() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { accessToken, hasHydrated } = useSupplierAuthStore();
 
   useEffect(() => {
-    console.log("[AUTH DEBUG] AuthHydrator useEffect running for pathname:", pathname);
     hydrateSupplierAuthStore();
+  }, []);
 
-    const { accessToken } = useSupplierAuthStore.getState();
+  useEffect(() => {
+    if (!hasHydrated) return;
 
-    console.log("[AUTH DEBUG] AuthHydrator status", {
+    const isAuthRoute = AUTH_ROUTES.has(pathname);
+
+    console.log("[AUTH DEBUG] AuthHydrator evaluated", {
       pathname,
       hasAccessToken: Boolean(accessToken),
-      isAuthRoute: AUTH_ROUTES.has(pathname),
+      hasHydrated,
+      isAuthRoute,
     });
 
-    if (accessToken && AUTH_ROUTES.has(pathname)) {
+    if (accessToken && isAuthRoute) {
       const next = searchParams.get("next");
       const target = next?.startsWith("/") ? next : "/";
-      console.log(`[AUTH DEBUG] AuthHydrator: User has token on auth route (${pathname}), replacing route with: ${target}`);
+      console.log(
+        `[AUTH DEBUG] User has token on auth route (${pathname}), replacing route with: ${target}`,
+      );
+      router.replace(target);
+    } else if (!accessToken && !isAuthRoute) {
+      const nextParam = pathname !== "/" ? `?next=${encodeURIComponent(pathname)}` : "";
+      const target = `/login${nextParam}`;
+      console.log(
+        `[AUTH DEBUG] User has no token on protected route (${pathname}), replacing route with: ${target}`,
+      );
       router.replace(target);
     }
-  }, [pathname, router, searchParams]);
+  }, [accessToken, hasHydrated, pathname, router, searchParams]);
 
   return null;
 }

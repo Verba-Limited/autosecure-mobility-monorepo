@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export interface Listing {
   name: string;
   emoji: string;
@@ -14,9 +16,9 @@ const TYPE_STYLES: Record<Listing["type"], string> = {
 };
 
 const STATUS_STYLES: Record<Listing["status"], string> = {
-  Active: "bg-brand-green-500",
-  Pending: "bg-gold-500",
-  Archived: "bg-slate-400",
+  Active: "bg-brand-green-500 text-emerald-600",
+  Pending: "bg-gold-500 text-amber-600",
+  Archived: "bg-slate-400 text-slate-500",
 };
 
 export function ListingsTable({
@@ -24,25 +26,67 @@ export function ListingsTable({
   listings,
   onViewAllHref,
 }: {
-  title: string;
+  title?: string;
   listings: Listing[];
   onViewAllHref?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-portal-border bg-white p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-base font-bold text-portal-ink">{title}</h2>
-        {onViewAllHref && (
-          <a
-            href={onViewAllHref}
-            className="text-sm font-semibold text-portal-blue-600 hover:underline"
+    <div className="rounded-2xl border border-portal-border bg-white p-4 sm:p-5 shadow-xs">
+      {(title || onViewAllHref) && (
+        <div className="mb-4 flex items-center justify-between">
+          {title ? (
+            <h2 className="text-base font-bold text-portal-ink">{title}</h2>
+          ) : (
+            <div />
+          )}
+          {onViewAllHref && (
+            <Link
+              href={onViewAllHref}
+              className="text-sm font-semibold text-portal-blue-600 hover:underline"
+            >
+              View All
+            </Link>
+          )}
+        </div>
+      )}
+
+      {/* Mobile Card View (screens < 768px) */}
+      <div className="block space-y-3 md:hidden">
+        {listings.map((listing, index) => (
+          <div
+            key={`${listing.name}-${index}`}
+            className="flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50/60 p-3.5"
           >
-            View All
-          </a>
-        )}
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-bold text-portal-ink text-xs truncate">
+                <span className="mr-1.5" aria-hidden>
+                  {listing.emoji}
+                </span>
+                {listing.name}
+              </span>
+              <span
+                className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold ${TYPE_STYLES[listing.type]}`}
+              >
+                {listing.type}
+              </span>
+            </div>
+            <div className="flex items-center justify-between pt-1 text-xs">
+              <span className="font-black text-portal-ink">{listing.price}</span>
+              <span className="text-slate-500 text-[11px]">{listing.views} views</span>
+              <span className="inline-flex items-center gap-1 font-bold text-[10px] text-emerald-600">
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${STATUS_STYLES[listing.status].split(" ")[0]}`}
+                />
+                {listing.status}
+              </span>
+            </div>
+          </div>
+        ))}
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-160 not-odd:text-left text-sm">
+
+      {/* Desktop Table View (screens >= 768px) */}
+      <div className="hidden overflow-x-auto md:block">
+        <table className="w-full text-left text-sm">
           <thead>
             <tr className="text-xs font-semibold tracking-wide text-slate-400">
               <th className="pb-3 font-semibold">VEHICLE / PART</th>
@@ -53,9 +97,9 @@ export function ListingsTable({
             </tr>
           </thead>
           <tbody>
-            {listings.map((listing) => (
-              <tr key={listing.name} className="border-t border-portal-border">
-                <td className="py-3.5 font-medium text-portal-ink text-[10px]">
+            {listings.map((listing, index) => (
+              <tr key={`${listing.name}-${index}`} className="border-t border-portal-border">
+                <td className="py-3.5 font-medium text-portal-ink text-xs">
                   <span className="mr-2" aria-hidden>
                     {listing.emoji}
                   </span>
@@ -63,21 +107,21 @@ export function ListingsTable({
                 </td>
                 <td className="py-3.5">
                   <span
-                    className={`rounded-md px-2 py-1 text-xs font-semibold text-[10px] ${TYPE_STYLES[listing.type]}`}
+                    className={`rounded-md px-2 py-1 text-[11px] font-bold ${TYPE_STYLES[listing.type]}`}
                   >
                     {listing.type}
                   </span>
                 </td>
-                <td className="py-3.5 text-portal-ink font-black text-[10px]">
+                <td className="py-3.5 font-black text-portal-ink text-xs">
                   {listing.price}
                 </td>
-                <td className="py-3.5 text-[#4B5675] text-[10px]">
+                <td className="py-3.5 text-[#4B5675] text-xs">
                   {listing.views}
                 </td>
                 <td className="py-3.5">
-                  <span className="flex items-center gap-1.5 font-bold text-[#059669] text-[9px]">
+                  <span className="flex items-center gap-1.5 text-xs font-bold text-[#059669]">
                     <span
-                      className={`h-1.5 w-1.5 rounded-full ${STATUS_STYLES[listing.status]}`}
+                      className={`h-1.5 w-1.5 rounded-full ${STATUS_STYLES[listing.status].split(" ")[0]}`}
                     />
                     {listing.status}
                   </span>

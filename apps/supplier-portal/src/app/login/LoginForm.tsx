@@ -36,7 +36,7 @@ export function LoginForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState(emailParam);
-  const [notice, setNotice] = useState<string | null>(noticeParam);
+  const notice = noticeParam;
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<AuthValidationErrors>({});
 

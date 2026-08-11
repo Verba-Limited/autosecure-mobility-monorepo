@@ -134,7 +134,9 @@ export function DashboardClient() {
     }
 
     loadDashboard();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const recentListings = useMemo(() => {
@@ -155,7 +157,8 @@ export function DashboardClient() {
     return {
       total,
       newCars: allMappedListings.filter((l) => l.category === "NEW CAR").length,
-      usedCars: allMappedListings.filter((l) => l.category === "USED CAR").length,
+      usedCars: allMappedListings.filter((l) => l.category === "USED CAR")
+        .length,
       parts: allMappedListings.filter((l) => l.category === "PART").length,
     };
   }, [allMappedListings, listingsPayload]);
@@ -178,13 +181,15 @@ export function DashboardClient() {
     ]) ?? 0;
 
   const displayName = profile?.businessName ?? "";
-  const greeting = displayName ? `Welcome back, ${displayName}` : "Welcome back";
+  const greeting = displayName
+    ? `Welcome back, ${displayName}`
+    : "Welcome back";
 
   return (
     <>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-black tracking-tight text-portal-ink">
+        <h1 className="text-2xl font-black tracking-tight text-portal-ink sm:text-3xl">
           {greeting}
         </h1>
         <p className="mt-1.5 flex items-center gap-2 text-sm text-[#7B8DB0]">
@@ -233,7 +238,7 @@ export function DashboardClient() {
         <h2 className="mb-3 text-base font-bold text-portal-ink">
           Quick Actions
         </h2>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <QuickActionCard
             label="List New Car"
             href="/list-new-car"

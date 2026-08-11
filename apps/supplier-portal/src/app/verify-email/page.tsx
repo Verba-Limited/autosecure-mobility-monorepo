@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AuthShell } from "@/components/auth/AuthShell";
 import {
@@ -21,20 +21,16 @@ const OTP_RESEND_SECONDS = 180;
 
 export default function VerifyEmailPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams?.get("email") ?? "";
+  const mode = searchParams?.get("mode") === "reset" ? "reset" : "signup";
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [resendSeconds, setResendSeconds] = useState(OTP_RESEND_SECONDS);
-  const [email, setEmail] = useState("");
-  const [mode, setMode] = useState<"signup" | "reset">("signup");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<AuthValidationErrors>({});
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setEmail(params.get("email") ?? "");
-    setMode(params.get("mode") === "reset" ? "reset" : "signup");
-  }, []);
 
   useEffect(() => {
     if (resendSeconds <= 0) {

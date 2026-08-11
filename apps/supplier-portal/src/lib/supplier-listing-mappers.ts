@@ -12,6 +12,8 @@ export type PortalListingRow = {
   leads: number;
   status: "Active" | "Pending" | "Archived";
   iconSrc: string;
+  condition?: string;
+  description?: string;
 };
 
 export function unwrapApiData(payload: unknown): unknown {
@@ -82,6 +84,8 @@ export function mapListingRow(item: unknown): PortalListingRow | null {
     views: getNumber(item.views),
     leads: getNumber(item.leads) || getNumber(item.inquiries),
     status: mapStatus(getString(item.status)),
+    condition: getString(item.condition),
+    description: getString(item.description),
     iconSrc:
       category === "PART"
         ? "/nav-icons/%F0%9F%94%A7.png"

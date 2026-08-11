@@ -1,7 +1,7 @@
 "use client";
 
-import { X, Upload, Film, Image as ImageIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { X, Film, Image as ImageIcon } from "lucide-react";
+import { useEffect, useMemo } from "react";
 
 interface MediaUploadProps {
   emoji?: string;
@@ -18,16 +18,15 @@ export function MediaUpload({
   files = [],
   onFilesChange,
 }: MediaUploadProps) {
-  const [previews, setPreviews] = useState<string[]>([]);
+  const previews = useMemo(() => {
+    return files.map((file) => URL.createObjectURL(file));
+  }, [files]);
 
   useEffect(() => {
-    const urls = files.map((file) => URL.createObjectURL(file));
-    setPreviews(urls);
-
     return () => {
-      urls.forEach((url) => URL.revokeObjectURL(url));
+      previews.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [files]);
+  }, [previews]);
 
   function handleFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
     if (!event.target.files) return;

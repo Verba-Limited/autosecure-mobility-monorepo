@@ -77,15 +77,36 @@ export function SubmitListingClient({ id }: { id: string }) {
       const errorObj = err as {
         payload?: { message?: unknown };
         message?: unknown;
+        status?: number;
       };
-      const msg = errorObj.payload?.message
+      const rawMsg = errorObj.payload?.message
         ? Array.isArray(errorObj.payload.message)
           ? errorObj.payload.message.join(", ")
           : String(errorObj.payload.message)
         : typeof errorObj.message === "string"
           ? errorObj.message
-          : "Failed to submit listing. Please try again.";
-      setErrorMessage(msg);
+          : "";
+
+      let formattedMsg = rawMsg;
+      const lower = rawMsg.toLowerCase();
+
+      if (
+        lower.includes("already") ||
+        lower.includes("pending") ||
+        lower.includes("submitted") ||
+        lower.includes("duplicate") ||
+        lower.includes("review") ||
+        errorObj.status === 409 ||
+        errorObj.status === 400
+      ) {
+        formattedMsg =
+          "This listing has already been submitted and is currently pending admin review. Our team is processing it, and you'll be notified once approved!";
+      } else if (!formattedMsg) {
+        formattedMsg =
+          "Failed to submit listing. Please try again or contact support if the issue persists.";
+      }
+
+      setErrorMessage(formattedMsg);
       setState("error");
     }
   }

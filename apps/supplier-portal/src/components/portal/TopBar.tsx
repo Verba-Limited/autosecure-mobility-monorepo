@@ -1,25 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Menu, ShieldCheck } from "lucide-react";
 import { LogoutButton } from "./LogoutButton";
 
 interface TopBarProps {
   supplierName?: string;
   supplierTier?: string;
+  onOpenMobileNav?: () => void;
 }
 
 export function TopBar({
   supplierName,
   supplierTier = "Supplier",
+  onOpenMobileNav,
 }: TopBarProps) {
   const isLoaded = Boolean(supplierName);
   const displayName = supplierName ?? "";
-  const initial = displayName.trim().charAt(0).toUpperCase();
+  const initial = displayName.trim().charAt(0).toUpperCase() || "S";
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 bg-portal-ink px-4 md:px-6">
       <div className="flex items-center gap-3">
+        {onOpenMobileNav && (
+          <button
+            type="button"
+            onClick={onOpenMobileNav}
+            className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/20 md:hidden"
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        )}
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white">
           <ShieldCheck
             className="h-4.5 w-4.5 text-portal-blue-600"
@@ -39,10 +51,10 @@ export function TopBar({
         </span>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2.5 sm:gap-4">
         <Link
           href="http://localhost:3001"
-          className="hidden items-center gap-1.5 text-sm text-white/60 hover:text-white sm:flex font-medium"
+          className="hidden items-center gap-1.5 text-sm font-medium text-white/60 hover:text-white sm:flex"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Site
@@ -72,9 +84,10 @@ export function TopBar({
           </div>
         </div>
 
-        {/* Sign-out button with label on md+ screens */}
+        {/* Sign-out button */}
         <LogoutButton />
       </div>
     </header>
   );
 }
+
