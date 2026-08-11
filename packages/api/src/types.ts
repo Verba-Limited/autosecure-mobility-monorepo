@@ -123,4 +123,5 @@ export type ConfigItemPayload = {
     | "DELIVERY_OPTION"
     | "PRICING_RULE";
   value: string;
+  metadata?: string;
 };

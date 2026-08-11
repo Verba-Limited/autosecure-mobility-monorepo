@@ -7,7 +7,7 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import {
   AuthButton,
   AuthField,
-  GoogleAuthButton,
+  // GoogleAuthButton,
   AuthNotice,
   PasswordField,
 } from "@/components/auth/AuthFormFields";
@@ -115,7 +115,7 @@ export function LoginForm() {
         <AuthButton disabled={isSubmitting}>
           {isSubmitting ? "Signing in..." : "Sign in"}
         </AuthButton>
-        <GoogleAuthButton />
+        {/* <GoogleAuthButton /> */}
         <p className="text-center text-sm font-semibold text-[#64748B]">
           New supplier?{" "}
           <Link href="/register" className="text-portal-blue-600">

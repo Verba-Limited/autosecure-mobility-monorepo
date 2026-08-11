@@ -61,18 +61,36 @@ async function withSupplierAuth<T>(
     }
 
     if (!refreshToken) {
-      console.warn("[AUTH DEBUG] withSupplierAuth: ApiError 401 received and no refreshToken exists.");
+      console.warn(
+        "[AUTH DEBUG] withSupplierAuth: ApiError 401 received and no refreshToken exists.",
+      );
       throw error;
     }
 
     try {
-      console.log("[AUTH DEBUG] withSupplierAuth: ApiError 401 received, attempting refresh token...");
+      console.log(
+        "[AUTH DEBUG] withSupplierAuth: ApiError 401 received, attempting refresh token...",
+      );
       const tokens = await authApi.refresh(refreshToken);
-      console.log("[AUTH DEBUG] withSupplierAuth: refresh successful! Setting new tokens.");
-      useSupplierAuthStore.getState().setTokens(tokens);
-      return await request(tokens.accessToken);
+      console.log(
+        "[AUTH DEBUG] withSupplierAuth: refresh successful! Setting new tokens.",
+      );
+      const authStore = useSupplierAuthStore.getState();
+      authStore.setTokens(tokens);
+      const refreshedAccessToken = useSupplierAuthStore.getState().accessToken;
+
+      if (!refreshedAccessToken) {
+        throw new Error(
+          "Supplier refresh response did not include an access token.",
+        );
+      }
+
+      return await request(refreshedAccessToken);
     } catch (refreshError) {
-      console.warn("[AUTH DEBUG] withSupplierAuth: refresh failed, rethrowing error without forcing page reload.", refreshError);
+      console.warn(
+        "[AUTH DEBUG] withSupplierAuth: refresh failed, rethrowing error without forcing page reload.",
+        refreshError,
+      );
       throw refreshError;
     }
   }
@@ -86,16 +104,24 @@ export const supplierPortalApi = {
     return withSupplierAuth((token) => supplierApi.getDashboard(token));
   },
   getListings(page = 1, limit = 10) {
-    return withSupplierAuth((token) => supplierApi.getListings(token, page, limit));
+    return withSupplierAuth((token) =>
+      supplierApi.getListings(token, page, limit),
+    );
   },
   createCarListing(payload: CreateCarListingPayload) {
-    return withSupplierAuth((token) => supplierApi.createCarListing(token, payload));
+    return withSupplierAuth((token) =>
+      supplierApi.createCarListing(token, payload),
+    );
   },
   createPartListing(payload: CreatePartListingPayload) {
-    return withSupplierAuth((token) => supplierApi.createPartListing(token, payload));
+    return withSupplierAuth((token) =>
+      supplierApi.createPartListing(token, payload),
+    );
   },
   updateListing(id: string, payload: unknown) {
-    return withSupplierAuth((token) => supplierApi.updateListing(token, id, payload));
+    return withSupplierAuth((token) =>
+      supplierApi.updateListing(token, id, payload),
+    );
   },
   deleteListing(id: string) {
     return withSupplierAuth((token) => supplierApi.deleteListing(token, id));

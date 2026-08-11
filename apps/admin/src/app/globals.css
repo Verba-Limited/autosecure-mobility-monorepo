@@ -1,0 +1,39 @@
+@import "tailwindcss";
+@import "@autosecure/config/tokens.css";
+
+@theme inline {
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+:root {
+  --admin-ink: #121826;
+  --admin-navy: #0c1834;
+  --admin-navy-soft: #152548;
+  --admin-gold: #e6b94f;
+  --admin-paper: #f5f7fa;
+  --admin-line: #e4e8ef;
+  --admin-muted: #78849a;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--admin-paper);
+  color: var(--admin-ink);
+  font-family: var(--font-body), sans-serif;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+::selection {
+  background: #e6b94f55;
+}

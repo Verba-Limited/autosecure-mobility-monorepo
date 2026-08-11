@@ -166,20 +166,6 @@ export function OtpField({ name, error }: { name: string; error?: string }) {
   );
 }
 
-export function GoogleAuthButton() {
-  return (
-    <button
-      type="button"
-      className="flex h-14 w-full items-center justify-center gap-5 rounded-2xl border border-slate-300 bg-white text-lg font-bold text-black shadow-[0_12px_24px_rgba(15,23,42,0.06)] transition hover:bg-slate-50"
-    >
-      <span className="text-3xl font-black text-[#4285F4]" aria-hidden="true">
-        G
-      </span>
-      Sign in with Google
-    </button>
-  );
-}
-
 export function PasswordRequirements({ password }: { password: string }) {
   const requirements = [
     ["At least 8 characters", password.length >= 8],
