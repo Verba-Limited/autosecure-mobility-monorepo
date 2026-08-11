@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
         <div className="absolute bottom-24 right-24 h-48 w-48 rounded-full border border-[var(--admin-gold)]/30" />
         <div className="relative">
           <p className="font-display text-xl font-bold tracking-tight">
-            autoSecure<span className="text-[var(--admin-gold)]">.</span>
+            autoSecure Mobility<span className="text-[var(--admin-gold)]">.</span>
           </p>
           <p className="mt-3 max-w-xs text-sm leading-6 text-slate-300">
             The operational layer for a cleaner, safer mobility marketplace.
