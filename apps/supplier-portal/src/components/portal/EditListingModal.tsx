@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Loader2, X } from "lucide-react";
 import type { PortalListingRow } from "@/lib/supplier-listing-mappers";
 import { supplierPortalApi } from "@/lib/supplier-api";
@@ -10,6 +10,120 @@ interface EditListingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSaved: (updatedListing: PortalListingRow) => void;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function parseNumericPrice(
+  value: string | number | undefined,
+): number | undefined {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : undefined;
+  }
+
+  if (!value) {
+    return undefined;
+  }
+
+  const cleaned = String(value).replace(/[^0-9.]/g, "");
+  if (!cleaned) {
+    return undefined;
+  }
+
+  const parsed = Number(cleaned);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function normalizeStatus(status: string): string {
+  if (status === "Active") return "APPROVED";
+  if (status === "Pending") return "PENDING_REVIEW";
+  if (status === "Archived") return "ARCHIVED";
+  return status.toUpperCase();
+}
+
+function normalizeCondition(condition: string): string {
+  const lower = condition.trim().toLowerCase();
+  if (lower.includes("new")) return "NEW";
+  if (lower.includes("used")) return "USED";
+  return condition.toUpperCase();
+}
+
+function mapCategoryToType(category: PortalListingRow["category"]): string {
+  if (category === "NEW CAR") return "BRAND_NEW_CAR";
+  if (category === "USED CAR") return "USED_CAR";
+  return "PART";
+}
+
+function getExistingPricing(
+  item: unknown,
+): Record<string, unknown> | undefined {
+  if (!isRecord(item)) return undefined;
+  const pricing = item.pricing;
+  return isRecord(pricing) ? pricing : undefined;
+}
+
+function pickAllowedFields(item: unknown, allowedKeys: string[]) {
+  if (!isRecord(item)) return {};
+  return Object.fromEntries(
+    Object.entries(item).filter(([key]) => allowedKeys.includes(key)),
+  );
+}
+
+function buildUpdatePayload(
+  rawItem: unknown,
+  title: string,
+  description: string,
+  status: string,
+  condition: string,
+  category: PortalListingRow["category"],
+  parsedPrice?: number,
+) {
+  const type = mapCategoryToType(category);
+  const existingPricing = getExistingPricing(rawItem);
+  const pricing =
+    parsedPrice !== undefined
+      ? { ...(existingPricing ?? {}), retail: parsedPrice }
+      : existingPricing;
+
+  const allowedFields = [
+    "dealBadges",
+    "brand",
+    "model",
+    "year",
+    "condition",
+    "transmission",
+    "fuelType",
+    "mileage",
+    "engineCapacity",
+    "horsepower",
+    "engineType",
+    "driveType",
+    "topSpeed",
+    "fuelEconomy",
+    "bodyType",
+    "inStock",
+    "color",
+    "seatingCapacity",
+    "keyFeatures",
+    "partName",
+    "partCategory",
+    "oemNumber",
+    "vehicleCompatibility",
+    "warranty",
+    "deliveryOptions",
+  ];
+
+  return {
+    title,
+    description,
+    status,
+    condition,
+    type,
+    ...pickAllowedFields(rawItem, allowedFields),
+    ...(pricing ? { pricing } : {}),
+  };
 }
 
 function EditListingForm({
@@ -30,27 +144,28 @@ function EditListingForm({
     listing.status || "Active",
   );
   const [condition, setCondition] = useState(
-    listing.condition || (listing.category === "NEW CAR" ? "Brand New" : "Used"),
+    listing.condition ||
+      (listing.category === "NEW CAR" ? "Brand New" : "Used"),
   );
   const [description, setDescription] = useState(listing.description || "");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setIsSaving(true);
     setError(null);
 
-    const updatePayload = {
-      title: name,
+    const parsedPrice = parseNumericPrice(price);
+    const updatePayload = buildUpdatePayload(
+      listing.rawItem,
       name,
-      category,
-      price: price.replace(/[^0-9.]/g, ""),
-      displayPrice: price,
-      status,
-      condition,
       description,
-    };
+      normalizeStatus(status),
+      normalizeCondition(condition),
+      category,
+      parsedPrice,
+    );
 
     try {
       await supplierPortalApi.updateListing(listing.id, updatePayload);
@@ -64,17 +179,20 @@ function EditListingForm({
         description,
       });
       onClose();
-    } catch {
-      onSaved({
-        ...listing,
-        name,
-        category,
-        price,
-        status,
-        condition,
-        description,
-      });
-      onClose();
+    } catch (err: unknown) {
+      console.error("[EDIT LISTING ERROR]", err);
+      const errorObj = err as {
+        message?: unknown;
+        payload?: { message?: unknown };
+      };
+      const msg = errorObj.payload?.message
+        ? Array.isArray(errorObj.payload.message)
+          ? errorObj.payload.message.join(", ")
+          : String(errorObj.payload.message)
+        : typeof errorObj.message === "string"
+          ? errorObj.message
+          : "Failed to save listing. Please check the inputs and try again.";
+      setError(msg);
     } finally {
       setIsSaving(false);
     }
@@ -94,7 +212,9 @@ function EditListingForm({
         <div className="flex items-center justify-between border-b border-portal-border pb-4">
           <div>
             <h2 className="text-xl font-bold text-portal-ink">Edit Listing</h2>
-            <p className="text-xs text-slate-500">Update vehicle or part details</p>
+            <p className="text-xs text-slate-500">
+              Update vehicle or part details
+            </p>
           </div>
           <button
             type="button"

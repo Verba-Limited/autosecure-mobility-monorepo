@@ -33,41 +33,40 @@ function formatNaira(value?: number) {
 
 function CheckoutProgress({ currentStep }: { currentStep: CheckoutStep }) {
   return (
-    <div className="grid grid-cols-[auto_1fr_auto_1fr_auto_1fr_auto] items-start gap-x-4">
-      {stepLabels.map((label, index) => {
-        const step = (index + 1) as CheckoutStep;
-        const isDone = step < currentStep;
-        const isActive = step === currentStep;
-        const dotClassName =
-          isDone || (isActive && currentStep === 4)
-            ? "bg-[#009C78] text-white shadow-[0_6px_14px_rgba(0,156,120,0.25)]"
-            : isActive
-              ? "bg-[#1787FF] text-white shadow-[0_6px_14px_rgba(23,135,255,0.25)]"
-              : "bg-[#94A0B3] text-white";
+    <div className="-mx-4 overflow-x-auto px-4 sm:-mx-0 sm:px-0">
+      <div className="min-w-[680px] grid grid-cols-[auto_1fr_auto_1fr_auto_1fr_auto] items-start gap-x-4 sm:min-w-full">
+        {stepLabels.map((label, index) => {
+          const step = (index + 1) as CheckoutStep;
+          const isDone = step < currentStep;
+          const isActive = step === currentStep;
+          const dotClassName =
+            isDone || (isActive && currentStep === 4)
+              ? "bg-[#009C78] text-white shadow-[0_6px_14px_rgba(0,156,120,0.25)]"
+              : isActive
+                ? "bg-[#1787FF] text-white shadow-[0_6px_14px_rgba(23,135,255,0.25)]"
+                : "bg-[#94A0B3] text-white";
 
-        return (
-          <div
-            key={label}
-            className={index === 0 ? "contents" : "contents"}
-          >
-            {index > 0 && (
-              <div className="mt-[18px] h-2 rounded-full bg-[#A7BDF0]" />
-            )}
-            <div className="flex min-w-[104px] flex-col items-center gap-3 text-center">
-              <span
-                className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-black ${dotClassName}`}
-              >
-                {step}
-              </span>
-              <span
-                className={`text-[15px] font-black leading-tight ${step <= currentStep ? "text-[#071225]" : "text-[#94A0B3]"}`}
-              >
-                {label}
-              </span>
+          return (
+            <div key={label} className={index === 0 ? "contents" : "contents"}>
+              {index > 0 && (
+                <div className="mt-[18px] h-2 rounded-full bg-[#A7BDF0]" />
+              )}
+              <div className="flex min-w-[104px] flex-col items-center gap-3 text-center">
+                <span
+                  className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-black ${dotClassName}`}
+                >
+                  {step}
+                </span>
+                <span
+                  className={`text-[15px] font-black leading-tight ${step <= currentStep ? "text-[#071225]" : "text-[#94A0B3]"}`}
+                >
+                  {label}
+                </span>
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -130,13 +129,7 @@ function OptionRow({
   );
 }
 
-function CheckoutBody({
-  step,
-  car,
-}: {
-  step: CheckoutStep;
-  car: Car;
-}) {
+function CheckoutBody({ step, car }: { step: CheckoutStep; car: Car }) {
   if (step === 1) {
     return (
       <div className="grid gap-6 sm:grid-cols-2">
@@ -153,9 +146,24 @@ function CheckoutBody({
   if (step === 2) {
     return (
       <div className="space-y-6">
-        <OptionRow letter="P" title="Pick Up" description="Pickup at our showroom" amount="Free" />
-        <OptionRow letter="H" title="Home Delivery" description="We Deliver to your address" amount={formatNaira(car.price)} />
-        <OptionRow letter="E" title="Express Delivery" description="Next day Delivery" amount={formatNaira(car.price)} />
+        <OptionRow
+          letter="P"
+          title="Pick Up"
+          description="Pickup at our showroom"
+          amount="Free"
+        />
+        <OptionRow
+          letter="H"
+          title="Home Delivery"
+          description="We Deliver to your address"
+          amount={formatNaira(car.price)}
+        />
+        <OptionRow
+          letter="E"
+          title="Express Delivery"
+          description="Next day Delivery"
+          amount={formatNaira(car.price)}
+        />
       </div>
     );
   }
@@ -163,25 +171,29 @@ function CheckoutBody({
   if (step === 3) {
     return (
       <div className="space-y-7">
-        <OptionRow letter="B" title="Bank Transfer" description="Make Payment at our official Bank" />
-        <OptionRow letter="D" title="Debit/ Credit Card" description="Pay securely with your card" />
+        <OptionRow
+          letter="B"
+          title="Bank Transfer"
+          description="Make Payment at our official Bank"
+        />
+        <OptionRow
+          letter="D"
+          title="Debit/ Credit Card"
+          description="Pay securely with your card"
+        />
       </div>
     );
   }
 
   return (
     <div>
-      <h2 className="mb-7 text-2xl font-black text-[#071225]">
-        Order Summary
-      </h2>
+      <h2 className="mb-7 text-2xl font-black text-[#071225]">Order Summary</h2>
       <div className="mb-8 flex items-center gap-5">
         <div className="relative h-[70px] w-[120px] overflow-hidden rounded-[8px] bg-[#EEF3F8]">
           <Image src={galleryImages[1]} alt="" fill className="object-cover" />
         </div>
         <div>
-          <h3 className="text-[17px] font-black text-[#071225]">
-            {car.model}
-          </h3>
+          <h3 className="text-[17px] font-black text-[#071225]">{car.model}</h3>
           <p className="mt-2 text-xs font-black text-[#94A0B3]">
             Outright Purchase
           </p>
@@ -280,7 +292,7 @@ export function VehicleDetailsView({ car }: { car: Car }) {
               priority
             />
           </div>
-          <div className="mt-2 grid grid-cols-5 gap-2">
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-5">
             {galleryImages.map((image) => (
               <div
                 key={image}
@@ -341,8 +353,7 @@ export function VehicleDetailsView({ car }: { car: Car }) {
             {car.model}
           </h1>
           <p className="mt-7 text-[13px] font-black text-[#071225]">
-            4.9{" "}
-            <span className="text-[#9AA6BA]">(20 reviews)</span>
+            4.9 <span className="text-[#9AA6BA]">(20 reviews)</span>
           </p>
           <div className="mt-8 flex items-end gap-3">
             <p className="text-[36px] font-black leading-none tracking-[-0.045em] text-[#071225]">
@@ -353,7 +364,7 @@ export function VehicleDetailsView({ car }: { car: Car }) {
             </p>
           </div>
 
-          <div className="mt-9 grid max-w-[420px] grid-cols-3 border-y border-[#E6EDF6] py-4 text-center">
+          <div className="mt-9 grid w-full grid-cols-2 gap-2 border-y border-[#E6EDF6] py-4 text-center sm:grid-cols-3">
             {car.specs.map((spec, index) => (
               <div
                 key={spec.label}
@@ -381,7 +392,9 @@ export function VehicleDetailsView({ car }: { car: Car }) {
               type="button"
               onClick={() => {
                 if (!getCustomerEmail()) {
-                  router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+                  router.push(
+                    `/login?next=${encodeURIComponent(window.location.pathname)}`,
+                  );
                   return;
                 }
                 window.open(

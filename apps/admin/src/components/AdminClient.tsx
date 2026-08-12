@@ -50,15 +50,42 @@ function items(value: unknown): RecordValue[] {
     if (Array.isArray(item[key])) return (item[key] as unknown[]).map(record);
   return [];
 }
-function text(value: unknown, fallback = "-") {
-  return value === null || value === undefined || value === ""
-    ? fallback
-    : String(value);
+function isRecord(value: unknown): value is RecordValue {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
-function number(value: unknown) {
-  return typeof value === "number" ? value : Number(value) || 0;
+function text(value: unknown, fallback = "-"): string {
+  if (value === null || value === undefined || value === "") return fallback;
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const result = text(item, fallback);
+      if (result !== fallback) return result;
+    }
+    return fallback;
+  }
+
+  if (isRecord(value)) {
+    for (const key of [
+      "name",
+      "title",
+      "companyName",
+      "businessName",
+      "contactPerson",
+      "email",
+      "contactEmail",
+      "value",
+      "label",
+    ]) {
+      if (typeof value[key] === "string" && value[key] !== "") {
+        return value[key];
+      }
+    }
+    return fallback;
+  }
+
+  return String(value);
 }
-function date(value: unknown) {
+function date(value: unknown): string {
   if (!value) return "-";
   const parsed = new Date(String(value));
   return Number.isNaN(parsed.getTime())
@@ -68,6 +95,11 @@ function date(value: unknown) {
         day: "numeric",
         year: "numeric",
       });
+}
+function number(value: unknown): number {
+  if (typeof value === "number") return value;
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
 }
 function pick(item: RecordValue, keys: string[], fallback = "-") {
   for (const key of keys)
@@ -166,7 +198,8 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
   const [configType, setConfigType] = useState<ConfigType>("VEHICLE_BRAND");
   const [configValue, setConfigValue] = useState("");
   const [messagesPayload, setMessagesPayload] = useState<unknown>(null);
-  const [messagesStatsPayload, setMessagesStatsPayload] = useState<unknown>(null);
+  const [messagesStatsPayload, setMessagesStatsPayload] =
+    useState<unknown>(null);
   const [messageQuery, setMessageQuery] = useState("");
   const [selectedMessage, setSelectedMessage] = useState<unknown | null>(null);
   const [actionKey, setActionKey] = useState<string | null>(null);
@@ -244,13 +277,17 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
       items(messagesPayload).filter(
         (item) =>
           !messageQuery ||
-          JSON.stringify(item).toLowerCase().includes(messageQuery.toLowerCase()),
+          JSON.stringify(item)
+            .toLowerCase()
+            .includes(messageQuery.toLowerCase()),
       ),
     [messagesPayload, messageQuery],
   );
   const messagesStats = record(unwrap(messagesStatsPayload));
   const selectedDoc: RecordValue | null = selectedMessage
-    ? record(record(unwrap(selectedMessage))._doc ?? record(unwrap(selectedMessage)))
+    ? record(
+        record(unwrap(selectedMessage))._doc ?? record(unwrap(selectedMessage)),
+      )
     : null;
   const configs = items(configPayload);
   const dashboardNumber = (keys: string[]) => {
@@ -458,7 +495,12 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
               }}
               onStatus={(id, status) =>
                 runAction(
-                  () => adminApi.updateContactMessageStatus(accessToken, id, status),
+                  () =>
+                    adminApi.updateContactMessageStatus(
+                      accessToken,
+                      id,
+                      status,
+                    ),
                   `Message marked ${status.toLowerCase()}.`,
                   `message:${id}`,
                 )
@@ -549,14 +591,20 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
           </div>
         </div>
       )}
-      {selectedMessage && selectedDoc && (
+      {selectedMessage && selectedDoc ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--admin-navy)]/60 p-5">
           <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--admin-muted)]">Message detail</p>
-                <h2 className="mt-2 font-display text-xl font-bold">{pick(selectedDoc, ["subject"], "Message")}</h2>
-                <p className="mt-1 text-xs text-[var(--admin-muted)]">From {pick(selectedDoc, ["name", "email"], "Unknown")}</p>
+                <p className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--admin-muted)]">
+                  Message detail
+                </p>
+                <h2 className="mt-2 font-display text-xl font-bold">
+                  {pick(selectedDoc, ["subject"], "Message")}
+                </h2>
+                <p className="mt-1 text-xs text-[var(--admin-muted)]">
+                  From {pick(selectedDoc, ["name", "email"], "Unknown")}
+                </p>
               </div>
               <div className="flex items-center gap-3">
                 <StatusPill value={pick(selectedDoc, ["status"], "NEW")} />
@@ -575,34 +623,52 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
                   onClick={() => {
                     const id = String(selectedDoc._id ?? "");
                     void runAction(
-                      () => adminApi.updateContactMessageStatus(accessToken, id, "IN_PROGRESS"),
+                      () =>
+                        adminApi.updateContactMessageStatus(
+                          accessToken,
+                          id,
+                          "IN_PROGRESS",
+                        ),
                       "Message marked in progress.",
                       `message:${id}`,
                     );
                   }}
                   className="rounded-lg px-4 py-2 text-sm font-bold bg-amber-50 text-amber-700"
                 >
-                  {actionKey === `message:${selectedDoc._id}` ? <Loader2 className="h-4 w-4 animate-spin" /> : "Mark in progress"}
+                  {actionKey === `message:${selectedDoc._id}` ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Mark in progress"
+                  )}
                 </button>
                 <button
                   disabled={actionKey === `message:${selectedDoc._id}`}
                   onClick={() => {
                     const id = String(selectedDoc._id ?? "");
                     void runAction(
-                      () => adminApi.updateContactMessageStatus(accessToken, id, "RESOLVED"),
+                      () =>
+                        adminApi.updateContactMessageStatus(
+                          accessToken,
+                          id,
+                          "RESOLVED",
+                        ),
                       "Message marked resolved.",
                       `message:${id}`,
                     );
                   }}
                   className="rounded-lg px-4 py-2 text-sm font-bold bg-emerald-50 text-emerald-700"
                 >
-                  {actionKey === `message:${selectedDoc._id}` ? <Loader2 className="h-4 w-4 animate-spin" /> : "Mark resolved"}
+                  {actionKey === `message:${selectedDoc._id}` ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Mark resolved"
+                  )}
                 </button>
               </div>
             </div>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
@@ -1025,15 +1091,21 @@ function MessagesReview({
         <div className="hidden items-center gap-3 sm:flex">
           <div className="rounded-2xl border border-[var(--admin-line)] bg-white p-3 text-sm">
             <div className="text-xs text-[var(--admin-muted)]">New</div>
-            <div className="font-display text-lg font-bold">{String(stats.new ?? 0)}</div>
+            <div className="font-display text-lg font-bold">
+              {String(stats.new ?? 0)}
+            </div>
           </div>
           <div className="rounded-2xl border border-[var(--admin-line)] bg-white p-3 text-sm">
             <div className="text-xs text-[var(--admin-muted)]">In progress</div>
-            <div className="font-display text-lg font-bold">{String(stats.inProgress ?? 0)}</div>
+            <div className="font-display text-lg font-bold">
+              {String(stats.inProgress ?? 0)}
+            </div>
           </div>
           <div className="rounded-2xl border border-[var(--admin-line)] bg-white p-3 text-sm">
             <div className="text-xs text-[var(--admin-muted)]">Resolved</div>
-            <div className="font-display text-lg font-bold">{String(stats.resolved ?? 0)}</div>
+            <div className="font-display text-lg font-bold">
+              {String(stats.resolved ?? 0)}
+            </div>
           </div>
         </div>
       </div>
@@ -1047,28 +1119,49 @@ function MessagesReview({
               <span className="text-right">Manage</span>
             </div>
             {messages.map((item, index) => (
-              <div key={itemIdFor(item, index)} className="grid grid-cols-[2fr_1fr_0.8fr_0.8fr] items-center border-b border-[var(--admin-line)] px-5 py-4 last:border-0">
+              <div
+                key={itemIdFor(item, index)}
+                className="grid grid-cols-[2fr_1fr_0.8fr_0.8fr] items-center border-b border-[var(--admin-line)] px-5 py-4 last:border-0"
+              >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-bold">{pick(item, ["subject"], "No subject")}</p>
-                  <p className="mt-1 truncate text-xs text-[var(--admin-muted)]">{pick(item, ["message"], "")}</p>
+                  <p className="truncate text-sm font-bold">
+                    {pick(item, ["subject"], "No subject")}
+                  </p>
+                  <p className="mt-1 truncate text-xs text-[var(--admin-muted)]">
+                    {pick(item, ["message"], "")}
+                  </p>
                 </div>
-                <p className="truncate text-sm text-slate-600">{pick(item, ["name", "email"], "Unknown")}</p>
+                <p className="truncate text-sm text-slate-600">
+                  {pick(item, ["name", "email"], "Unknown")}
+                </p>
                 <p className="text-xs text-slate-500">{date(item.createdAt)}</p>
                 <div className="flex justify-end gap-2">
                   <StatusPill value={pick(item, ["status"], "NEW")} />
                   <button
-                    disabled={actionKey === `message:view:${itemId(item)}`}
-                    onClick={() => onView(itemId(item))}
+                    disabled={
+                      actionKey === `message:view:${itemIdFor(item, index)}`
+                    }
+                    onClick={() => onView(itemIdFor(item, index))}
                     className="rounded-lg px-3 py-2 text-xs font-bold bg-white border border-[var(--admin-line)]"
                   >
-                    {actionKey === `message:view:${itemId(item)}` ? <Loader2 className="h-4 w-4 animate-spin" /> : "View"}
+                    {actionKey === `message:view:${itemIdFor(item, index)}` ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "View"
+                    )}
                   </button>
                   <button
-                    disabled={actionKey === `message:${itemId(item)}`}
-                    onClick={() => onStatus(itemId(item), "IN_PROGRESS")}
+                    disabled={actionKey === `message:${itemIdFor(item, index)}`}
+                    onClick={() =>
+                      onStatus(itemIdFor(item, index), "IN_PROGRESS")
+                    }
                     className="rounded-lg px-3 py-2 text-xs font-bold bg-amber-50 text-amber-700 hover:bg-amber-100"
                   >
-                    {actionKey === `message:${itemId(item)}` ? <Loader2 className="h-4 w-4 animate-spin" /> : "Triage"}
+                    {actionKey === `message:${itemIdFor(item, index)}` ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Triage"
+                    )}
                   </button>
                 </div>
               </div>

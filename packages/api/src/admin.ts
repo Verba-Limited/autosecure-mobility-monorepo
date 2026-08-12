@@ -97,9 +97,12 @@ export function createAdminApi(client: ApiClient) {
 
     // Contact messages
     getContactMessages(accessToken: string, page = 1, limit = 10) {
-      return client.request(`/admin/contact-messages?page=${page}&limit=${limit}`, {
-        accessToken,
-      });
+      return client.request(
+        `/admin/contact-messages?page=${page}&limit=${limit}`,
+        {
+          accessToken,
+        },
+      );
     },
 
     getContactMessagesStats(accessToken: string) {
@@ -110,7 +113,11 @@ export function createAdminApi(client: ApiClient) {
       return client.request(`/admin/contact-messages/${id}`, { accessToken });
     },
 
-    updateContactMessageStatus(accessToken: string, id: string, status: string) {
+    updateContactMessageStatus(
+      accessToken: string,
+      id: string,
+      status: string,
+    ) {
       return client.request(`/admin/contact-messages/${id}/status`, {
         method: "PATCH",
         accessToken,

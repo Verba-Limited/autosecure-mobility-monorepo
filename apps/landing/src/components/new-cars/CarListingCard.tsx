@@ -64,7 +64,7 @@ export function CarListingCard({ car }: { car: Car }) {
         id={car.id}
         className="overflow-hidden rounded-[18px] border border-[#DDE6F2] bg-white shadow-[0_10px_30px_rgba(15,27,61,0.04)]"
       >
-        <div className="relative h-[198px] overflow-hidden bg-[#EEF3F8]">
+        <div className="relative aspect-[16/10] overflow-hidden bg-[#EEF3F8]">
           <Image
             src={car.image}
             alt={car.imageLabel}

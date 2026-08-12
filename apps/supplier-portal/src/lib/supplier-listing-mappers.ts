@@ -14,6 +14,7 @@ export type PortalListingRow = {
   iconSrc: string;
   condition?: string;
   description?: string;
+  rawItem: unknown;
 };
 
 export function unwrapApiData(payload: unknown): unknown {
@@ -46,7 +47,6 @@ export function getApiItems(payload: unknown): unknown[] {
   return [];
 }
 
-
 export function getApiTotalItems(payload: unknown) {
   const data = unwrapApiData(payload);
 
@@ -72,7 +72,8 @@ export function mapListingRow(item: unknown): PortalListingRow | null {
   }
 
   const type = getString(item.type);
-  const title = getString(item.title) || getString(item.name) || "Untitled listing";
+  const title =
+    getString(item.title) || getString(item.name) || "Untitled listing";
   const category = mapListingType(type);
 
   return {
@@ -90,6 +91,7 @@ export function mapListingRow(item: unknown): PortalListingRow | null {
       category === "PART"
         ? "/nav-icons/%F0%9F%94%A7.png"
         : "/nav-icons/%F0%9F%9A%97.png",
+    rawItem: item,
   };
 }
 
@@ -185,7 +187,9 @@ function readPrice(item: UnknownRecord) {
   }
 
   if (isRecord(item.pricing)) {
-    return getNumber(item.pricing.promotional) || getNumber(item.pricing.retail);
+    return (
+      getNumber(item.pricing.promotional) || getNumber(item.pricing.retail)
+    );
   }
 
   return 0;

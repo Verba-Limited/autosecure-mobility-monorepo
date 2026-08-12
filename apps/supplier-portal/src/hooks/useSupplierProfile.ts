@@ -14,19 +14,22 @@ import { supplierPortalApi } from "@/lib/supplier-api";
 export type SupplierProfile = {
   businessName: string;
   tier: string;
+  raw: Record<string, unknown>;
 };
 
 function extractProfile(raw: unknown): SupplierProfile {
   if (!raw || typeof raw !== "object") {
-    return { businessName: "", tier: "Supplier" };
+    return { businessName: "", tier: "Supplier", raw: {} };
   }
 
   const r = raw as Record<string, unknown>;
 
   // The API can return the profile nested under `data`
-  const obj = (r.data && typeof r.data === "object"
-    ? (r.data as Record<string, unknown>)
-    : r) as Record<string, unknown>;
+  const obj = (
+    r.data && typeof r.data === "object"
+      ? (r.data as Record<string, unknown>)
+      : r
+  ) as Record<string, unknown>;
 
   const businessName =
     (obj.businessName as string) ??
@@ -40,7 +43,7 @@ function extractProfile(raw: unknown): SupplierProfile {
     (obj.subscriptionPlan as string) ??
     "Supplier";
 
-  return { businessName, tier };
+  return { businessName, tier, raw: obj };
 }
 
 export function useSupplierProfile() {
@@ -65,7 +68,9 @@ export function useSupplierProfile() {
     }
 
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return { profile, isLoading };

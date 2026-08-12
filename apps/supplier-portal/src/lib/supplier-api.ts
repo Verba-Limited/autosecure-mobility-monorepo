@@ -100,6 +100,15 @@ export const supplierPortalApi = {
   getProfile() {
     return withSupplierAuth((token) => supplierApi.getProfile(token));
   },
+  updateProfile(payload: {
+    firstName: string;
+    lastName: string;
+    companyName: string;
+  }) {
+    return withSupplierAuth((token) =>
+      supplierApi.updateProfile(token, payload),
+    );
+  },
   getDashboard() {
     return withSupplierAuth((token) => supplierApi.getDashboard(token));
   },

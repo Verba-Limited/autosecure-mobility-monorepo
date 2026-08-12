@@ -140,8 +140,8 @@ export default function UsedCarDetailPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-[#F6FFFD] px-6 pb-28 pt-14 lg:px-16">
-        <div className="mx-auto max-w-[1210px]">
+      <main className="min-h-screen overflow-x-hidden bg-[#F6FFFD] px-6 pb-20 pt-12 lg:px-16">
+        <div className="mx-auto w-full max-w-[1210px]">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-[13px] font-black text-[#8CA0C0]">
             <Link href="/" className="hover:text-navy-900/70">
@@ -168,10 +168,10 @@ export default function UsedCarDetailPage() {
           </Link>
 
           {loading ? (
-            <div className="mt-8 grid gap-10 lg:grid-cols-2">
-              <SkeletonBlock className="h-[380px]" />
-              <div className="space-y-4">
-                <SkeletonBlock className="h-8 w-3/4" />
+            <div className="mt-8 grid gap-8 lg:grid-cols-2">
+              <SkeletonBlock className="h-[200px] min-w-full sm:h-[220px]" />
+              <div className="space-y-4 min-w-0">
+                <SkeletonBlock className="h-8 w-full max-w-lg" />
                 <SkeletonBlock className="h-5 w-1/2" />
                 <SkeletonBlock className="h-24 w-full" />
                 <SkeletonBlock className="h-10 w-1/3" />
@@ -194,11 +194,11 @@ export default function UsedCarDetailPage() {
               </Link>
             </div>
           ) : (
-            <div className="mt-8 grid gap-10 lg:grid-cols-2">
+            <div className="mt-8 grid gap-10 lg:grid-cols-2 items-start">
               {/* Image */}
-              <div className="overflow-hidden rounded-2xl bg-[#EEF3F8]">
+              <div className="overflow-hidden rounded-2xl">
                 {image ? (
-                  <div className="relative h-[380px]">
+                  <div className="relative aspect-[1.9/1] max-h-[320px] w-full overflow-hidden sm:max-h-[340px]">
                     <Image
                       src={image}
                       alt={title}
@@ -208,14 +208,14 @@ export default function UsedCarDetailPage() {
                     />
                   </div>
                 ) : (
-                  <div className="flex h-[380px] items-center justify-center text-[#8CA0C0]">
+                  <div className="flex aspect-[1.9/1] items-center justify-center text-[#8CA0C0]">
                     No image available
                   </div>
                 )}
               </div>
 
               {/* Details */}
-              <div>
+              <div className="min-w-0">
                 <p className="text-[13px] font-black uppercase tracking-wide text-[#8CA0C0]">
                   {vehicle.brand}
                   {vehicle.year ? ` · ${vehicle.year}` : ""}
