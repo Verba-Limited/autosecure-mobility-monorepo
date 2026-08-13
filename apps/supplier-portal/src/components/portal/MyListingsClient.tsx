@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ClipboardList, Edit, Loader2, Plus, Search, Trash2, Eye, ChevronUp } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { supplierPortalApi } from "@/lib/supplier-api";
@@ -42,10 +43,13 @@ interface ListingIdentity {
 }
 
 export function MyListingsClient() {
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get("tab") as TabKey) || "all";
+
   const [payload, setPayload] = useState<unknown>(null);
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("recent");
-  const [activeTab, setActiveTab] = useState<TabKey>("all");
+  const [activeTab, setActiveTab] = useState<TabKey>(initialTab);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState<number | null>(null);
 

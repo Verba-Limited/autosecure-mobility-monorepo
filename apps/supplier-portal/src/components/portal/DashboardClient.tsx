@@ -280,21 +280,21 @@ export function DashboardClient() {
             label="Brand New Cars"
             count={inventoryBreakdown.newCars}
             colorClass="text-portal-blue-600"
-            href="/my-listings"
+            href="/my-listings?tab=newCars"
             isLoading={isLoading}
           />
           <InventoryBreakdownCard
             label="Used Cars"
             count={inventoryBreakdown.usedCars}
             colorClass="text-brand-green-600"
-            href="/my-listings"
+            href="/my-listings?tab=usedCars"
             isLoading={isLoading}
           />
           <InventoryBreakdownCard
             label="Parts"
             count={inventoryBreakdown.parts}
             colorClass="text-gold-600"
-            href="/my-listings"
+            href="/my-listings?tab=parts"
             isLoading={isLoading}
           />
         </div>
