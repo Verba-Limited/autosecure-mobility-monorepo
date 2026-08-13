@@ -70,6 +70,18 @@ export function LoginForm() {
         "[AUTH DEBUG] RAW tokens returned from authApi.login:",
         JSON.stringify(tokens),
       );
+
+      // Check role from JWT — only SUPPLIER can access this portal
+      const role = extractRoleFromTokens(tokens);
+      console.log("[AUTH DEBUG] Extracted role:", role);
+
+      if (role && role !== "SUPPLIER") {
+        setError(
+          "Access denied. This portal is for suppliers only. Please use the customer portal to sign in.",
+        );
+        return;
+      }
+
       saveSupplierTokens(tokens);
       const next = new URLSearchParams(window.location.search).get("next");
       const targetUrl = next && next.startsWith("/") ? next : "/";
@@ -159,4 +171,31 @@ function LoginErrorNotice({
 
 function isVerifyEmailError(message: string) {
   return message.toLowerCase().includes("verify your email");
+}
+
+function extractRoleFromTokens(tokens: unknown): string | null {
+  if (!tokens || typeof tokens !== "object") return null;
+
+  const record = tokens as Record<string, unknown>;
+  const accessToken =
+    record.accessToken ??
+    record.access_token ??
+    record.token ??
+    (typeof record.data === "object" && record.data !== null
+      ? (record.data as Record<string, unknown>).accessToken ??
+        (record.data as Record<string, unknown>).access_token ??
+        (record.data as Record<string, unknown>).token
+      : null);
+
+  if (typeof accessToken !== "string") return null;
+
+  try {
+    const parts = accessToken.split(".");
+    if (parts.length < 2) return null;
+
+    const payload = JSON.parse(atob(parts[1]));
+    return payload.role ?? payload.userRole ?? payload.user_role ?? null;
+  } catch {
+    return null;
+  }
 }
