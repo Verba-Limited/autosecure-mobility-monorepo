@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { AuthShell } from "@/components/auth/AuthShell";
 import {
@@ -21,19 +21,10 @@ import {
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [email, setEmail] = useState(() => {
-    if (typeof window !== "undefined") {
-      return new URLSearchParams(window.location.search).get("email") ?? "";
-    }
-    return "";
-  });
-  const [otp] = useState(() => {
-    if (typeof window !== "undefined") {
-      return new URLSearchParams(window.location.search).get("otp") ?? "";
-    }
-    return "";
-  });
+  const email = searchParams?.get("email") ?? "";
+  const otp = searchParams?.get("otp") ?? "";
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<AuthValidationErrors>({});
@@ -61,6 +52,12 @@ export default function ResetPasswordPage() {
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
+      // Surface hidden field errors (email/otp) as a visible error message
+      if (errors.email || errors.otp) {
+        setError(
+          errors.email || errors.otp || "Missing required verification data. Please restart the password reset flow.",
+        );
+      }
       return;
     }
 
@@ -83,12 +80,7 @@ export default function ResetPasswordPage() {
     >
       <form className="space-y-6" onSubmit={handleSubmit}>
         <AuthNotice message={error} tone="error" />
-        <input
-          name="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          type="hidden"
-        />
+        <input name="email" value={email} type="hidden" readOnly />
         <input name="otp" value={otp} type="hidden" readOnly />
         <PasswordField
           label="New Password"

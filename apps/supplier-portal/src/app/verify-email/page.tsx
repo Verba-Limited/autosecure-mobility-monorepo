@@ -17,7 +17,7 @@ import {
   type AuthValidationErrors,
 } from "@/lib/auth-validation";
 
-const OTP_RESEND_SECONDS = 180;
+const OTP_RESEND_SECONDS = 60;
 
 export default function VerifyEmailPage() {
   const router = useRouter();
