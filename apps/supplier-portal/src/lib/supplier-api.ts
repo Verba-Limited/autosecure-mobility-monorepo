@@ -109,6 +109,9 @@ export const supplierPortalApi = {
       supplierApi.updateProfile(token, payload),
     );
   },
+  uploadAvatar(formData: FormData) {
+    return withSupplierAuth((token) => supplierApi.uploadAvatar(token, formData));
+  },
   getDashboard() {
     return withSupplierAuth((token) => supplierApi.getDashboard(token));
   },

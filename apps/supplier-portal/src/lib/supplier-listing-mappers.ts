@@ -102,13 +102,19 @@ export function mapRecentListing(item: unknown): Listing | null {
     return null;
   }
 
+  const raw = (item as Record<string, unknown>) || {};
+  const images = raw.images as string[] | undefined;
+
   return {
+    id: row.id,
     name: row.name,
     emoji: "",
+    image: images?.[0],
     type: row.category,
     price: row.price,
     views: row.views,
     status: row.status,
+    rawItem: item,
   };
 }
 

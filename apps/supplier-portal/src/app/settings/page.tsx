@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Loader2 } from "lucide-react";
 import { PortalShell } from "@/components/portal/PortalShell";
 import { useSupplierProfile } from "@/hooks/useSupplierProfile";
@@ -21,7 +21,10 @@ export default function SettingsPage() {
   const [physicalAddress, setPhysicalAddress] = useState("");
   const [companyDescription, setCompanyDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!profile) return;
@@ -47,6 +50,7 @@ export default function SettingsPage() {
     setCompanyDescription(
       getString(raw.description) || getString(raw.bio) || "",
     );
+    setAvatarUrl(getString(raw.avatar) || getString(raw.logo) || null);
   }, [profile]);
 
   async function handleSave() {
@@ -70,6 +74,39 @@ export default function SettingsPage() {
       setMessage("Unable to save profile. Please try again.");
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setMessage(null);
+
+    const formData = new FormData();
+    // Assuming the API expects the file in the "file" field
+    formData.append("file", file);
+
+    try {
+      const response = await supplierPortalApi.uploadAvatar(formData) as { data?: { avatar?: string } } | undefined;
+      setMessage("Logo uploaded successfully.");
+      
+      // Attempt to update the avatar visually if the response contains it
+      if (response && response.data && response.data.avatar) {
+        setAvatarUrl(response.data.avatar);
+      } else {
+        // Fallback: reload the page to get the fresh profile
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error("Failed to upload logo", err);
+      setMessage("Unable to upload logo. Please try again.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   }
 
@@ -119,18 +156,31 @@ export default function SettingsPage() {
           )}
 
           <div className="mb-5 flex items-center gap-5">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-portal-blue-600 text-2xl font-black text-white">
-              S
-            </span>
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Company Logo" className="h-16 w-16 shrink-0 rounded-full border border-slate-200 object-cover" />
+            ) : (
+              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-portal-blue-600 text-2xl font-black text-white">
+                {companyName ? companyName.charAt(0).toUpperCase() : "S"}
+              </span>
+            )}
             <div>
               <p className="mb-2 text-sm font-semibold text-portal-ink">
                 Company Logo
               </p>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                accept="image/*" 
+                onChange={handleAvatarUpload} 
+              />
               <button
                 type="button"
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-portal-ink hover:bg-slate-50"
+                disabled={isUploading}
+                onClick={() => fileInputRef.current?.click()}
+                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-portal-ink hover:bg-slate-50 disabled:opacity-50"
               >
-                Upload New Logo
+                {isUploading ? "Uploading..." : "Upload New Logo"}
               </button>
             </div>
           </div>
