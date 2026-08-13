@@ -31,9 +31,11 @@ function normalizePath(path: string) {
 
 export class ApiClient {
   private readonly baseUrl: string;
+  private readonly onUnauthorized?: () => void;
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, onUnauthorized?: () => void) {
     this.baseUrl = normalizeBaseUrl(baseUrl);
+    this.onUnauthorized = onUnauthorized;
   }
 
   async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -65,6 +67,9 @@ export class ApiClient {
       : await response.text();
 
     if (!response.ok) {
+      if (response.status === 401 && this.onUnauthorized) {
+        this.onUnauthorized();
+      }
       throw new ApiError(response.status, payload);
     }
 
@@ -72,10 +77,10 @@ export class ApiClient {
   }
 }
 
-export function createPublicApiClient(baseUrl = DEFAULT_PUBLIC_API_URL) {
-  return new ApiClient(baseUrl);
+export function createPublicApiClient(baseUrl = DEFAULT_PUBLIC_API_URL, onUnauthorized?: () => void) {
+  return new ApiClient(baseUrl, onUnauthorized);
 }
 
-export function createAdminApiClient(baseUrl = DEFAULT_ADMIN_API_URL) {
-  return new ApiClient(baseUrl);
+export function createAdminApiClient(baseUrl = DEFAULT_ADMIN_API_URL, onUnauthorized?: () => void) {
+  return new ApiClient(baseUrl, onUnauthorized);
 }

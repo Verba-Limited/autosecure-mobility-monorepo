@@ -21,6 +21,9 @@ import {
   Users,
   X,
   XCircle,
+  Eye,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { adminApi, getAdminErrorMessage } from "@/lib/admin-api";
 import { useAdminAuthStore } from "@/stores/auth-store";
@@ -876,6 +879,12 @@ function ListingReview({
   onApprove: (id: string) => void;
   onReject: (item: RecordValue) => void;
 }) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const toggleExpand = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
   return (
     <>
       <SectionIntro
@@ -905,61 +914,183 @@ function ListingReview({
               <span>Status</span>
               <span className="text-right">Decision</span>
             </div>
-            {listings.map((item, index) => (
-              <div
-                key={itemIdFor(item, index)}
-                className="grid grid-cols-[1.7fr_1fr_0.8fr_0.9fr_1fr] items-center border-b border-[var(--admin-line)] px-5 py-4 last:border-0"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold">
-                    {pick(item, ["title", "name", "model"], "Untitled listing")}
-                  </p>
-                  <p className="mt-1 truncate text-xs text-[var(--admin-muted)]">
-                    {pick(item, ["type", "category"], "Inventory")}
-                  </p>
-                </div>
-                <p className="truncate text-sm text-slate-600">
-                  {pick(
-                    item,
-                    ["supplierName", "supplier", "companyName"],
-                    "Unknown supplier",
-                  )}
-                </p>
-                <p className="text-xs text-slate-500">
-                  {date(item.createdAt ?? item.submittedAt)}
-                </p>
-                <div>
-                  <StatusPill
-                    value={pick(item, ["status"], filter || "PENDING_REVIEW")}
-                  />
-                </div>
-                <div className="flex justify-end gap-2">
-                  {pick(item, ["status"], filter) === "PENDING_REVIEW" && (
-                    <>
+            {listings.map((item, index) => {
+              const id = itemId(item) || itemIdFor(item, index);
+              const isExpanded = expandedId === id;
+              const images = item.images as string[] | undefined;
+              const firstImage = images?.[0];
+              const supplier = item.supplier as RecordValue | undefined;
+
+              return (
+                <div
+                  key={id}
+                  className="border-b border-[var(--admin-line)] last:border-0"
+                >
+                  <div className="grid grid-cols-[1.7fr_1fr_0.8fr_0.9fr_1fr] items-center px-5 py-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                      {firstImage ? (
+                        <img
+                          src={firstImage}
+                          alt="Thumbnail"
+                          className="h-10 w-14 shrink-0 rounded object-cover"
+                        />
+                      ) : (
+                        <div className="h-10 w-14 shrink-0 rounded bg-slate-100" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-bold">
+                          {pick(item, ["title", "name", "model"], "Untitled listing")}
+                        </p>
+                        <p className="mt-1 truncate text-xs text-[var(--admin-muted)]">
+                          {pick(item, ["type", "category"], "Inventory")}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="truncate text-sm text-slate-600">
+                      {supplier?.companyName as string || pick(
+                        item,
+                        ["supplierName", "supplier"],
+                        "Unknown supplier",
+                      )}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {date(item.createdAt ?? item.submittedAt)}
+                    </p>
+                    <div>
+                      <StatusPill
+                        value={pick(item, ["status"], filter || "PENDING_REVIEW")}
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2">
                       <button
-                        title="Approve listing"
-                        disabled={actionKey === `approve:${itemId(item)}`}
-                        onClick={() => onApprove(itemId(item))}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                        title="View details"
+                        onClick={() => toggleExpand(id)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-700 hover:bg-slate-100"
                       >
-                        {actionKey === `approve:${itemId(item)}` ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4" />
                         ) : (
-                          <Check className="h-4 w-4" />
+                          <Eye className="h-4 w-4" />
                         )}
                       </button>
-                      <button
-                        title="Reject listing"
-                        onClick={() => onReject(item)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-700 hover:bg-red-100"
-                      >
-                        <XCircle className="h-4 w-4" />
-                      </button>
-                    </>
+                      {pick(item, ["status"], filter) === "PENDING_REVIEW" && (
+                        <>
+                          <button
+                            title="Approve listing"
+                            disabled={actionKey === `approve:${id}`}
+                            onClick={() => onApprove(id)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                          >
+                            {actionKey === `approve:${id}` ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Check className="h-4 w-4" />
+                            )}
+                          </button>
+                          <button
+                            title="Reject listing"
+                            onClick={() => onReject(item)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-700 hover:bg-red-100"
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {isExpanded && (
+                    <div className="bg-slate-50/50 px-5 py-5 text-sm">
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="mb-3 font-bold text-slate-800">
+                            Listing Details
+                          </h4>
+                          <ul className="space-y-1.5 text-slate-600">
+                            <li>
+                              <span className="font-semibold text-slate-900">Brand:</span>{" "}
+                              {item.brand as string || "N/A"}
+                            </li>
+                            <li>
+                              <span className="font-semibold text-slate-900">Model:</span>{" "}
+                              {item.model as string || "N/A"}
+                            </li>
+                            <li>
+                              <span className="font-semibold text-slate-900">Year:</span>{" "}
+                              {item.year as number || "N/A"}
+                            </li>
+                            <li>
+                              <span className="font-semibold text-slate-900">Condition:</span>{" "}
+                              {item.condition as string || "N/A"}
+                            </li>
+                            <li>
+                              <span className="font-semibold text-slate-900">Color:</span>{" "}
+                              {item.color as string || "N/A"}
+                            </li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="mb-3 font-bold text-slate-800">
+                            Pricing & Stock
+                          </h4>
+                          <ul className="space-y-1.5 text-slate-600">
+                            <li>
+                              <span className="font-semibold text-slate-900">Retail Price:</span>{" "}
+                              {(item.pricing as RecordValue)?.retail
+                                ? Number((item.pricing as RecordValue).retail).toLocaleString()
+                                : "N/A"}
+                            </li>
+                            <li>
+                              <span className="font-semibold text-slate-900">Promotional:</span>{" "}
+                              {(item.pricing as RecordValue)?.promotional
+                                ? Number((item.pricing as RecordValue).promotional).toLocaleString()
+                                : "None"}
+                            </li>
+                            <li>
+                              <span className="font-semibold text-slate-900">In Stock:</span>{" "}
+                              {item.inStock ? "Yes" : "No"}
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      <div className="mt-6">
+                        <h4 className="mb-2 font-bold text-slate-800">Description</h4>
+                        <p className="whitespace-pre-wrap leading-relaxed text-slate-600">
+                          {item.description as string || "No description provided."}
+                        </p>
+                      </div>
+                      {Array.isArray(item.keyFeatures) && item.keyFeatures.length > 0 && (
+                        <div className="mt-6">
+                          <h4 className="mb-2 font-bold text-slate-800">Key Features</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {item.keyFeatures.map((feature, i) => (
+                              <span key={i} className="rounded-md bg-slate-200/60 px-2 py-1 text-xs font-medium text-slate-700">
+                                {String(feature)}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {images && images.length > 0 && (
+                        <div className="mt-6">
+                          <h4 className="mb-3 font-bold text-slate-800">Images</h4>
+                          <div className="flex gap-3 overflow-x-auto pb-2">
+                            {images.map((img, i) => (
+                              <a key={i} href={img} target="_blank" rel="noreferrer">
+                                <img
+                                  src={img}
+                                  alt={`Image ${i + 1}`}
+                                  className="h-24 w-32 shrink-0 rounded-lg border border-slate-200 object-cover shadow-sm transition hover:opacity-80"
+                                />
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       ) : (
