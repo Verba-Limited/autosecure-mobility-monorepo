@@ -44,6 +44,7 @@ interface ListingIdentity {
 export function MyListingsClient() {
   const [payload, setPayload] = useState<unknown>(null);
   const [query, setQuery] = useState("");
+  const [sortBy, setSortBy] = useState("recent");
   const [activeTab, setActiveTab] = useState<TabKey>("all");
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState<number | null>(null);
@@ -149,14 +150,35 @@ export function MyListingsClient() {
     }
 
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return filtered;
+    if (normalizedQuery) {
+      filtered = filtered.filter((listing) =>
+        `${listing.name} ${listing.category} ${listing.status}`
+          .toLowerCase()
+          .includes(normalizedQuery),
+      );
+    }
 
-    return filtered.filter((listing) =>
-      `${listing.name} ${listing.category} ${listing.status}`
-        .toLowerCase()
-        .includes(normalizedQuery),
-    );
-  }, [allListings, activeTab, query]);
+    const sorted = [...filtered];
+    if (sortBy === "price") {
+      sorted.sort((a, b) => {
+        const parsePrice = (priceStr: string) => {
+          const num = Number(priceStr.replace(/[^0-9.-]+/g, ""));
+          return isNaN(num) ? 0 : num;
+        };
+        return parsePrice(b.price) - parsePrice(a.price); // Descending (highest price first)
+      });
+    } else if (sortBy === "recent") {
+      sorted.sort((a, b) => {
+        const rawA = (a.rawItem as Record<string, unknown>) || {};
+        const rawB = (b.rawItem as Record<string, unknown>) || {};
+        const timeA = new Date((rawA.createdAt as string) || (rawA.updatedAt as string) || 0).getTime();
+        const timeB = new Date((rawB.createdAt as string) || (rawB.updatedAt as string) || 0).getTime();
+        return timeB - timeA;
+      });
+    }
+
+    return sorted;
+  }, [allListings, activeTab, query, sortBy]);
 
   return (
     <>
@@ -232,10 +254,13 @@ export function MyListingsClient() {
               className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3 text-sm font-medium text-portal-ink outline-none focus:border-portal-blue-600 focus:ring-2 focus:ring-portal-blue-600/15 sm:w-64"
             />
           </label>
-          <select className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm font-bold text-portal-ink outline-none focus:border-portal-blue-600 focus:ring-2 focus:ring-portal-blue-600/15">
-            <option>Sort by: Most Recent</option>
-            <option>Sort by: Most Viewed</option>
-            <option>Sort by: Price</option>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm font-bold text-portal-ink outline-none focus:border-portal-blue-600 focus:ring-2 focus:ring-portal-blue-600/15"
+          >
+            <option value="recent">Sort by: Most Recent</option>
+            <option value="price">Sort by: Price</option>
           </select>
         </div>
       </div>
