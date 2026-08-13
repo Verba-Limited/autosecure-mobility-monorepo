@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ClipboardList, Edit, Loader2, Plus, Search, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { ClipboardList, Edit, Loader2, Plus, Search, Trash2, Eye, ChevronUp } from "lucide-react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { supplierPortalApi } from "@/lib/supplier-api";
 import {
   getApiItems,
@@ -50,6 +50,11 @@ export function MyListingsClient() {
 
   // Edit Listing state
   const [editingListing, setEditingListing] = useState<PortalListingRow | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const toggleExpand = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
 
   async function handleDelete(id: string) {
     if (!window.confirm("Delete this listing? This cannot be undone.")) return;
@@ -250,85 +255,152 @@ export function MyListingsClient() {
             </p>
           </div>
         ) : (
-          listings.map((listing) => (
-            <div
-              key={listing.id}
-              className="rounded-xl border border-portal-border bg-white p-4 shadow-xs"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-portal-border bg-slate-100">
-                    <Image
-                      src={listing.iconSrc}
-                      alt=""
-                      width={22}
-                      height={22}
-                      aria-hidden="true"
-                    />
+          listings.map((listing) => {
+            const isExpanded = expandedId === listing.id;
+            const raw = (listing.rawItem as Record<string, unknown>) || {};
+            const images = raw.images as string[] | undefined;
+            const firstImage = images?.[0];
+
+            return (
+              <div
+                key={listing.id}
+                className="rounded-xl border border-portal-border bg-white p-4 shadow-xs"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    {firstImage ? (
+                      <img
+                        src={firstImage}
+                        alt="Thumbnail"
+                        className="h-10 w-10 shrink-0 rounded-lg border border-portal-border object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-portal-border bg-slate-100">
+                        <Image
+                          src={listing.iconSrc}
+                          alt=""
+                          width={22}
+                          height={22}
+                          aria-hidden="true"
+                        />
+                      </span>
+                    )}
+                    <div>
+                      <h3 className="font-bold text-portal-ink">{listing.name}</h3>
+                      <p className="text-xs text-slate-400">{listing.added}</p>
+                    </div>
+                  </div>
+                  <span
+                    className={`rounded-md px-2.5 py-1 text-xs font-bold ${TYPE_STYLES[listing.category]}`}
+                  >
+                    {listing.category}
                   </span>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
                   <div>
-                    <h3 className="font-bold text-portal-ink">{listing.name}</h3>
-                    <p className="text-xs text-slate-400">{listing.added}</p>
+                    <p className="text-[11px] font-bold text-slate-400 uppercase">Price</p>
+                    <p className="text-sm font-black text-portal-ink">{listing.price}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold text-slate-400 uppercase">Views / Leads</p>
+                    <p className="text-xs font-bold text-slate-700">
+                      {listing.views} views • {listing.leads} leads
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold text-slate-400 uppercase">Status</p>
+                    <span
+                      className={`inline-flex items-center gap-1.5 text-xs font-extrabold ${STATUS_STYLES[listing.status].split(" ")[0]}`}
+                    >
+                      <span
+                        className={`h-2 w-2 rounded-full ${STATUS_STYLES[listing.status].split(" ")[1]}`}
+                      />
+                      {listing.status}
+                    </span>
                   </div>
                 </div>
-                <span
-                  className={`rounded-md px-2.5 py-1 text-xs font-bold ${TYPE_STYLES[listing.category]}`}
-                >
-                  {listing.category}
-                </span>
-              </div>
 
-              <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
-                <div>
-                  <p className="text-[11px] font-bold text-slate-400 uppercase">Price</p>
-                  <p className="text-sm font-black text-portal-ink">{listing.price}</p>
-                </div>
-                <div>
-                  <p className="text-[11px] font-bold text-slate-400 uppercase">Views / Leads</p>
-                  <p className="text-xs font-bold text-slate-700">
-                    {listing.views} views • {listing.leads} leads
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[11px] font-bold text-slate-400 uppercase">Status</p>
-                  <span
-                    className={`inline-flex items-center gap-1.5 text-xs font-extrabold ${STATUS_STYLES[listing.status].split(" ")[0]}`}
-                  >
-                    <span
-                      className={`h-2 w-2 rounded-full ${STATUS_STYLES[listing.status].split(" ")[1]}`}
-                    />
-                    {listing.status}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">
-                <button
-                  type="button"
-                  onClick={() => setEditingListing(listing)}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-portal-ink hover:bg-slate-50"
-                >
-                  <Edit className="h-3.5 w-3.5 text-portal-blue-600" />
-                  Edit
-                </button>
-                {listing.status === "Pending" && (
-                  <Link
-                    href={`/my-listings/submit/${listing.id}`}
-                    className="flex-1 text-center rounded-lg border border-portal-blue-600/30 bg-portal-blue-600/10 px-3 py-2 text-xs font-bold text-portal-blue-600"
-                  >
-                    Submit
-                  </Link>
+                {isExpanded && (
+                  <div className="mt-4 rounded-lg bg-slate-50/50 p-4 text-sm border border-slate-100">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="mb-2 font-bold text-slate-800">Details</h4>
+                        <ul className="space-y-1 text-slate-600 text-xs">
+                          <li><span className="font-semibold text-slate-900">Brand:</span> {raw.brand as string || "N/A"}</li>
+                          <li><span className="font-semibold text-slate-900">Model:</span> {raw.model as string || "N/A"}</li>
+                          <li><span className="font-semibold text-slate-900">Year:</span> {raw.year as number || "N/A"}</li>
+                          <li><span className="font-semibold text-slate-900">Condition:</span> {raw.condition as string || "N/A"}</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="mb-2 font-bold text-slate-800">Stock</h4>
+                        <ul className="space-y-1 text-slate-600 text-xs">
+                          <li><span className="font-semibold text-slate-900">In Stock:</span> {raw.inStock ? "Yes" : "No"}</li>
+                        </ul>
+                      </div>
+                    </div>
+                    {Array.isArray(raw.keyFeatures) && raw.keyFeatures.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="mb-2 font-bold text-slate-800 text-xs">Key Features</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {raw.keyFeatures.map((feature, i) => (
+                            <span key={i} className="rounded-md bg-slate-200/60 px-2 py-1 text-[10px] font-medium text-slate-700">
+                              {String(feature)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {images && images.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="mb-2 font-bold text-slate-800 text-xs">Images</h4>
+                        <div className="flex gap-2 overflow-x-auto pb-1">
+                          {images.map((img, i) => (
+                            <img key={i} src={img} alt={`Image ${i + 1}`} className="h-16 w-24 shrink-0 rounded-md border border-slate-200 object-cover" />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
-                <button
-                  type="button"
-                  onClick={() => handleDelete(listing.id)}
-                  className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 p-2 text-red-500 hover:bg-red-100"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => toggleExpand(listing.id)}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-portal-ink hover:bg-slate-50"
+                  >
+                    {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    {isExpanded ? "Close" : "View"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingListing(listing)}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-xs font-bold text-portal-ink hover:bg-slate-50"
+                  >
+                    <Edit className="h-3.5 w-3.5 text-portal-blue-600" />
+                    Edit
+                  </button>
+                  {listing.status === "Pending" && (
+                    <Link
+                      href={`/my-listings/submit/${listing.id}`}
+                      className="flex-1 text-center rounded-lg border border-portal-blue-600/30 bg-portal-blue-600/10 px-3 py-2 text-xs font-bold text-portal-blue-600"
+                    >
+                      Submit
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(listing.id)}
+                    className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 p-2 text-red-500 hover:bg-red-100"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -391,82 +463,175 @@ export function MyListingsClient() {
                   </td>
                 </tr>
               ) : (
-                listings.map((listing) => (
-                  <tr
-                    key={listing.id}
-                    className="border-b border-portal-border last:border-b-0"
-                  >
-                    <td className="px-6 py-4">
-                      <div className="flex min-w-0 items-center gap-4">
-                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-portal-border bg-slate-100">
-                          <Image
-                            src={listing.iconSrc}
-                            alt=""
-                            width={24}
-                            height={24}
-                            aria-hidden="true"
-                          />
-                        </span>
-                        <span className="min-w-0">
-                          <span className="block max-w-[210px] truncate whitespace-nowrap font-black text-portal-ink">
-                            {listing.name}
-                          </span>
-                          <span className="block whitespace-nowrap text-xs font-semibold text-[#64748B]">
-                            {listing.added}
-                          </span>
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-black ${TYPE_STYLES[listing.category]}`}
+                listings.map((listing) => {
+                  const isExpanded = expandedId === listing.id;
+                  const raw = (listing.rawItem as Record<string, unknown>) || {};
+                  const images = raw.images as string[] | undefined;
+                  const firstImage = images?.[0];
+
+                  return (
+                    <Fragment key={listing.id}>
+                      <tr
+                        className={`border-b border-portal-border ${isExpanded ? "bg-slate-50/50 border-b-0" : "last:border-b-0"}`}
                       >
-                        {listing.category}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 font-black text-portal-ink">
-                      {listing.price}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 font-bold text-portal-ink">
-                      {listing.views}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 font-bold text-portal-ink">
-                      {listing.leads}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-2 text-sm font-black ${STATUS_STYLES[listing.status].split(" ")[0]}`}
-                      >
-                        <span
-                          className={`h-2 w-2 rounded-full ${STATUS_STYLES[listing.status].split(" ")[1]}`}
-                        />
-                        {listing.status}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <div className="flex items-center gap-2 whitespace-nowrap">
-                        <button
-                          type="button"
-                          onClick={() => setEditingListing(listing)}
-                          className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-black text-portal-ink hover:bg-slate-50"
-                        >
-                          Edit
-                        </button>
-                        {listing.status === "Pending" && (
-                          <Link
-                            href={`/my-listings/submit/${listing.id}`}
-                            className="rounded-md border border-portal-blue-600/30 bg-portal-blue-600/5 px-3 py-1.5 text-xs font-black text-portal-blue-600 hover:bg-portal-blue-600/10"
+                        <td className="px-6 py-4">
+                          <div className="flex min-w-0 items-center gap-4">
+                            {firstImage ? (
+                              <img
+                                src={firstImage}
+                                alt="Thumbnail"
+                                className="h-12 w-12 shrink-0 rounded-lg border border-portal-border object-cover"
+                              />
+                            ) : (
+                              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-portal-border bg-slate-100">
+                                <Image
+                                  src={listing.iconSrc}
+                                  alt=""
+                                  width={24}
+                                  height={24}
+                                  aria-hidden="true"
+                                />
+                              </span>
+                            )}
+                            <span className="min-w-0">
+                              <span className="block max-w-[210px] truncate whitespace-nowrap font-black text-portal-ink">
+                                {listing.name}
+                              </span>
+                              <span className="block whitespace-nowrap text-xs font-semibold text-[#64748B]">
+                                {listing.added}
+                              </span>
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-black ${TYPE_STYLES[listing.category]}`}
                           >
-                            Submit
-                          </Link>
-                        )}
-                        <button type="button" onClick={() => handleDelete(listing.id)} className="rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-black text-red-500 hover:bg-red-100">
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                            {listing.category}
+                          </span>
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 font-black text-portal-ink">
+                          {listing.price}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 font-bold text-portal-ink">
+                          {listing.views}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 font-bold text-portal-ink">
+                          {listing.leads}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <span
+                            className={`inline-flex items-center gap-2 text-sm font-black ${STATUS_STYLES[listing.status].split(" ")[0]}`}
+                          >
+                            <span
+                              className={`h-2 w-2 rounded-full ${STATUS_STYLES[listing.status].split(" ")[1]}`}
+                            />
+                            {listing.status}
+                          </span>
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <div className="flex items-center gap-2 whitespace-nowrap">
+                            <button
+                              type="button"
+                              onClick={() => toggleExpand(listing.id)}
+                              className="inline-flex items-center justify-center rounded-md border border-slate-300 px-3 py-1.5 text-xs font-black text-portal-ink hover:bg-slate-50"
+                            >
+                              {isExpanded ? <ChevronUp className="mr-1 h-3.5 w-3.5" /> : <Eye className="mr-1 h-3.5 w-3.5" />}
+                              {isExpanded ? "Close" : "View"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingListing(listing)}
+                              className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-black text-portal-ink hover:bg-slate-50"
+                            >
+                              Edit
+                            </button>
+                            {listing.status === "Pending" && (
+                              <Link
+                                href={`/my-listings/submit/${listing.id}`}
+                                className="rounded-md border border-portal-blue-600/30 bg-portal-blue-600/5 px-3 py-1.5 text-xs font-black text-portal-blue-600 hover:bg-portal-blue-600/10"
+                              >
+                                Submit
+                              </Link>
+                            )}
+                            <button type="button" onClick={() => handleDelete(listing.id)} className="rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-black text-red-500 hover:bg-red-100">
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr className="border-b border-portal-border bg-slate-50/50">
+                          <td colSpan={7} className="px-6 py-6">
+                            <div className="grid grid-cols-2 gap-8 lg:grid-cols-3">
+                              <div className="col-span-2 lg:col-span-1">
+                                <h4 className="mb-3 font-bold text-slate-800">
+                                  Listing Details
+                                </h4>
+                                <ul className="space-y-1.5 text-sm text-slate-600">
+                                  <li>
+                                    <span className="font-semibold text-slate-900">Brand:</span>{" "}
+                                    {raw.brand as string || "N/A"}
+                                  </li>
+                                  <li>
+                                    <span className="font-semibold text-slate-900">Model:</span>{" "}
+                                    {raw.model as string || "N/A"}
+                                  </li>
+                                  <li>
+                                    <span className="font-semibold text-slate-900">Year:</span>{" "}
+                                    {raw.year as number || "N/A"}
+                                  </li>
+                                  <li>
+                                    <span className="font-semibold text-slate-900">Condition:</span>{" "}
+                                    {raw.condition as string || "N/A"}
+                                  </li>
+                                  <li>
+                                    <span className="font-semibold text-slate-900">Color:</span>{" "}
+                                    {raw.color as string || "N/A"}
+                                  </li>
+                                </ul>
+                              </div>
+                              <div className="col-span-2 lg:col-span-2">
+                                <h4 className="mb-2 font-bold text-slate-800">Description</h4>
+                                <p className="whitespace-pre-wrap leading-relaxed text-sm text-slate-600">
+                                  {raw.description as string || "No description provided."}
+                                </p>
+                                {Array.isArray(raw.keyFeatures) && raw.keyFeatures.length > 0 && (
+                                  <div className="mt-5">
+                                    <h4 className="mb-2 font-bold text-slate-800 text-sm">Key Features</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                      {raw.keyFeatures.map((feature, i) => (
+                                        <span key={i} className="rounded-md bg-slate-200/60 px-2 py-1 text-xs font-medium text-slate-700">
+                                          {String(feature)}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                                {images && images.length > 0 && (
+                                  <div className="mt-5">
+                                    <h4 className="mb-3 font-bold text-slate-800">Images</h4>
+                                    <div className="flex gap-3 overflow-x-auto pb-2">
+                                      {images.map((img, i) => (
+                                        <a key={i} href={img} target="_blank" rel="noreferrer">
+                                          <img
+                                            src={img}
+                                            alt={`Image ${i + 1}`}
+                                            className="h-20 w-28 shrink-0 rounded-lg border border-slate-200 object-cover shadow-sm transition hover:opacity-80"
+                                          />
+                                        </a>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })
               )}
             </tbody>
           </table>
