@@ -44,8 +44,12 @@ export function createAdminApi(client: ApiClient) {
       });
     },
 
-    getListings(accessToken: string, status?: string) {
-      const query = status ? `?status=${encodeURIComponent(status)}` : "";
+    getListings(accessToken: string, status?: string, page = 1, limit = 10) {
+      const params = new URLSearchParams();
+      if (status) params.append("status", status);
+      params.append("page", page.toString());
+      params.append("limit", limit.toString());
+      const query = `?${params.toString()}`;
       return client.request(`/admin/listings${query}`, { accessToken });
     },
 

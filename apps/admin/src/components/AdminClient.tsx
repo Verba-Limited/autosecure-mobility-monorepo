@@ -192,6 +192,7 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
   const [supplierPayload, setSupplierPayload] = useState<unknown>(null);
   const [configPayload, setConfigPayload] = useState<unknown>(null);
   const [statusFilter, setStatusFilter] = useState("");
+  const [listingPage, setListingPage] = useState(1);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -223,7 +224,7 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
         ] = await Promise.all([
           adminApi.getDashboard(accessToken),
           adminApi.getReports(accessToken),
-          adminApi.getListings(accessToken, statusFilter),
+          adminApi.getListings(accessToken, statusFilter, listingPage, 10),
           adminApi.getSuppliers(accessToken, 1, 25),
           adminApi.getContactMessages(accessToken, 1, 10),
           adminApi.getContactMessagesStats(accessToken),
@@ -242,8 +243,13 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
         setIsLoading(false);
       }
     },
-    [accessToken, statusFilter],
+    [accessToken, statusFilter, listingPage],
   );
+
+  useEffect(() => {
+    setListingPage(1);
+  }, [statusFilter]);
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       void loadData();
@@ -254,6 +260,7 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
   const dashboardRecord = record(unwrap(dashboard));
   const reportRecord = record(unwrap(reports));
   const allListings = useMemo(() => items(listingPayload), [listingPayload]);
+  const listingMeta = useMemo(() => record(record(unwrap(listingPayload)).meta), [listingPayload]);
   const listings = useMemo(
     () =>
       allListings.filter((item) => {
@@ -464,6 +471,9 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
                 )
               }
               onReject={(item) => setRejecting(item)}
+              currentPage={listingPage}
+              totalPages={typeof listingMeta.totalPages === 'number' ? listingMeta.totalPages : 1}
+              onPageChange={setListingPage}
             />
           ) : tab === "suppliers" ? (
             <SupplierReview
@@ -868,6 +878,9 @@ function ListingReview({
   actionKey,
   onApprove,
   onReject,
+  currentPage,
+  totalPages,
+  onPageChange,
 }: {
   listings: RecordValue[];
   filter: string;
@@ -878,6 +891,9 @@ function ListingReview({
   actionKey: string | null;
   onApprove: (id: string) => void;
   onReject: (item: RecordValue) => void;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -1092,6 +1108,31 @@ function ListingReview({
               );
             })}
           </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-[var(--admin-line)] px-5 py-4">
+              <span className="text-sm font-semibold text-slate-500">
+                Page {currentPage} of {totalPages}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={currentPage <= 1}
+                  onClick={() => onPageChange(currentPage - 1)}
+                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <button
+                  type="button"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => onPageChange(currentPage + 1)}
+                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <Empty message="No listings match this review filter." />
