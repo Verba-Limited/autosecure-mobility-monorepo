@@ -1115,6 +1115,12 @@ function SupplierReview({
   actionKey: string | null;
   onStatus: (id: string, status: string) => void;
 }) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const toggleExpand = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
   return (
     <>
       <SectionIntro
@@ -1126,13 +1132,14 @@ function SupplierReview({
       {suppliers.length ? (
         <div className="overflow-hidden rounded-2xl border border-[var(--admin-line)] bg-white">
           <div className="min-w-[720px]">
-            <div className="grid grid-cols-[1.5fr_1.3fr_0.8fr_0.8fr] border-b border-[var(--admin-line)] bg-slate-50 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--admin-muted)]">
+            <div className="grid grid-cols-[1.5fr_1.3fr_0.8fr_1fr] border-b border-[var(--admin-line)] bg-slate-50 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--admin-muted)]">
               <span>Business</span>
               <span>Contact</span>
               <span>Status</span>
               <span className="text-right">Manage</span>
             </div>
             {suppliers.map((item, index) => {
+              const id = itemId(item);
               const status = pick(
                 item,
                 ["status", "supplierStatus"],
@@ -1141,44 +1148,86 @@ function SupplierReview({
               const active =
                 status.toUpperCase().includes("ACTIVE") ||
                 status.toUpperCase().includes("APPROV");
+              
+              const isExpanded = expandedId === id;
+              const companyName = pick(
+                item,
+                ["companyName", "businessName", "name"],
+                "Unnamed supplier",
+              );
+              const initial = companyName.charAt(0).toUpperCase() || "S";
+              const avatarUrl = item.avatarUrl as string | undefined;
+
               return (
-                <div
-                  key={itemIdFor(item, index)}
-                  className="grid grid-cols-[1.5fr_1.3fr_0.8fr_0.8fr] items-center border-b border-[var(--admin-line)] px-5 py-4 last:border-0"
-                >
-                  <div>
-                    <p className="text-sm font-bold">
-                      {pick(
-                        item,
-                        ["companyName", "businessName", "name"],
-                        "Unnamed supplier",
-                      )}
-                    </p>
-                    <p className="mt-1 text-xs text-[var(--admin-muted)]">
-                      Joined {date(item.createdAt ?? item.joinedAt)}
-                    </p>
-                  </div>
-                  <p className="truncate text-sm text-slate-600">
-                    {pick(item, ["email", "contactEmail"], "No email")}
-                  </p>
-                  <StatusPill value={status} />
-                  <div className="flex justify-end">
-                    <button
-                      disabled={actionKey === `supplier:${itemId(item)}`}
-                      onClick={() =>
-                        onStatus(itemId(item), active ? "SUSPENDED" : "ACTIVE")
-                      }
-                      className={`rounded-lg px-3 py-2 text-xs font-bold ${active ? "bg-red-50 text-red-700 hover:bg-red-100" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}
-                    >
-                      {actionKey === `supplier:${itemId(item)}` ? (
-                        <Loader2 className="mx-auto h-4 w-4 animate-spin" />
-                      ) : active ? (
-                        "Suspend"
+                <div key={itemIdFor(item, index)} className="group">
+                  <div
+                    className={`grid grid-cols-[1.5fr_1.3fr_0.8fr_1fr] items-center border-b border-[var(--admin-line)] px-5 py-4 ${isExpanded ? "bg-slate-50/50 border-b-0" : "group-last:border-0"}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt="Logo" className="h-10 w-10 shrink-0 rounded-full border border-slate-200 object-cover" />
                       ) : (
-                        "Activate"
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-portal-blue-600 text-lg font-black text-white">
+                          {initial}
+                        </span>
                       )}
-                    </button>
+                      <div>
+                        <p className="text-sm font-bold">
+                          {companyName}
+                        </p>
+                        <p className="mt-1 text-xs text-[var(--admin-muted)]">
+                          Joined {date(item.createdAt ?? item.joinedAt)}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="truncate text-sm text-slate-600">
+                      {pick(item, ["email", "contactEmail"], "No email")}
+                    </p>
+                    <StatusPill value={status} />
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => toggleExpand(id)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                      >
+                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                      <button
+                        disabled={actionKey === `supplier:${id}`}
+                        onClick={() =>
+                          onStatus(id, active ? "SUSPENDED" : "ACTIVE")
+                        }
+                        className={`rounded-lg px-3 py-1.5 text-xs font-bold ${active ? "bg-red-50 text-red-700 hover:bg-red-100" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}
+                      >
+                        {actionKey === `supplier:${id}` ? (
+                          <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+                        ) : active ? (
+                          "Suspend"
+                        ) : (
+                          "Activate"
+                        )}
+                      </button>
+                    </div>
                   </div>
+                  {isExpanded && (
+                    <div className="border-b border-[var(--admin-line)] bg-slate-50/50 px-5 py-5 text-sm group-last:border-b-0">
+                      <div className="grid grid-cols-2 gap-8">
+                        <div>
+                          <h4 className="mb-2 font-bold text-slate-800">Contact Details</h4>
+                          <ul className="space-y-1.5 text-slate-600">
+                            <li><span className="font-semibold text-slate-900">Phone:</span> {item.phone as string || "N/A"}</li>
+                            <li><span className="font-semibold text-slate-900">Address:</span> {item.physicalAddress as string || "N/A"}</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="mb-2 font-bold text-slate-800">Company Description</h4>
+                          <p className="whitespace-pre-wrap leading-relaxed text-slate-600">
+                            {item.companyDescription as string || "No description provided."}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
