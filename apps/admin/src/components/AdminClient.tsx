@@ -113,7 +113,7 @@ function pick(item: RecordValue, keys: string[], fallback = "-") {
 
 const tabs: { id: Tab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "listings", label: "Listing review", icon: ClipboardCheck },
+  { id: "listings", label: "Listing", icon: ClipboardCheck },
   { id: "suppliers", label: "Suppliers", icon: Store },
   { id: "messages", label: "Messages", icon: AlertCircle },
   { id: "config", label: "Catalog config", icon: Settings2 },
@@ -191,7 +191,7 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
   const [listingPayload, setListingPayload] = useState<unknown>(null);
   const [supplierPayload, setSupplierPayload] = useState<unknown>(null);
   const [configPayload, setConfigPayload] = useState<unknown>(null);
-  const [statusFilter, setStatusFilter] = useState("PENDING_REVIEW");
+  const [statusFilter, setStatusFilter] = useState("");
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -402,7 +402,7 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
               </h1>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <span className="hidden items-center gap-2 text-xs font-semibold text-emerald-700 sm:flex">
               <span className="h-2 w-2 rounded-full bg-emerald-500" /> Services
               operational
@@ -413,7 +413,7 @@ export function AdminClient({ accessToken }: { accessToken: string }) {
             >
               Refresh
             </button>
-          </div>
+          </div> */}
         </header>
         <main className="mx-auto max-w-[1440px] p-5 sm:p-8">
           {error && (
@@ -889,7 +889,7 @@ function ListingReview({
     <>
       <SectionIntro
         eyebrow="Moderation queue"
-        title="Review listings"
+        title="Listings"
         description="Approve quality inventory or send it back with useful feedback."
       />
       <Toolbar query={query} setQuery={setQuery}>
