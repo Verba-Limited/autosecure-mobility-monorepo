@@ -46,11 +46,11 @@ export default function SettingsPage() {
     setWhatsappNumber(
       getString(raw.whatsapp) || getString(raw.whatsappNumber) || "",
     );
-    setPhysicalAddress(getString(raw.address) || getString(raw.location) || "");
+    setPhysicalAddress(getString(raw.physicalAddress) || getString(raw.address) || getString(raw.location) || "");
     setCompanyDescription(
-      getString(raw.description) || getString(raw.bio) || "",
+      getString(raw.companyDescription) || getString(raw.description) || getString(raw.bio) || "",
     );
-    setAvatarUrl(getString(raw.avatar) || getString(raw.logo) || null);
+    setAvatarUrl(getString(raw.avatarUrl) || getString(raw.avatar) || getString(raw.logo) || null);
   }, [profile]);
 
   async function handleSave() {
@@ -67,6 +67,9 @@ export default function SettingsPage() {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         companyName: companyName.trim(),
+        phone: contactPhone.trim(),
+        physicalAddress: physicalAddress.trim(),
+        companyDescription: companyDescription.trim(),
       });
       setMessage("Profile saved successfully.");
     } catch (err) {
@@ -236,7 +239,7 @@ export default function SettingsPage() {
                 className="h-12 rounded-lg border border-slate-300 px-4 text-sm font-medium text-portal-ink outline-none focus:border-portal-blue-600 focus:ring-2 focus:ring-portal-blue-600/15"
               />
             </label>
-            <label className="flex flex-col gap-2">
+            {/* <label className="flex flex-col gap-2">
               <span className="text-sm font-semibold text-portal-ink">
                 WhatsApp Business Number (Leads redirection)
               </span>
@@ -245,7 +248,7 @@ export default function SettingsPage() {
                 onChange={(e) => setWhatsappNumber(e.target.value)}
                 className="h-12 rounded-lg border border-slate-300 px-4 text-sm font-medium text-portal-ink outline-none focus:border-portal-blue-600 focus:ring-2 focus:ring-portal-blue-600/15"
               />
-            </label>
+            </label> */}
           </div>
 
           <label className="mt-6 flex flex-col gap-2">

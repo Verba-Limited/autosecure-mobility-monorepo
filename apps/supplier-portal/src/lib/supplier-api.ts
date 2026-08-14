@@ -104,6 +104,9 @@ export const supplierPortalApi = {
     firstName: string;
     lastName: string;
     companyName: string;
+    phone?: string;
+    physicalAddress?: string;
+    companyDescription?: string;
   }) {
     return withSupplierAuth((token) =>
       supplierApi.updateProfile(token, payload),
