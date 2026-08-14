@@ -112,7 +112,7 @@ function pick(item: RecordValue, keys: string[], fallback = "-") {
 }
 
 const tabs: { id: Tab; label: string; icon: typeof LayoutDashboard }[] = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "overview", label: "Dashboard", icon: LayoutDashboard },
   { id: "listings", label: "Listing", icon: ClipboardCheck },
   { id: "suppliers", label: "Suppliers", icon: Store },
   { id: "messages", label: "Messages", icon: AlertCircle },
@@ -811,7 +811,7 @@ function Overview({
             <Empty message="Recent activity will appear here once the API returns listings." />
           )}
         </section>
-        <section className="rounded-2xl bg-[var(--admin-navy)] p-6 text-white">
+        {/* <section className="rounded-2xl bg-[var(--admin-navy)] p-6 text-white">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--admin-gold)]">
             Reports snapshot
           </p>
@@ -829,7 +829,7 @@ function Overview({
               value={report(["approvals", "approved"])}
             />
           </div>
-        </section>
+        </section> */}
       </div>
     </>
   );
