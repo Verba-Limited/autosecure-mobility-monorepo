@@ -34,20 +34,19 @@ const STEPS = [
 
 export function ProcessSteps() {
   return (
-    <section id="process" className="bg-black px-6 py-24 lg:px-8">
+    <section id="process" className="bg-[#292929] px-6 py-24 lg:px-8">
       {/* Divider */}
       <div className="mx-auto mb-16 h-px max-w-[1180px] bg-gradient-to-r from-transparent via-white/6 to-transparent" />
 
       <div className="mx-auto max-w-[1180px] text-center">
         <ScrollReveal>
           <span className="inline-flex h-6 items-center rounded-full border border-[#C9943A]/30 bg-[#C9943A]/10 px-4 text-[10px] font-black uppercase tracking-widest text-[#C9943A]">
-            Simple Process
+            How it works
           </span>
           <h2 className="mx-auto mt-6 max-w-[620px] text-[40px] font-black leading-[1.18] text-white sm:text-[44px]">
-            From Browse to{" "}
-            <span className="text-[#C9943A]">Deal Closed</span>
+            A more considered way
             <br />
-            in 4 Easy Steps
+            to <span className="text-[#C9943A]">choose a vehicle.</span>
           </h2>
         </ScrollReveal>
 
@@ -73,7 +72,7 @@ export function ProcessSteps() {
                 className={`relative z-10 flex h-[74px] w-[74px] items-center justify-center rounded-full border text-[28px] ${
                   step.highlight
                     ? "border-[#C9943A]/50 bg-[#C9943A]/15 shadow-[0_0_24px_rgba(201,148,58,0.2)]"
-                    : "border-white/10 bg-[#0d0d0d] shadow-[0_0_0_1px_rgba(255,255,255,0.03)]"
+                    : "border-white/10 bg-[#383838] shadow-[0_0_0_1px_rgba(255,255,255,0.05)]"
                 }`}
               >
                 <span aria-hidden>{step.symbol}</span>

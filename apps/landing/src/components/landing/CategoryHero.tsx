@@ -51,7 +51,7 @@ const CATEGORIES = [
 
 export function CategoryHero() {
   return (
-    <section className="bg-black px-6 py-20 lg:px-16">
+    <section className="bg-[#292929] px-6 py-20 lg:px-16">
       <div className="mx-auto max-w-7xl">
         {/* Section header */}
         <div className="mb-12 text-center">
@@ -72,7 +72,7 @@ export function CategoryHero() {
             <Link
               key={cat.id}
               href={cat.href}
-              className={`group relative flex flex-col overflow-hidden rounded-2xl border ${cat.borderColor} ${cat.hoverBorder} bg-[#0a0a0a] p-8 transition-all duration-300 hover:bg-[#111] hover:-translate-y-1 hover:shadow-[0_24px_48px_rgba(0,0,0,0.6)]`}
+              className={`group relative flex flex-col overflow-hidden rounded-2xl border ${cat.borderColor} ${cat.hoverBorder} bg-[#363636] p-8 transition-all duration-300 hover:bg-[#3c3c3c] hover:-translate-y-1 hover:shadow-[0_24px_48px_rgba(0,0,0,0.25)]`}
             >
               {/* Gradient glow */}
               <div

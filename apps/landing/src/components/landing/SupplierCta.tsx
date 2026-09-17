@@ -2,17 +2,17 @@ import { Mail } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 const BULLETS = [
-  "No setup fees",
-  "Live in <1 hour",
-  "Direct WhatsApp leads",
-  "Full analytics dashboard",
+  "Inventory-led enquiries",
+  "Direct customer conversations",
+  "Clear supplier onboarding",
+  "A considered marketplace presence",
 ];
 
 export function SupplierCta() {
   return (
-    <section id="suppliers" className="bg-black px-6 py-16 lg:px-8">
+    <section id="suppliers" className="bg-[#292929] px-6 py-16 lg:px-8">
       <ScrollReveal
-        className="mx-auto max-w-7xl overflow-hidden rounded-3xl border border-white/8 bg-[#0d0d0d] px-8 py-12 sm:px-14 sm:py-16"
+        className="mx-auto max-w-7xl overflow-hidden rounded-3xl border border-white/10 bg-[#393939] px-8 py-12 sm:px-14 sm:py-16"
         variant="zoom-in"
       >
         <div
@@ -28,18 +28,13 @@ export function SupplierCta() {
         <div className="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-xl">
             <span className="inline-flex items-center rounded-full border border-[#C9943A]/20 bg-[#C9943A]/10 px-4 py-1.5 text-xs font-semibold text-[#C9943A]">
-              For Dealers &amp; Suppliers
+              A note for dealers &amp; suppliers
             </span>
             <h2 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl">
-              List Your Vehicles
-              <br />
-              &amp; Parts on{" "}
-              <span className="text-[#C9943A]">autoSecure</span>
+              Put your inventory in front of customers who are ready to decide.
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-white/45">
-              Join 400+ trusted dealers already on our platform. Upload your
-              inventory in minutes and start receiving qualified WhatsApp
-              inquiries immediately — zero commission on your first 10 listings.
+              Bring your vehicles and parts into a marketplace built for discovery, considered comparison and direct, qualified customer conversations.
             </p>
             <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium text-white/45">
               {BULLETS.map((bullet) => (

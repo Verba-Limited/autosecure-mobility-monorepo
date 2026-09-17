@@ -166,7 +166,7 @@ export function CarListingCard({
               </div>
 
               {/* Bottom Row: Price Range (Protected) + Actions */}
-              <div className="mt-6 pt-5 border-t border-white/8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="mt-6 flex flex-col gap-4 border-t border-white/8 pt-5 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   {isLoggedIn ? (
                     <div>
@@ -181,33 +181,28 @@ export function CarListingCard({
                       </p>
                     </div>
                   ) : (
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                      <div className="inline-flex items-center gap-2 rounded-lg border border-[#C9943A]/30 bg-[#C9943A]/10 px-3 py-1.5 text-xs font-bold text-[#C9943A]">
+                    <Link
+                      href="/login?next=/new-cars"
+                      className="inline-flex h-10 w-fit items-center gap-2 whitespace-nowrap rounded-lg border border-[#C9943A]/30 bg-[#C9943A]/10 px-3.5 text-xs font-bold text-[#F0C46E] transition-colors hover:bg-[#C9943A]/20 hover:text-[#FFE0A2]"
+                    >
                         <Lock className="h-3.5 w-3.5" />
-                        <span>Price range available after login</span>
-                      </div>
-                      <Link
-                        href="/login?next=/new-cars"
-                        className="text-xs font-extrabold text-[#C9943A] underline underline-offset-4 hover:text-[#E0AE5A] transition-colors"
-                      >
-                        Sign in
-                      </Link>
-                    </div>
+                        Sign in to view price
+                    </Link>
                   )}
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2.5">
+                <div className="grid w-full grid-cols-2 gap-2.5 lg:w-auto">
                   <Link
                     href={detailHref}
-                    className="flex h-11 items-center justify-center rounded-lg border border-[#C9943A]/30 bg-[#C9943A]/10 px-5 text-[13px] font-black text-[#C9943A] transition-all hover:bg-[#C9943A]/20 hover:border-[#C9943A]/50"
+                    className="flex h-11 items-center justify-center whitespace-nowrap rounded-lg border border-[#C9943A]/35 bg-[#C9943A]/10 px-4 text-[13px] font-bold text-[#F0C46E] transition-all hover:bg-[#C9943A]/20 hover:border-[#C9943A]/50 hover:text-[#FFE0A2]"
                   >
-                    View Details
+                    View vehicle
                   </Link>
                   <button
                     type="button"
                     onClick={() => setModalOpen(true)}
-                    className="flex h-11 items-center justify-center gap-1.5 rounded-lg bg-[#25D366] px-5 text-[13px] font-black text-black transition-colors hover:bg-[#20BD5A]"
+                    className="flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#25D366] px-4 text-[13px] font-bold text-[#071b0e] transition-colors hover:bg-[#20BD5A]"
                   >
                     <MessageCircle className="h-4 w-4" fill="currentColor" />
                     WhatsApp
@@ -325,13 +320,13 @@ export function CarListingCard({
               <div className="flex items-center justify-between gap-2 rounded-lg border border-[#C9943A]/20 bg-[#C9943A]/5 px-3 py-2">
                 <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#C9943A]">
                   <Lock className="h-3 w-3" />
-                  <span>Price upon login</span>
+                  <span>Sign in to view price</span>
                 </div>
                 <Link
                   href="/login?next=/new-cars"
                   className="text-[11px] font-extrabold text-[#C9943A] underline hover:text-[#E0AE5A]"
                 >
-                  Sign in
+                  Unlock
                 </Link>
               </div>
             )}
@@ -340,14 +335,14 @@ export function CarListingCard({
           <div className="grid grid-cols-2 gap-2.5">
             <Link
               href={detailHref}
-              className="flex h-10 items-center justify-center rounded-lg border border-[#C9943A]/30 bg-[#C9943A]/10 text-[12px] font-black text-[#C9943A] transition-all hover:bg-[#C9943A]/20"
+              className="flex h-10 items-center justify-center whitespace-nowrap rounded-lg border border-[#C9943A]/30 bg-[#C9943A]/10 text-[12px] font-bold text-[#F0C46E] transition-all hover:bg-[#C9943A]/20 hover:text-[#FFE0A2]"
             >
               Details
             </Link>
             <button
               type="button"
               onClick={() => setModalOpen(true)}
-              className="flex h-10 items-center justify-center gap-1.5 rounded-lg bg-[#25D366] text-[12px] font-black text-black transition-colors hover:bg-[#20BD5A]"
+              className="flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-[#25D366] text-[12px] font-bold text-[#071b0e] transition-colors hover:bg-[#20BD5A]"
             >
               <MessageCircle className="h-3.5 w-3.5" fill="currentColor" />
               WhatsApp

@@ -61,7 +61,7 @@ export function FeaturedCars() {
   }, []);
 
   return (
-    <section id="new-cars" className="bg-black px-6 py-24 lg:px-16">
+    <section id="new-cars" className="bg-[#242424] px-6 py-24 lg:px-16">
       {/* Divider */}
       <div className="mx-auto mb-16 h-px max-w-7xl bg-gradient-to-r from-transparent via-white/8 to-transparent" />
 

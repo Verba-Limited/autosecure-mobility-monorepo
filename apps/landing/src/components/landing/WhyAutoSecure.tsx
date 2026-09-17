@@ -36,20 +36,19 @@ const POINTS: Point[] = [
 
 export function WhyAutoSecure() {
   return (
-    <section id="why-autosecure" className="bg-[#050505] px-6 py-24 lg:px-16">
+    <section id="why-autosecure" className="bg-[#303030] px-6 py-24 lg:px-16">
       {/* Gold top line */}
       <div className="mx-auto mb-16 h-px max-w-7xl bg-gradient-to-r from-transparent via-[#C9943A]/25 to-transparent" />
 
       <div className="mx-auto max-w-7xl">
         <ScrollReveal className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center rounded-full border border-[#C9943A]/20 bg-[#C9943A]/10 px-4 py-1.5 text-xs font-semibold text-[#C9943A]">
-            Why autoSecure
+            The autoSecure difference
           </span>
           <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Built on Trust.
+            The details that make
             <br />
-            Powered by{" "}
-            <span className="text-[#C9943A]">Transparency.</span>
+            a <span className="text-[#C9943A]">real difference.</span>
           </h2>
         </ScrollReveal>
 
@@ -57,7 +56,7 @@ export function WhyAutoSecure() {
           {POINTS.map((point, index) => (
             <ScrollReveal
               key={point.title}
-              className="rounded-2xl border border-white/8 bg-[#0d0d0d] p-6 text-center transition-all duration-300 hover:border-[#C9943A]/20 hover:-translate-y-0.5"
+              className="rounded-2xl border border-white/10 bg-[#393939] p-6 text-center transition-all duration-300 hover:border-[#C9943A]/35 hover:-translate-y-0.5"
               delay={index * 90}
             >
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-[#C9943A]/15 bg-[#C9943A]/8">

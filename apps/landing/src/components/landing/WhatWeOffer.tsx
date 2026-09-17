@@ -4,12 +4,12 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export function WhatWeOffer() {
   return (
-    <section id="about" className="bg-black px-6 py-24 lg:px-16">
+    <section id="about" className="bg-[#242424] px-6 py-24 lg:px-16">
       {/* Subtle divider glow */}
       <div className="mx-auto mb-16 h-px max-w-7xl bg-gradient-to-r from-transparent via-[#C9943A]/30 to-transparent" />
 
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
-        <ScrollReveal className="relative overflow-hidden rounded-[24px] border border-white/8 bg-[#0d0d0d]">
+        <ScrollReveal className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[#343434]">
           <ImagePlaceholder
             label="autoSecure Mobility team and vehicles"
             className="h-[380px] w-full"

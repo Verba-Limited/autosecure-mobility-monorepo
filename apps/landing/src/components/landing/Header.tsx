@@ -33,10 +33,10 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`landing-header sticky top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "border-b border-white/8 bg-black/95 backdrop-blur-md shadow-[0_1px_0_rgba(201,148,58,0.15)]"
-          : "border-b border-white/5 bg-black/80 backdrop-blur-sm"
+          ? "border-b border-white/10 bg-[#242424]/95 backdrop-blur-md shadow-[0_1px_0_rgba(255,255,255,0.08)]"
+          : "border-b border-white/8 bg-[#242424]/90 backdrop-blur-sm"
       }`}
     >
       <div className="mx-auto flex h-[76px] max-w-[1210px] items-center justify-between px-6 lg:px-8">
@@ -53,7 +53,7 @@ export function Header() {
           </div>
 
           <span className="leading-tight">
-            <span className="block text-[18px] font-black tracking-tight text-white">
+            <span className="brand-wordmark block text-[20px] tracking-tight text-white">
               auto<span className="text-[#C9943A]">Secure</span>
             </span>
             <span className="block text-[10px] font-black tracking-[0.24em] text-white/30">
@@ -115,7 +115,7 @@ export function Header() {
 
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="border-t border-white/8 bg-black md:hidden">
+        <div className="border-t border-white/10 bg-[#242424] md:hidden">
           <nav className="flex flex-col px-6 py-4">
             {NAV_LINKS.map((link) => (
               <Link

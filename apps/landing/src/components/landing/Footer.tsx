@@ -42,7 +42,7 @@ const SOCIALS = [Globe, Briefcase, MessageCircle, Users];
 
 export function Footer() {
   return (
-    <footer className="bg-black border-t border-white/6 px-6 pb-14 pt-16 lg:px-8">
+    <footer className="bg-[#242424] border-t border-white/10 px-6 pb-14 pt-16 lg:px-8">
       {/* Gold line */}
       <div className="mx-auto mb-14 h-px max-w-[1210px] bg-gradient-to-r from-transparent via-[#C9943A]/20 to-transparent" />
 
@@ -71,9 +71,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="mt-7 max-w-[17rem] text-[14px] font-semibold leading-7 text-white/35">
-              Nigeria&apos;s most trusted automotive marketplace. New cars,
-              certified pre-owned vehicles, and premium parts — all verified,
-              all secured.
+              A Nigerian automotive marketplace for new cars, pre-owned vehicles and parts—designed to make every next step clearer.
             </p>
             <div className="mt-8 flex gap-3">
               {SOCIALS.map((Icon, index) => (

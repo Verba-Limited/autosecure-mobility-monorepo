@@ -2,14 +2,14 @@
 @import "@autosecure/config/tokens.css";
 
 :root {
-  --background: #000000;
+  --background: #242424;
   --foreground: #ffffff;
 
   /* ── Black luxury palette ── */
-  --bg-primary: #000000;
-  --bg-card: #111111;
-  --bg-elevated: #1a1a1a;
-  --bg-input: #0d0d0d;
+  --bg-primary: #242424;
+  --bg-card: #303030;
+  --bg-elevated: #373737;
+  --bg-input: #2b2b2b;
   --border: rgba(255, 255, 255, 0.08);
   --border-gold: rgba(201, 148, 58, 0.3);
 
@@ -21,6 +21,9 @@
   --text-secondary: rgba(255, 255, 255, 0.55);
   --text-muted: rgba(255, 255, 255, 0.3);
   --text-gold: #c9943a;
+  --font-interface: "Exo", "Segoe UI", Arial, sans-serif;
+  --font-editorial: "Aldrich", "Segoe UI", sans-serif;
+  --font-navigation: "Rajdhani", "Segoe UI", sans-serif;
 }
 
 @theme inline {
@@ -35,7 +38,103 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-interface);
+}
+
+/* Landing pages use a restrained editorial voice rather than a generic UI display face. */
+.landing h1,
+.landing h2,
+.landing h3,
+.landing-header .brand-wordmark {
+  font-family: var(--font-editorial);
+  font-weight: 700;
+}
+
+.landing h1,
+.landing h2 {
+  letter-spacing: -0.045em;
+}
+
+.landing .landing-kicker {
+  font-family: var(--font-interface);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.landing-header nav,
+.landing-header button,
+.landing-header a {
+  font-family: var(--font-navigation);
+  letter-spacing: 0.03em;
+}
+
+/* Landing surfaces: layered charcoal and slate, with white typography for a softer dark theme. */
+body:has(.landing) {
+  background: #1d1d1d;
+  color: #ffffff;
+}
+
+body:has(.landing) .landing,
+body:has(.landing) .landing-header,
+body:has(.landing) footer {
+  background: #1d1d1d !important;
+  color: #ffffff;
+}
+
+/* Navigation pages share the landing page's charcoal shell instead of reverting to black. */
+.landing-header,
+footer,
+main[class*="bg-black"] {
+  background-color: #1d1d1d !important;
+}
+
+body:has(.landing) .landing section {
+  background-color: #1d1d1d !important;
+}
+
+body:has(.landing) .landing > section:first-child {
+  background-color: #454545 !important;
+}
+
+body:has(.landing) :is(.landing, .landing-header, footer) [class*="bg-[#0"],
+body:has(.landing) :is(.landing, .landing-header, footer) [class*="bg-black"],
+body:has(.landing) :is(.landing, .landing-header, footer) [class*="bg-white/"] {
+  background-color: #454545 !important;
+}
+
+body:has(.landing) .landing > section:first-child [class*="bg-black"],
+body:has(.landing) .landing > section:first-child [class*="bg-[#0"] {
+  background-color: #454545 !important;
+}
+
+body:has(.landing) :is(.landing, .landing-header, footer) [class*="border-white"] {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+body:has(.landing) :is(.landing, .landing-header, footer) [class*="text-white"] {
+  color: #ffffff !important;
+}
+
+body:has(.landing) .landing > section:first-child [class*="text-white"] {
+  color: #ffffff !important;
+}
+
+body:has(.landing) :is(.landing, .landing-header, footer) [class*="text-white/"] {
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+body:has(.landing) .landing > section:first-child [class*="text-white/"] {
+  color: rgba(255, 255, 255, 0.76) !important;
+}
+
+body:has(.landing) :is(.landing, .landing-header, footer) [class*="shadow-"] {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16) !important;
+}
+
+body:has(.landing) .landing > section:first-child [class*="shadow-"] {
+  box-shadow: none !important;
 }
 
 /* ── Scrollbar ── */
@@ -43,7 +142,7 @@ body {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #111;
+  background: #2a2a2a;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(201, 148, 58, 0.4);
