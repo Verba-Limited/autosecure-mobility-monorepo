@@ -19,20 +19,21 @@ export default async function NewCarsPage() {
   return (
     <>
       <Header />
-      <main className="bg-white px-6 pb-24 pt-14 lg:px-16">
+      <main className="min-h-screen bg-black px-6 pb-24 pt-14 lg:px-16">
         <div className="mx-auto max-w-[1210px]">
-          <nav className="text-[13px] font-black text-[#8CA0C0]">
-            <Link href="/" className="hover:text-navy-900/70">
+          {/* Breadcrumb */}
+          <nav className="text-[13px] font-semibold text-white/30">
+            <Link href="/" className="hover:text-white/60 transition-colors">
               Home
             </Link>
-            <span className="mx-3 text-[#D8E1EF]">/</span>
-            <span className="text-[#2454D6]">New Cars</span>
+            <span className="mx-3 text-white/15">/</span>
+            <span className="text-[#C9943A]">New Cars</span>
           </nav>
 
-          <h1 className="mt-6 text-5xl font-black leading-none tracking-[-0.055em] text-[#071225] sm:text-[58px]">
-            Brand-New <span className="text-[#1588A0]">Vehicles</span>
+          <h1 className="mt-6 text-5xl font-black leading-none tracking-[-0.055em] text-white sm:text-[58px]">
+            Brand-New <span className="text-[#C9943A]">Vehicles</span>
           </h1>
-          <p className="mt-6 max-w-2xl text-[17px] font-semibold leading-7 text-[#8CA0C0]">
+          <p className="mt-6 max-w-2xl text-[17px] font-semibold leading-7 text-white/40">
             Factory-fresh cars from top manufacturers. Specs, video, and
             flexible pricing.
           </p>

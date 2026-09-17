@@ -30,7 +30,7 @@ function readPrice(item: ApiInventoryItem): number {
 }
 
 function SkeletonBlock({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded-lg bg-slate-100 ${className}`} />;
+  return <div className={`animate-pulse rounded-lg bg-white/6 ${className}`} />;
 }
 
 export default function PartDetailPage() {
@@ -99,24 +99,24 @@ export default function PartDetailPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-[#FFFDF7] px-6 pb-28 pt-14 lg:px-16">
+      <main className="min-h-screen bg-black px-6 pb-28 pt-14 lg:px-16">
         <div className="mx-auto max-w-[1210px]">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-[13px] font-black text-[#8CA0C0]">
-            <Link href="/" className="hover:text-navy-900/70">Home</Link>
-            <span className="text-[#D8E1EF]">/</span>
-            <Link href="/parts" className="text-[#E48700] hover:underline">Aftermarket Parts</Link>
+          <nav className="flex items-center gap-2 text-[13px] font-semibold text-white/30">
+            <Link href="/" className="hover:text-white/60 transition-colors">Home</Link>
+            <span className="text-white/15">/</span>
+            <Link href="/parts" className="text-blue-400 hover:text-blue-300 transition-colors">Aftermarket Parts</Link>
             {part && (
               <>
-                <span className="text-[#D8E1EF]">/</span>
-                <span className="text-[#071225]">{title}</span>
+                <span className="text-white/15">/</span>
+                <span className="text-white/60">{title}</span>
               </>
             )}
           </nav>
 
           <Link
             href="/parts"
-            className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-[#E48700] hover:underline"
+            className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-blue-400 hover:text-blue-300 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Parts
@@ -135,80 +135,89 @@ export default function PartDetailPage() {
             </div>
           ) : notFound || !part ? (
             <div className="mt-16 text-center">
-              <p className="text-2xl font-black text-[#071225]">Part not found</p>
-              <p className="mt-2 text-sm text-[#8CA0C0]">This listing may have been removed or is no longer available.</p>
-              <Link href="/parts" className="mt-6 inline-block rounded-lg bg-[#E48700] px-6 py-3 text-sm font-black text-white hover:bg-[#c97800]">
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-white/8 bg-white/4">
+                <Package className="h-10 w-10 text-white/20" />
+              </div>
+              <p className="text-2xl font-black text-white">Part not found</p>
+              <p className="mt-2 text-sm text-white/40">This listing may have been removed or is no longer available.</p>
+              <Link href="/parts" className="mt-6 inline-block rounded-lg bg-blue-500 px-6 py-3 text-sm font-bold text-white hover:bg-blue-400">
                 Browse Parts
               </Link>
             </div>
           ) : (
-            <div className="mt-8 grid gap-10 lg:grid-cols-2">
+            <div className="mt-8 grid gap-10 lg:grid-cols-2 items-start">
               {/* Image / icon */}
-              <div className="flex items-center justify-center overflow-hidden rounded-2xl bg-[#FFF3D6] p-10">
+              <div className="flex items-center justify-center overflow-hidden rounded-2xl border border-white/8 bg-[#0d0d0d] p-10">
                 {image ? (
                   <div className="relative h-[320px] w-full">
-                    <Image src={image} alt={title} fill className="object-contain drop-shadow-xl" sizes="(min-width: 1024px) 50vw, 100vw" />
+                    <Image src={image} alt={title} fill className="object-contain drop-shadow-2xl" sizes="(min-width: 1024px) 50vw, 100vw" />
                   </div>
                 ) : (
-                  <Package className="h-32 w-32 text-[#E48700]/40" />
+                  <Package className="h-32 w-32 text-blue-400/30" />
                 )}
               </div>
 
               {/* Details */}
               <div>
                 {part.partCategory && (
-                  <p className="text-[11px] font-black uppercase tracking-wide text-[#E48700]">
+                  <p className="text-[11px] font-black uppercase tracking-wide text-blue-400">
                     {part.partCategory}
                   </p>
                 )}
-                <h1 className="mt-1 text-[30px] font-black leading-tight tracking-[-0.04em] text-[#071225]">
+                <h1 className="mt-1 text-[30px] font-black leading-tight tracking-[-0.04em] text-white">
                   {title}
                 </h1>
 
                 {/* Badges */}
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <span className={`rounded-full px-3 py-1.5 text-[11px] font-black ${part.inStock === false ? "bg-slate-100 text-slate-500" : "bg-emerald-100 text-emerald-700"}`}>
+                  <span
+                    className={`rounded-full px-3 py-1.5 text-[11px] font-black ${
+                      part.inStock === false
+                        ? "border border-white/10 bg-white/5 text-white/40"
+                        : "border border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                    }`}
+                  >
                     {part.inStock === false ? "Out of Stock" : "In Stock"}
                   </span>
                   {part.brand && (
-                    <span className="rounded-full border border-[#DDE6F2] px-3 py-1.5 text-[11px] font-black text-[#5A7090]">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-black text-white/50">
                       {part.brand}
                     </span>
                   )}
                   {part.vehicleCompatibility?.map((v) => (
-                    <span key={v} className="rounded-full bg-[#FFF3D6] px-3 py-1.5 text-[11px] font-black text-[#E48700]">
+                    <span key={v} className="rounded-full border border-blue-500/20 bg-blue-500/8 px-3 py-1.5 text-[11px] font-black text-blue-400">
                       {v}
                     </span>
                   ))}
                 </div>
 
                 {part.description && (
-                  <p className="mt-5 text-[15px] leading-7 text-[#5A7090]">
+                  <p className="mt-5 text-[15px] leading-7 text-white/45">
                     {part.description}
                   </p>
                 )}
 
                 {/* Delivery */}
-                <div className="mt-5 rounded-xl border border-[#DDE6F2] bg-white p-4">
-                  <p className="text-[12px] font-black uppercase tracking-wide text-[#8CA0C0]">Delivery</p>
-                  <p className="mt-1 text-sm font-semibold text-[#071225]">Standard · 3-5 business days</p>
+                <div className="mt-5 rounded-xl border border-white/8 bg-white/4 p-4">
+                  <p className="text-[12px] font-black uppercase tracking-wide text-white/30">Delivery</p>
+                  <p className="mt-1 text-sm font-semibold text-white/70">Standard · 3-5 business days</p>
                 </div>
 
-                <p className="mt-6 text-[34px] font-black leading-none tracking-[-0.04em] text-[#071225]">
+                <p className="mt-6 text-[34px] font-black leading-none tracking-[-0.04em] text-[#C9943A]">
                   {formatNaira(price)}
                 </p>
 
                 <div className="mt-5 grid grid-cols-2 gap-3">
                   <Link
                     href="/parts"
-                    className="flex h-12 items-center justify-center rounded-[10px] bg-[#FFF3D6] text-[13px] font-black text-[#E48700] hover:bg-[#FFE8AC]"
+                    className="flex h-12 items-center justify-center rounded-[10px] border border-blue-500/15 bg-blue-500/8 text-[13px] font-black text-blue-400 hover:bg-blue-500/15 transition-all"
                   >
                     ← Back to Parts
                   </Link>
                   <button
                     type="button"
                     onClick={() => setModalOpen(true)}
-                    className="flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#25D366] text-[13px] font-black text-white hover:bg-[#20BD5A]"
+                    className="flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#25D366] text-[13px] font-black text-black hover:bg-[#20BD5A] transition-colors"
                   >
                     <MessageCircle className="h-4 w-4" fill="currentColor" />
                     WhatsApp Seller

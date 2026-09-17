@@ -11,18 +11,19 @@ import {
 import { PartProductCard } from "@/components/parts/PartProductCard";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { fetchParts } from "@/lib/catalog-api";
+import { VehiclePartsFinder } from "@/components/parts/VehiclePartsFinder";
 
 type ActiveCategory = (typeof PART_CATEGORIES)[number];
 
 function SkeletonCard() {
   return (
-    <div className="animate-pulse rounded-2xl border border-[#DDE6F2] bg-white overflow-hidden">
-      <div className="h-44 bg-slate-100" />
+    <div className="animate-pulse rounded-2xl border border-white/8 bg-[#0d0d0d] overflow-hidden">
+      <div className="h-44 bg-white/5" />
       <div className="p-4 space-y-3">
-        <div className="h-3 w-1/2 rounded bg-slate-100" />
-        <div className="h-4 w-2/3 rounded bg-slate-200" />
-        <div className="h-3 w-full rounded bg-slate-100" />
-        <div className="h-5 w-1/3 rounded bg-slate-200" />
+        <div className="h-3 w-1/2 rounded bg-white/5" />
+        <div className="h-4 w-2/3 rounded bg-white/10" />
+        <div className="h-3 w-full rounded bg-white/5" />
+        <div className="h-5 w-1/3 rounded bg-white/10" />
       </div>
     </div>
   );
@@ -80,8 +81,14 @@ export function PartsExplorer({
     });
   }, [activeCategory, products, query]);
 
+  function searchByVehiclePart(part: string) {
+    setActiveCategory(part as ActiveCategory);
+    setQuery(part);
+  }
+
   return (
     <div>
+      <VehiclePartsFinder onSearch={searchByVehiclePart} />
       <ScrollReveal
         className="grid gap-8 lg:grid-cols-[1fr_360px] lg:items-start"
         variant="fade-up"
@@ -91,16 +98,16 @@ export function PartsExplorer({
             {DELIVERY_OPTIONS.map((option) => (
               <div
                 key={option.title}
-                className="flex items-center gap-3 rounded-[10px] border border-[#DDE6F2] bg-white px-4 py-3"
+                className="flex items-center gap-3 rounded-[10px] border border-white/8 bg-white/4 px-4 py-3"
               >
                 <span
                   className={`h-2.5 w-2.5 shrink-0 rounded-full ${option.colorClassName}`}
                 />
                 <span>
-                  <span className="block text-[12px] font-black leading-tight text-[#071225]">
+                  <span className="block text-[12px] font-black leading-tight text-white">
                     {option.title}
                   </span>
-                  <span className="mt-0.5 block text-[11px] font-semibold leading-tight text-[#8CA0C0]">
+                  <span className="mt-0.5 block text-[11px] font-semibold leading-tight text-white/40">
                     {option.description}
                   </span>
                 </span>
@@ -110,13 +117,13 @@ export function PartsExplorer({
         </div>
 
         <label className="relative mt-0 lg:mt-[-68px]">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#071225]" />
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" />
           <input
             type="text"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search parts, brand, model..."
-            className="h-12 w-full rounded-[12px] border border-[#DDE6F2] bg-white pl-12 pr-4 text-sm font-semibold text-[#071225] placeholder:text-[#8CA0C0] focus:border-[#F59E0B]/50 focus:outline-none"
+            className="h-12 w-full rounded-[12px] border border-white/10 bg-[#141414] pl-12 pr-4 text-sm font-semibold text-white placeholder:text-white/30 focus:border-amber-400/50 focus:outline-none transition-colors"
           />
         </label>
       </ScrollReveal>
@@ -129,8 +136,8 @@ export function PartsExplorer({
             onClick={() => setActiveCategory(category)}
             className={`h-8 rounded-full px-5 text-[12px] font-medium transition-colors ${
               activeCategory === category
-                ? "bg-[#E48700] text-white shadow-[0_8px_16px_rgba(228,135,0,0.22)]"
-                : "border border-[#DDE6F2] bg-white text-[#0A0F1E] hover:bg-[#F6F8FC]"
+                ? "bg-amber-500 text-black font-bold shadow-[0_8px_16px_rgba(245,158,11,0.25)]"
+                : "border border-white/8 bg-white/4 text-white/70 hover:bg-white/8 hover:text-white"
             }`}
           >
             {category}
@@ -138,7 +145,7 @@ export function PartsExplorer({
         ))}
         <button
           type="button"
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F59E0B] text-white shadow-[0_10px_16px_rgba(245,158,11,0.28)]"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500 text-black shadow-[0_10px_16px_rgba(245,158,11,0.28)]"
           aria-label="Next categories"
         >
           <ArrowRight className="h-5 w-5" />
@@ -160,9 +167,9 @@ export function PartsExplorer({
           ))}
         </div>
       ) : (
-        <ScrollReveal className="mt-16 rounded-2xl border border-dashed border-[#DDE6F2] py-16 text-center">
-          <p className="text-base font-black text-[#071225]">No matching parts</p>
-          <p className="mt-1 text-sm font-semibold text-[#8CA0C0]">
+        <ScrollReveal className="mt-16 rounded-2xl border border-dashed border-white/10 bg-white/2 py-16 text-center">
+          <p className="text-base font-black text-white">No matching parts</p>
+          <p className="mt-1 text-sm font-semibold text-white/40">
             Try another category or search term.
           </p>
         </ScrollReveal>

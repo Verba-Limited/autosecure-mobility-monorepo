@@ -1,129 +1,60 @@
-import { ArrowRight, Tag, Wrench } from "lucide-react";
+import { BadgeCheck, ShieldCheck, UsersRound } from "lucide-react";
 import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export function WhatWeOffer() {
   return (
-    <section className="bg-white px-6 py-24 lg:px-16">
-      <div className="mx-auto max-w-7xl">
-        <ScrollReveal className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center rounded-full bg-cream-100 px-4 py-1.5 text-xs font-bold text-gold-600">
-            What We Offer
-          </span>
-          <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-navy-900 sm:text-5xl">
-            Everything Automotive.
-            <br />
-            <span className="text-gold-500">One Platform.</span>
-          </h2>
-          <p className="mt-5 text-base leading-relaxed text-navy-900/55">
-            From factory-fresh vehicles to certified pre-owned deals and <br />{" "}
-            premium parts - all trusted, all verified.
-          </p>
+    <section id="about" className="bg-black px-6 py-24 lg:px-16">
+      {/* Subtle divider glow */}
+      <div className="mx-auto mb-16 h-px max-w-7xl bg-gradient-to-r from-transparent via-[#C9943A]/30 to-transparent" />
+
+      <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+        <ScrollReveal className="relative overflow-hidden rounded-[24px] border border-white/8 bg-[#0d0d0d]">
+          <ImagePlaceholder
+            label="autoSecure Mobility team and vehicles"
+            className="h-[380px] w-full"
+            src="/images/cars/featured-car.jpg"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 p-7 sm:p-9">
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#C9943A]">
+              Built for confident decisions
+            </p>
+            <p className="mt-2 max-w-sm text-lg font-black leading-snug text-white">
+              A clearer, more trustworthy way to discover your next vehicle.
+            </p>
+          </div>
         </ScrollReveal>
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          <ScrollReveal
-            className="overflow-hidden rounded-[22px] border border-[#D9E2EF] bg-white shadow-[0_18px_45px_rgba(28,43,74,0.06)]"
-            delay={80}
-          >
-            <ImagePlaceholder
-              label="New vehicle lineup"
-              className="h-[188px] w-full "
-              src="/images/cars/vehicle1.svg"
-            />
-            <div className="p-7">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#1C2B4A]">
-                New Vehicles
-              </p>
-              <h3 className="mt-3 text-[20px] font-black leading-tight text-[#1C2B4A]">
-                Brand-New Cars
-              </h3>
-              <p className="mt-3 text-[13px] font-medium leading-[1.85] text-[#4D5F7C]">
-                Factory-fresh vehicles from top global manufacturers. Full
-                specs, video walkthroughs, and flexible pricing - outright,
-                finance, or lease.
-              </p>
-              <a
-                href="#new-cars"
-                className="mt-7 flex items-center justify-between text-[12px] font-black text-[#1C2B4A]"
-              >
-                250+ models available
-                <ArrowRight className="h-3.5 w-3.5 text-[#C9943A]" />
-              </a>
-            </div>
-          </ScrollReveal>
+        <ScrollReveal delay={100}>
+          <span className="inline-flex items-center rounded-full border border-[#C9943A]/20 bg-[#C9943A]/10 px-4 py-1.5 text-xs font-bold text-[#C9943A]">
+            About autoSecure Mobility
+          </span>
+          <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
+            Your trusted partner for <span className="text-[#C9943A]">smarter mobility.</span>
+          </h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/50">
+            autoSecure Mobility brings vehicle discovery, trusted suppliers and clear decision-making tools into one dependable experience. We help customers explore confidently, compare what matters and connect with the right vehicle for their needs.
+          </p>
 
-          <ScrollReveal
-            className="overflow-hidden rounded-[22px] border border-[#E8C887] bg-white shadow-[0_18px_45px_rgba(28,43,74,0.06)]"
-            delay={180}
-          >
-            <div className="relative flex h-[188px] items-center justify-center bg-[#1C2B4A]">
-              <Tag
-                className="h-20 w-20 fill-[#FFD19A] text-[#FFD19A]"
-                strokeWidth={1.6}
-              />
-              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-[#C9943A] px-6 py-2">
-                <span className="text-[10px] font-black uppercase tracking-[0.12em] text-white">
-                  Flash Sale on Now
-                </span>
-                <span className="text-[10px] font-black text-white">
-                  Up to 25% Off
-                </span>
-              </div>
+          <div className="mt-9 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
+              <ShieldCheck className="h-5 w-5 text-[#C9943A]" />
+              <h3 className="mt-4 text-sm font-black text-white">Trust first</h3>
+              <p className="mt-2 text-xs leading-relaxed text-white/45">We put transparency and confidence at the heart of every step.</p>
             </div>
-            <div className="p-7">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#C9943A]">
-                Certified Pre-Owned
-              </p>
-              <h3 className="mt-3 text-[20px] font-black leading-tight text-[#1C2B4A]">
-                Used Cars &amp; Deals
-              </h3>
-              <p className="mt-3 text-[13px] font-medium leading-[1.85] text-[#4D5F7C]">
-                Certified pre-owned vehicles with verified mileage, condition
-                inspection reports, and exclusive deals updated weekly.
-              </p>
-              <a
-                href="#used-cars"
-                className="mt-7 flex items-center justify-between text-[12px] font-black text-[#C9943A]"
-              >
-                180+ verified listings
-                <ArrowRight className="h-3.5 w-3.5" />
-              </a>
+            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
+              <BadgeCheck className="h-5 w-5 text-[#C9943A]" />
+              <h3 className="mt-4 text-sm font-black text-white">Clear choices</h3>
+              <p className="mt-2 text-xs leading-relaxed text-white/45">Useful details and comparisons, not just a list of vehicles.</p>
             </div>
-          </ScrollReveal>
-
-          <ScrollReveal
-            className="overflow-hidden rounded-[22px] border border-[#E8E0D0] bg-white shadow-[0_18px_45px_rgba(28,43,74,0.06)]"
-            delay={280}
-          >
-            <div className="flex h-[188px] items-center justify-center bg-[#FFF2D8]">
-              <Wrench
-                className="h-[78px] w-[78px] rotate-[-25deg] text-[#1C2B4A]"
-                strokeWidth={1.75}
-              />
+            <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
+              <UsersRound className="h-5 w-5 text-[#C9943A]" />
+              <h3 className="mt-4 text-sm font-black text-white">Customer-led</h3>
+              <p className="mt-2 text-xs leading-relaxed text-white/45">Tools designed around real needs, budgets and daily journeys.</p>
             </div>
-            <div className="p-7">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#C9943A]">
-                OEM &amp; Performance
-              </p>
-              <h3 className="mt-3 text-[20px] font-black leading-tight text-[#1C2B4A]">
-                Aftermarket Parts
-              </h3>
-              <p className="mt-3 text-[13px] font-medium leading-[1.85] text-[#4D5F7C]">
-                1,200+ performance and OEM-spec parts. Choose next-day,
-                standard, or economy delivery - prices update instantly when you
-                switch.
-              </p>
-              <a
-                href="#parts"
-                className="mt-7 flex items-center justify-between text-[12px] font-black text-[#C9943A]"
-              >
-                1,200+ parts in stock
-                <ArrowRight className="h-3.5 w-3.5" />
-              </a>
-            </div>
-          </ScrollReveal>
-        </div>
+          </div>
+        </ScrollReveal>
       </div>
     </section>
   );

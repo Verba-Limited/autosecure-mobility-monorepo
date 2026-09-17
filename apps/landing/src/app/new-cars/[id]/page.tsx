@@ -29,14 +29,14 @@ export default async function NewCarDetailsPage({
   return (
     <>
       <Header />
-      <main className="relative overflow-hidden bg-white px-6 pb-24 pt-14 lg:px-16">
+      <main className="relative min-h-screen overflow-hidden bg-black px-6 pb-24 pt-14 lg:px-16">
         <div className="mx-auto max-w-[1210px]">
-          <nav className="text-[13px] font-black text-[#8CA0C0]">
-            <Link href="/" className="hover:text-navy-900/70">
+          <nav className="text-[13px] font-semibold text-white/30">
+            <Link href="/" className="hover:text-white/60 transition-colors">
               Home
             </Link>
-            <span className="mx-3 text-[#D8E1EF]">/</span>
-            <Link href="/new-cars" className="text-[#2454D6] hover:underline">
+            <span className="mx-3 text-white/15">/</span>
+            <Link href="/new-cars" className="text-[#C9943A] hover:text-[#E0AE5A] transition-colors">
               New Cars
             </Link>
           </nav>

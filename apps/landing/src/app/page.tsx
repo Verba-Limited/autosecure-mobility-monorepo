@@ -1,5 +1,7 @@
 import { Header } from "@/components/landing/Header";
 import { Hero } from "@/components/landing/Hero";
+import { CategoryHero } from "@/components/landing/CategoryHero";
+import { VehicleDiscovery } from "@/components/landing/VehicleDiscovery";
 import { Marquee } from "@/components/landing/Marquee";
 import { WhatWeOffer } from "@/components/landing/WhatWeOffer";
 import { ProcessSteps } from "@/components/landing/ProcessSteps";
@@ -14,6 +16,8 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
+        <CategoryHero />
+        <VehicleDiscovery />
         <Marquee />
         <WhatWeOffer />
         <ProcessSteps />

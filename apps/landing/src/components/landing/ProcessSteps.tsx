@@ -21,7 +21,7 @@ const STEPS = [
     symbol: "💬",
     highlight: true,
     description:
-      "One click opens a pre-filled WhatsApp message to the dealer - average response under 2 minutes.",
+      "One click opens a pre-filled WhatsApp message to the dealer — average response under 2 minutes.",
   },
   {
     number: "04",
@@ -34,10 +34,13 @@ const STEPS = [
 
 export function ProcessSteps() {
   return (
-    <section id="process" className="bg-[#111B2F] px-6 py-24 lg:px-8">
+    <section id="process" className="bg-black px-6 py-24 lg:px-8">
+      {/* Divider */}
+      <div className="mx-auto mb-16 h-px max-w-[1180px] bg-gradient-to-r from-transparent via-white/6 to-transparent" />
+
       <div className="mx-auto max-w-[1180px] text-center">
         <ScrollReveal>
-          <span className="inline-flex h-6 items-center rounded-full border border-[#C9943A]/45 bg-[#C9943A]/15 px-4 text-[10px] font-black uppercase text-[#E0AE5A]">
+          <span className="inline-flex h-6 items-center rounded-full border border-[#C9943A]/30 bg-[#C9943A]/10 px-4 text-[10px] font-black uppercase tracking-widest text-[#C9943A]">
             Simple Process
           </span>
           <h2 className="mx-auto mt-6 max-w-[620px] text-[40px] font-black leading-[1.18] text-white sm:text-[44px]">
@@ -49,8 +52,13 @@ export function ProcessSteps() {
         </ScrollReveal>
 
         <div className="relative mt-[66px] grid gap-12 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0">
+          {/* Connecting line */}
           <div
-            className="absolute left-[10%] right-[10%] top-9 hidden h-px bg-[#C9943A]/80 lg:block"
+            className="absolute left-[10%] right-[10%] top-9 hidden h-px lg:block"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, rgba(201,148,58,0.4) 20%, rgba(201,148,58,0.4) 80%, transparent)",
+            }}
             aria-hidden
           />
 
@@ -62,10 +70,10 @@ export function ProcessSteps() {
               variant="zoom-in"
             >
               <div
-                className={`relative z-10 flex h-[74px] w-[74px] items-center justify-center rounded-full border bg-[#202638] text-[28px] shadow-[0_0_0_1px_rgba(201,148,58,0.08)] ${
+                className={`relative z-10 flex h-[74px] w-[74px] items-center justify-center rounded-full border text-[28px] ${
                   step.highlight
-                    ? "border-[#A3A337] bg-[#173438]"
-                    : "border-[#C9943A]/45"
+                    ? "border-[#C9943A]/50 bg-[#C9943A]/15 shadow-[0_0_24px_rgba(201,148,58,0.2)]"
+                    : "border-white/10 bg-[#0d0d0d] shadow-[0_0_0_1px_rgba(255,255,255,0.03)]"
                 }`}
               >
                 <span aria-hidden>{step.symbol}</span>
@@ -77,7 +85,7 @@ export function ProcessSteps() {
               <h3 className="mt-2 text-[15px] font-black leading-none text-white">
                 {step.title}
               </h3>
-              <p className="mt-3 max-w-[232px] text-[12px] font-medium leading-6 text-white/45">
+              <p className="mt-3 max-w-[232px] text-[12px] font-medium leading-6 text-white/35">
                 {step.description}
               </p>
             </ScrollReveal>

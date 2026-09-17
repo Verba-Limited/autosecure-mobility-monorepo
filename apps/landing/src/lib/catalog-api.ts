@@ -163,14 +163,59 @@ function toCarCategory(vehicle: ApiInventoryItem): CarCategory {
   return "Sedan";
 }
 
+import { formatVehiclePriceRange } from "@/lib/pricing-utils";
+
+export { formatVehiclePriceRange };
+
 export function toCar(vehicle: ApiInventoryItem): Car {
   const title = getItemTitle(vehicle);
+  const price = readPrice(vehicle);
+  const priceRange = formatVehiclePriceRange(vehicle);
+
   return {
     id: getItemId(vehicle),
     brand: deriveBrand(vehicle),
     model: deriveModel(vehicle) || title,
+    year: vehicle.year ? String(vehicle.year) : "2025",
     category: toCarCategory(vehicle),
-    badgeLabel: vehicle.year ? `New ${vehicle.year}` : "New",
+    vehicleType:
+      vehicle.bodyType ??
+      (toCarCategory(vehicle) === "SUV"
+        ? "Luxury SUV"
+        : toCarCategory(vehicle) === "Electric"
+          ? "Electric Sedan"
+          : "Sedan"),
+    bodyType:
+      (vehicle.bodyType as any) ??
+      (toCarCategory(vehicle) === "Truck"
+        ? "Pickup"
+        : toCarCategory(vehicle) === "SUV"
+          ? "SUV"
+          : toCarCategory(vehicle) === "Sports"
+            ? "Coupe"
+            : "Sedan"),
+    powertrain:
+      vehicle.fuelType ??
+      (toCarCategory(vehicle) === "Electric" ? "All-Electric" : "Turbo Petrol"),
+    fuelType:
+      (vehicle.fuelType as any) ??
+      (toCarCategory(vehicle) === "Electric" ? "Fully Electric (EV)" : "Petrol"),
+    driveType: (vehicle.driveType as any) ?? "AWD / 4WD",
+    transmission: (vehicle.transmission as any) ?? "Automatic",
+    seatingCapacity: vehicle.seatingCapacity ?? 5,
+    countryOfOrigin: "Germany",
+    keySpec:
+      vehicle.transmission
+        ? `${vehicle.transmission}${vehicle.horsepower ? ` · ${vehicle.horsepower}` : ""}`
+        : vehicle.driveType ?? "Automatic",
+    colors: vehicle.color
+      ? [{ name: vehicle.color, hex: "#333333" }]
+      : [
+          { name: "Black", hex: "#111215" },
+          { name: "White", hex: "#f5f6f8" },
+          { name: "Silver", hex: "#8c929a" },
+        ],
+    badgeLabel: vehicle.year ? `New ${vehicle.year}` : "New 2025",
     hasVideo: Boolean(vehicle.videos?.length),
     image: vehicle.images?.[0] ?? "/images/cars/vichicle2.jpg",
     specs: [
@@ -183,7 +228,8 @@ export function toCar(vehicle: ApiInventoryItem): Car {
           : "N/A",
       },
     ],
-    price: readPrice(vehicle),
+    price,
+    priceRange,
     imageLabel: title,
   };
 }
@@ -195,6 +241,9 @@ function toUsedCarCategory(vehicle: ApiInventoryItem): UsedCarCategory {
 
 export function toUsedCar(vehicle: ApiInventoryItem): UsedCar {
   const title = getItemTitle(vehicle);
+  const price = readPrice(vehicle);
+  const priceRange = formatVehiclePriceRange(vehicle);
+
   return {
     id: getItemId(vehicle),
     brand: deriveBrand(vehicle),
@@ -202,12 +251,21 @@ export function toUsedCar(vehicle: ApiInventoryItem): UsedCar {
     condition: vehicle.condition === "USED" ? "Good" : "Like New",
     fuelType:
       vehicle.fuelType?.toUpperCase() === "HYBRID" ? "Hybrid" : "Petrol",
+    bodyType: vehicle.bodyType ?? "Sedan",
+    driveType: vehicle.driveType ?? "FWD",
+    transmission: vehicle.transmission ?? "Automatic",
+    seatingCapacity: vehicle.seatingCapacity ?? 5,
+    countryOfOrigin: "Japan",
     image: vehicle.images?.[0] ?? "/images/cars/vehicle1.svg",
     mileage: vehicle.mileage ? String(vehicle.mileage) : "Mileage N/A",
     model: deriveModel(vehicle) || title,
-    price: readPrice(vehicle),
+    colors: vehicle.color
+      ? [{ name: vehicle.color, hex: "#333333" }]
+      : [{ name: "Standard", hex: "#555555" }],
+    price,
+    priceRange,
     statusBadges: ["Certified"],
-    year: vehicle.year ? String(vehicle.year) : "N/A",
+    year: vehicle.year ? String(vehicle.year) : "2022",
   };
 }
 
