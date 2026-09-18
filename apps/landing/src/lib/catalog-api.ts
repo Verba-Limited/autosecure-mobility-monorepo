@@ -44,6 +44,57 @@ type ApiListResponse<T> = {
   listings?: T[];
 };
 
+export type CatalogOption = {
+  value: string;
+  label: string;
+  count?: number;
+  imageUrl?: string | null;
+  parent?: string | null;
+};
+
+export type CatalogFacet = {
+  key: string;
+  label: string;
+  param: string;
+  multi?: boolean;
+  options: CatalogOption[];
+};
+
+export type CatalogTerm = {
+  _id: string;
+  slug: string;
+  kind: string;
+  name: string;
+  order?: number;
+  parent?: string | null;
+  metadata?: Record<string, unknown>;
+};
+
+export type CatalogUseCase = {
+  slug: string;
+  name: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  count?: number;
+};
+
+export type CatalogTrim = {
+  _id: string;
+  slug: string;
+  name: string;
+  brandSlug?: string;
+  brandName?: string;
+  modelSlug?: string;
+  modelName?: string;
+  year?: number;
+  bodyType?: string;
+  powertrain?: string;
+  useCases?: string[];
+  availableColours?: string[];
+  images?: string[];
+  specs?: Record<string, unknown>;
+};
+
 export type ApiInventoryItem = {
   _id: string;
   id?: string;
@@ -58,6 +109,12 @@ export type ApiInventoryItem = {
     retail?: number;
     promotional?: number;
     fleet?: number;
+    priceRange?: {
+      min?: number;
+      max?: number;
+      currency?: string;
+      display?: string;
+    };
     financing?: {
       downPayment?: number;
       emi?: number;
@@ -171,6 +228,7 @@ export function toCar(vehicle: ApiInventoryItem): Car {
   const title = getItemTitle(vehicle);
   const price = readPrice(vehicle);
   const priceRange = formatVehiclePriceRange(vehicle);
+  const apiPriceRange = vehicle.pricing?.priceRange;
 
   return {
     id: getItemId(vehicle),
@@ -229,6 +287,8 @@ export function toCar(vehicle: ApiInventoryItem): Car {
       },
     ],
     price,
+    priceRangeMin: apiPriceRange?.min,
+    priceRangeMax: apiPriceRange?.max,
     priceRange,
     imageLabel: title,
   };
@@ -354,8 +414,15 @@ function apiBase(): string {
 
 async function clientFetch(path: string): Promise<ApiInventoryItem[]> {
   const url = `${apiBase()}${path}`;
+  const accessToken =
+    typeof window === "undefined"
+      ? null
+      : localStorage.getItem("autosecure_customer_access_token");
   const res = await fetch(url, {
-    headers: { Accept: "application/json" },
+    headers: {
+      Accept: "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
     // 15-second timeout so slow Render cold-starts don't hang forever
     signal: AbortSignal.timeout(15_000),
   });
@@ -368,15 +435,402 @@ async function clientFetch(path: string): Promise<ApiInventoryItem[]> {
   return parseItems<ApiInventoryItem>(json);
 }
 
+async function clientFetchJson<T>(path: string): Promise<T> {
+  const accessToken =
+    typeof window === "undefined"
+      ? null
+      : localStorage.getItem("autosecure_customer_access_token");
+  const res = await fetch(`${apiBase()}${path}`, {
+    headers: {
+      Accept: "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = (await res.json()) as { data?: T } & T;
+  return json.data ?? json;
+}
+
+/**
+ * Fetch one catalog record with the current customer's access token when it is
+ * available. The API intentionally omits protected price ranges anonymously.
+ */
+export async function fetchCatalogItem(
+  path: string,
+): Promise<ApiInventoryItem | null> {
+  const accessToken =
+    typeof window === "undefined"
+      ? null
+      : localStorage.getItem("autosecure_customer_access_token");
+  const res = await fetch(`${apiBase()}${path}`, {
+    headers: {
+      Accept: "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+    },
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+  const json = (await res.json()) as { data?: ApiInventoryItem | ApiInventoryItem[] } & ApiInventoryItem;
+  const data = json.data ?? json;
+  return Array.isArray(data) ? data[0] ?? null : data;
+}
+
+export type CatalogPriceBand = {
+  value: string;
+  label: string;
+  min: number;
+  max: number;
+  currency: string;
+  count?: number;
+};
+
+export type CatalogFilterAttribute = {
+  key: string;
+  param: string;
+  label: string;
+  group: string;
+  dataType: string;
+  unit?: string | null;
+  options?: string[];
+  min?: number | null;
+  max?: number | null;
+};
+
+export type CatalogFiltersResponse = {
+  scope?: "VEHICLE" | "PART" | string;
+  category?: string | null;
+  total?: number;
+  facets?: CatalogFacet[];
+  priceBands?: CatalogPriceBand[];
+  year?: { min?: number; max?: number };
+  price?: { min?: number | null; max?: number | null };
+  attributes?: CatalogFilterAttribute[];
+  sorts?: string[];
+};
+
+export type CatalogPopularBrand = {
+  brand: string;
+  brandSlug: string;
+  logoUrl?: string | null;
+  listingCount: number;
+};
+
+export type CatalogBanner = {
+  _id: string;
+  title: string;
+  subtitle?: string | null;
+  imageUrl?: string | null;
+  ctaText?: string | null;
+  ctaLink?: string | null;
+  order?: number;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type CatalogComparisonRow = {
+  key: string;
+  label: string;
+  group: string;
+  unit: string | null;
+  values: (string | number | boolean | null)[];
+  differs: boolean;
+};
+
+export type CatalogComparisonResponse = {
+  items: ApiInventoryItem[];
+  rows: CatalogComparisonRow[];
+};
+
+export type CatalogSearchSuggestion = {
+  key: string;
+  reason: string;
+  items: ApiInventoryItem[];
+};
+
+export type CatalogSearchResponse = {
+  items: ApiInventoryItem[];
+  meta: {
+    totalItems: number;
+    itemCount: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+  };
+  exactMatch: boolean;
+  suggestions?: CatalogSearchSuggestion[];
+};
+
+export type SearchCatalogParams = {
+  q: string;
+  priceBand?: string;
+  maxPrice?: number | string;
+  minPrice?: number | string;
+  bodyType?: string;
+  powertrain?: string;
+  useCase?: string;
+  brand?: string;
+  condition?: string;
+  type?: "ALL" | "BRAND_NEW_CAR" | "USED_CAR" | "PART" | string;
+  sort?: "relevance" | "newest" | "price_asc" | "price_desc" | "most_viewed" | "year_desc" | string;
+  limit?: number | string;
+  page?: number | string;
+};
+
+export type VehicleQueryParams = {
+  category?: string;
+  brand?: string;
+  model?: string;
+  trim?: string;
+  vehicleType?: string;
+  bodyType?: string;
+  powertrain?: string;
+  driveType?: string;
+  transmission?: string;
+  year?: number | string;
+  minYear?: number | string;
+  maxYear?: number | string;
+  colour?: string;
+  minSeats?: number | string;
+  minRangeKm?: number | string;
+  countryOfOrigin?: string;
+  useCase?: string;
+  condition?: "NEW" | "USED" | string;
+  inStock?: boolean | string;
+  hotDeal?: boolean | string;
+  minPrice?: number | string;
+  maxPrice?: number | string;
+  priceBand?: string;
+  sort?: "newest" | "oldest" | "price_asc" | "price_desc" | "most_viewed" | "year_desc" | string;
+  limit?: number | string;
+  page?: number | string;
+  [key: `attr.${string}`]: string | number | boolean | undefined;
+};
+
+export type PartsQueryParams = {
+  type?: "PART" | "TYRE" | "BATTERY" | "ACCESSORY" | string;
+  category?: string;
+  condition?: "NEW" | "USED" | string;
+  brand?: string;
+  oemNumber?: string;
+  inStock?: boolean | string;
+  vehicleYear?: number | string;
+  vehicleModel?: string;
+  vehicleBrand?: string;
+  vehicleTrim?: string;
+  tyreWidth?: number | string;
+  tyreAspect?: number | string;
+  tyreRim?: number | string;
+  batteryGroup?: string;
+  minCca?: number | string;
+  priceBand?: string;
+  minPrice?: number | string;
+  maxPrice?: number | string;
+  sort?: string;
+  limit?: number | string;
+  page?: number | string;
+  [key: `attr.${string}`]: string | number | boolean | undefined;
+};
+
+export async function fetchCatalogHome() {
+  return clientFetchJson<{
+    categories?: CatalogOption[];
+    hotDeals?: ApiInventoryItem[];
+    featured?: ApiInventoryItem[];
+    banners?: CatalogBanner[];
+    popularBrands?: CatalogPopularBrand[];
+    useCases?: CatalogUseCase[];
+  }>("/catalog/home");
+}
+
+export async function searchCatalog(queryOrParams: string | SearchCatalogParams): Promise<CatalogSearchResponse> {
+  const params =
+    typeof queryOrParams === "string"
+      ? { q: queryOrParams }
+      : queryOrParams;
+  const searchParams = new URLSearchParams();
+  for (const [key, val] of Object.entries(params)) {
+    if (val !== undefined && val !== null && val !== "") {
+      searchParams.set(key, String(val));
+    }
+  }
+  return clientFetchJson<CatalogSearchResponse>(`/catalog/search?${searchParams.toString()}`);
+}
+
+export async function fetchCatalogFilters(
+  scope: "VEHICLE" | "PART" | string = "VEHICLE",
+  category?: string,
+): Promise<CatalogFiltersResponse> {
+  const query = new URLSearchParams({ scope });
+  if (category) query.set("category", category);
+  return clientFetchJson<CatalogFiltersResponse>(`/catalog/filters?${query}`);
+}
+
+export async function fetchCatalogUseCases(): Promise<CatalogUseCase[]> {
+  return clientFetchJson<CatalogUseCase[]>("/catalog/use-cases");
+}
+
+export async function fetchCatalogTaxonomy(query?: { kind?: string; parent?: string }): Promise<CatalogTerm[]> {
+  const params = new URLSearchParams();
+  if (query?.kind) params.set("kind", query.kind);
+  if (query?.parent) params.set("parent", query.parent);
+  const qs = params.toString();
+  return clientFetchJson<CatalogTerm[]>(`/catalog/taxonomy${qs ? `?${qs}` : ""}`);
+}
+
+export async function fetchCatalogBrands(): Promise<CatalogTerm[]> {
+  return clientFetchJson<CatalogTerm[]>("/catalog/brands");
+}
+
+export async function fetchPopularCatalogBrands(limit?: number): Promise<CatalogPopularBrand[]> {
+  const query = limit ? `?limit=${limit}` : "";
+  return clientFetchJson<CatalogPopularBrand[]>(`/catalog/brands/popular${query}`);
+}
+
+export async function fetchBrandModels(brandSlug: string): Promise<CatalogTerm[]> {
+  return clientFetchJson<CatalogTerm[]>(`/catalog/brands/${encodeURIComponent(brandSlug)}/models`);
+}
+
+export async function fetchModelTrims(modelSlug: string, year?: number | string): Promise<CatalogTrim[]> {
+  const query = year ? `?year=${year}` : "";
+  return clientFetchJson<CatalogTrim[]>(`/catalog/models/${encodeURIComponent(modelSlug)}/trims${query}`);
+}
+
+export async function fetchCatalogTrims(
+  queryOrParams?: string | { q?: string; brand?: string; model?: string; bodyType?: string; powertrain?: string; useCase?: string; limit?: number | string; page?: number | string },
+): Promise<{ items: CatalogTrim[]; meta?: unknown }> {
+  let qs = "";
+  if (typeof queryOrParams === "string") {
+    qs = queryOrParams ? `?q=${encodeURIComponent(queryOrParams)}` : "";
+  } else if (queryOrParams && typeof queryOrParams === "object") {
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(queryOrParams)) {
+      if (v !== undefined && v !== null && v !== "") params.set(k, String(v));
+    }
+    qs = params.toString() ? `?${params.toString()}` : "";
+  }
+  return clientFetchJson<{ items: CatalogTrim[]; meta?: unknown }>(`/catalog/trims${qs}`);
+}
+
+export async function fetchCatalogTrim(
+  trimSlug: string,
+): Promise<CatalogTrim & { review?: Record<string, unknown>; listings?: ApiInventoryItem[]; alternatives?: CatalogTrim[] }> {
+  return clientFetchJson<
+    CatalogTrim & { review?: Record<string, unknown>; listings?: ApiInventoryItem[]; alternatives?: CatalogTrim[] }
+  >(`/catalog/trims/${encodeURIComponent(trimSlug)}`);
+}
+
+export async function fetchFeaturedVehicles(limit?: number): Promise<ApiInventoryItem[]> {
+  const query = limit ? `?limit=${limit}` : "";
+  const items = await clientFetchJson<ApiInventoryItem[]>(`/catalog/vehicles/featured${query}`);
+  return Array.isArray(items) ? items : [];
+}
+
+export async function fetchFeaturedCars(limit?: number): Promise<Car[]> {
+  const items = await fetchFeaturedVehicles(limit);
+  return items.map(toCar);
+}
+
+export async function fetchHotDeals(limit?: number): Promise<ApiInventoryItem[]> {
+  const query = limit ? `?limit=${limit}` : "";
+  const items = await clientFetchJson<ApiInventoryItem[]>(`/catalog/hot-deals${query}`);
+  return Array.isArray(items) ? items : [];
+}
+
+export async function fetchVehicleComparison(
+  input: string[] | { ids?: string[]; trimIds?: string[] },
+): Promise<{ items: Car[]; rawItems: ApiInventoryItem[]; rows: CatalogComparisonRow[] }> {
+  const query = new URLSearchParams();
+  if (Array.isArray(input)) {
+    if (input.length) query.set("ids", input.slice(0, 4).join(","));
+  } else {
+    if (input.ids?.length) query.set("ids", input.ids.slice(0, 4).join(","));
+    if (input.trimIds?.length) query.set("trimIds", input.trimIds.slice(0, 4).join(","));
+  }
+  const result = await clientFetchJson<CatalogComparisonResponse>(
+    `/catalog/vehicles/compare${query.toString() ? `?${query.toString()}` : ""}`,
+  );
+  const rawItems = result.items ?? [];
+  return {
+    items: rawItems.map(toCar),
+    rawItems,
+    rows: result.rows ?? [],
+  };
+}
+
+export async function fetchVehicle(id: string): Promise<ApiInventoryItem | null> {
+  return fetchCatalogItem(`/catalog/vehicles/${encodeURIComponent(id)}`);
+}
+
+export async function fetchVehicles(
+  params?: VehicleQueryParams,
+): Promise<{ items: ApiInventoryItem[]; meta?: unknown; exactMatch?: boolean }> {
+  const searchParams = new URLSearchParams();
+  if (params) {
+    for (const [key, val] of Object.entries(params)) {
+      if (val !== undefined && val !== null && val !== "") {
+        searchParams.set(key, String(val));
+      }
+    }
+  }
+  const qs = searchParams.toString();
+  const url = `/catalog/vehicles${qs ? `?${qs}` : ""}`;
+  return clientFetchJson<{ items: ApiInventoryItem[]; meta?: unknown; exactMatch?: boolean }>(url);
+}
+
+export async function fetchPart(id: string): Promise<ApiInventoryItem | null> {
+  return fetchCatalogItem(`/catalog/parts/${encodeURIComponent(id)}`);
+}
+
+export async function fetchCatalogContact(): Promise<{ phone?: string; whatsapp?: string; email?: string }> {
+  return clientFetchJson<{ phone?: string; whatsapp?: string; email?: string }>("/catalog/contact");
+}
+
+export async function fetchListingSellerContact(
+  listingId: string,
+): Promise<{ sellerName?: string; phone?: string; email?: string; whatsappLink?: string; canMessageInApp?: boolean }> {
+  return clientFetchJson<{
+    sellerName?: string;
+    phone?: string;
+    email?: string;
+    whatsappLink?: string;
+    canMessageInApp?: boolean;
+  }>(`/catalog/listings/${encodeURIComponent(listingId)}/seller-contact`);
+}
+
+export async function fetchCatalogConfig(
+  type?: string,
+): Promise<Array<{ _id: string; type: string; value: string; metadata?: string | Record<string, unknown>; isActive?: boolean }>> {
+  const query = type ? `?type=${encodeURIComponent(type)}` : "";
+  return clientFetchJson<
+    Array<{ _id: string; type: string; value: string; metadata?: string | Record<string, unknown>; isActive?: boolean }>
+  >(`/catalog/config${query}`);
+}
+
 /** Fetch brand-new cars from the PUBLIC vehicles catalog */
 export async function fetchNewCars(): Promise<Car[]> {
   try {
-    const items = await clientFetch("/catalog/vehicles?page=1&limit=10");
+    const items = await clientFetch("/catalog/vehicles?page=1&limit=100");
     const newOnly = items.filter((v) => v.type === "BRAND_NEW_CAR");
     return newOnly.map(toCar);
-    // return items.length > 0 ? items.map(toCar) : [];
   } catch (err) {
     console.warn("[catalog-api] fetchNewCars failed:", err);
+    return [];
+  }
+}
+
+/** Homepage promotions managed by the backend, not a hand-maintained fixture. */
+export async function fetchHotDealCars(limit = 6): Promise<Car[]> {
+  try {
+    const items = await fetchHotDeals(limit);
+    return items
+      .filter((item) => item.type !== "PART")
+      .map(toCar);
+  } catch (err) {
+    console.warn("[catalog-api] fetchHotDealCars failed:", err);
     return [];
   }
 }
@@ -387,7 +841,6 @@ export async function fetchUsedCars(): Promise<UsedCar[]> {
     const items = await clientFetch("/catalog/vehicles?page=1&limit=10");
     const usedOnly = items.filter((v) => v.type === "USED_CAR");
     return usedOnly.map(toUsedCar);
-    // return items.length > 0 ? items.map(toUsedCar) : [];
   } catch (err) {
     console.warn("[catalog-api] fetchUsedCars failed:", err);
     return [];
@@ -395,15 +848,26 @@ export async function fetchUsedCars(): Promise<UsedCar[]> {
 }
 
 /** Fetch parts from the PUBLIC parts catalog */
-export async function fetchParts(): Promise<PartProduct[]> {
+export async function fetchParts(params?: PartsQueryParams): Promise<PartProduct[]> {
   try {
-    const items = await clientFetch("/catalog/parts?page=1&limit=10");
+    let url = "/catalog/parts?page=1&limit=20";
+    if (params) {
+      const searchParams = new URLSearchParams();
+      for (const [key, val] of Object.entries(params)) {
+        if (val !== undefined && val !== null && val !== "") {
+          searchParams.set(key, String(val));
+        }
+      }
+      url = `/catalog/parts?${searchParams.toString()}`;
+    }
+    const items = await clientFetch(url);
     return items.length > 0 ? items.map(toPart) : [];
   } catch (err) {
     console.warn("[catalog-api] fetchParts failed:", err);
     return [];
   }
 }
+
 
 // ─── Inquire helpers — browser-side POST calls ───────────────────────────────
 
@@ -491,3 +955,7 @@ export async function getCatalogUsedCars(): Promise<UsedCar[]> {
 export async function getCatalogParts(): Promise<PartProduct[]> {
   return [];
 }
+
+// ─── Customer Quotes Re-exports ─────────────────────────────────────────────
+export * from "./quotes-api";
+

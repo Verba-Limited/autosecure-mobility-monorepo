@@ -11,8 +11,8 @@ import { InquireModal } from "@/components/ui/InquireModal";
 import {
   inquirePart,
   extractWhatsappLink,
+  fetchCatalogItem,
   type ApiInventoryItem,
-  PUBLIC_API_URL,
 } from "@/lib/catalog-api";
 
 function formatNaira(value?: number) {
@@ -47,19 +47,11 @@ export default function PartDetailPage() {
 
     async function load() {
       try {
-        const baseUrl = (
-          process.env.NEXT_PUBLIC_AUTOSECURE_PUBLIC_API_URL ?? PUBLIC_API_URL
-        ).replace(/\/+$/, "");
-        const res = await fetch(`${baseUrl}/catalog/parts/${id}`, {
-          signal: AbortSignal.timeout(15_000),
-        });
-        if (res.status === 404) {
+        const data = await fetchCatalogItem(`/catalog/parts/${id}`);
+        if (!data) {
           if (!cancelled) setNotFound(true);
           return;
         }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = (await res.json()) as { data?: ApiInventoryItem } & ApiInventoryItem;
-        const data: ApiInventoryItem = json.data ?? json;
         if (!cancelled) setPart(data);
       } catch {
         if (!cancelled) setNotFound(true);

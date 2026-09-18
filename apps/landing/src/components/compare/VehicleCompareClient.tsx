@@ -14,7 +14,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { CARS, type Car } from "@/data/cars";
+import type { Car } from "@/data/cars";
 import { fetchNewCars } from "@/lib/catalog-api";
 import { getCustomerEmail } from "@/lib/auth-api";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
@@ -23,11 +23,9 @@ import { formatVehiclePriceRange } from "@/lib/pricing-utils";
 export function VehicleCompareClient() {
   const searchParams = useSearchParams();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const [allCars, setAllCars] = useState<Car[]>(CARS);
-  const [selectedIds, setSelectedIds] = useState<string[]>([
-    CARS[0]?.id ?? "",
-    CARS[1]?.id ?? "",
-  ]);
+  const [isInventoryLoading, setIsInventoryLoading] = useState(true);
+  const [allCars, setAllCars] = useState<Car[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     setIsLoggedIn(Boolean(getCustomerEmail()));
@@ -35,23 +33,21 @@ export function VehicleCompareClient() {
     // Pre-populate from query params if given
     const v1 = searchParams.get("v1");
     const v2 = searchParams.get("v2");
-    if (v1 || v2) {
-      setSelectedIds([v1 || CARS[0]?.id || "", v2 || CARS[1]?.id || ""].filter(Boolean));
-    }
-
     async function load() {
       try {
         const fetched = await fetchNewCars();
         if (fetched.length > 0) {
-          // Merge avoiding duplicates
-          const map = new Map<string, Car>();
-          for (const car of [...CARS, ...fetched]) {
-            map.set(car.id, car);
-          }
-          setAllCars(Array.from(map.values()));
+          setAllCars(fetched);
+          setSelectedIds(
+            [v1, v2].filter((id): id is string => Boolean(id && fetched.some((car) => car.id === id))).length
+              ? [v1, v2].filter((id): id is string => Boolean(id && fetched.some((car) => car.id === id)))
+              : fetched.slice(0, 2).map((car) => car.id),
+          );
         }
       } catch {
-        // Keep CARS fallback
+        setAllCars([]);
+      } finally {
+        setIsInventoryLoading(false);
       }
     }
     load();
@@ -140,6 +136,25 @@ export function VehicleCompareClient() {
     .map((id) => allCars.find((c) => c.id === id))
     .filter((c): c is Car => Boolean(c));
 
+  if (isInventoryLoading) {
+    return (
+      <div className="py-24 text-center">
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-[#C9943A] border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (allCars.length === 0) {
+    return (
+      <div className="py-20 text-center">
+        <h1 className="text-2xl font-black text-white">No live vehicles available to compare</h1>
+        <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-white/55">
+          Vehicle comparison uses the current authenticated catalogue. Please try again shortly.
+        </p>
+      </div>
+    );
+  }
+
   function setVehicleAtSlot(index: number, carId: string) {
     setSelectedIds((prev) => {
       const next = [...prev];
@@ -149,7 +164,7 @@ export function VehicleCompareClient() {
   }
 
   function addSlot() {
-    if (selectedIds.length >= 3) return;
+    if (selectedIds.length >= 4) return;
     const available = allCars.find((c) => !selectedIds.includes(c.id));
     if (available) {
       setSelectedIds((prev) => [...prev, available.id]);
@@ -174,11 +189,11 @@ export function VehicleCompareClient() {
             Compare Vehicles
           </h1>
           <p className="mt-1 text-sm text-white/50">
-            Compare up to 3 models side-by-side to make your buying decision with confidence.
+            Compare up to 4 models side-by-side to make your buying decision with confidence.
           </p>
         </div>
 
-        {selectedIds.length < 3 && (
+        {selectedIds.length < 4 && (
           <button
             type="button"
             onClick={addSlot}

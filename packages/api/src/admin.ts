@@ -128,5 +128,165 @@ export function createAdminApi(client: ApiClient) {
         body: { status },
       });
     },
+
+    // ─── Section 17: Dynamic Filters & Attributes ─────────────────────────
+    getAttributes(accessToken: string, query?: { group?: string; filterable?: boolean; scope?: string }) {
+      const params = new URLSearchParams();
+      if (query?.group) params.set("group", query.group);
+      if (query?.filterable !== undefined) params.set("filterable", String(query.filterable));
+      if (query?.scope) params.set("scope", query.scope);
+      const qs = params.toString() ? `?${params.toString()}` : "";
+      return client.request(`/admin/attributes${qs}`, { accessToken });
+    },
+
+    createAttribute(accessToken: string, payload: Record<string, unknown>) {
+      return client.request("/admin/attributes", {
+        method: "POST",
+        accessToken,
+        body: payload,
+      });
+    },
+
+    getAttribute(accessToken: string, id: string) {
+      return client.request(`/admin/attributes/${id}`, { accessToken });
+    },
+
+    updateAttribute(accessToken: string, id: string, payload: Record<string, unknown>) {
+      return client.request(`/admin/attributes/${id}`, {
+        method: "PATCH",
+        accessToken,
+        body: payload,
+      });
+    },
+
+    deleteAttribute(accessToken: string, id: string) {
+      return client.request(`/admin/attributes/${id}`, {
+        method: "DELETE",
+        accessToken,
+      });
+    },
+
+    // ─── Section 16 & 18: Dynamic Vehicle Taxonomy & Categories ─────────────
+    getTaxonomy(accessToken: string, query?: { kind?: string; parent?: string; isActive?: boolean; q?: string }) {
+      const params = new URLSearchParams();
+      if (query?.kind) params.set("kind", query.kind);
+      if (query?.parent) params.set("parent", query.parent);
+      if (query?.isActive !== undefined) params.set("isActive", String(query.isActive));
+      if (query?.q) params.set("q", query.q);
+      const qs = params.toString() ? `?${params.toString()}` : "";
+      return client.request(`/admin/taxonomy${qs}`, { accessToken });
+    },
+
+    createTaxonomyTerm(accessToken: string, payload: { kind: string; name: string; slug?: string; parent?: string | null; order?: number; isActive?: boolean; metadata?: Record<string, unknown> }) {
+      return client.request("/admin/taxonomy", {
+        method: "POST",
+        accessToken,
+        body: payload,
+      });
+    },
+
+    reorderTaxonomyTerms(accessToken: string, items: Array<{ id: string; order: number }>) {
+      return client.request("/admin/taxonomy/reorder", {
+        method: "PATCH",
+        accessToken,
+        body: items,
+      });
+    },
+
+    getTaxonomyTerm(accessToken: string, id: string) {
+      return client.request(`/admin/taxonomy/${id}`, { accessToken });
+    },
+
+    updateTaxonomyTerm(accessToken: string, id: string, payload: Record<string, unknown>) {
+      return client.request(`/admin/taxonomy/${id}`, {
+        method: "PATCH",
+        accessToken,
+        body: payload,
+      });
+    },
+
+    deleteTaxonomyTerm(accessToken: string, id: string) {
+      return client.request(`/admin/taxonomy/${id}`, {
+        method: "DELETE",
+        accessToken,
+      });
+    },
+
+    // ─── Section 18: Scalable Vehicle Trims & Specs Database ───────────────
+    getTrims(accessToken: string, query?: { brandSlug?: string; modelSlug?: string; year?: number | string; q?: string; hasUnverified?: boolean; status?: string; page?: number; limit?: number }) {
+      const params = new URLSearchParams();
+      if (query) {
+        for (const [key, val] of Object.entries(query)) {
+          if (val !== undefined && val !== null && val !== "") params.set(key, String(val));
+        }
+      }
+      const qs = params.toString() ? `?${params.toString()}` : "";
+      return client.request(`/admin/trims${qs}`, { accessToken });
+    },
+
+    createTrim(accessToken: string, payload: Record<string, unknown>) {
+      return client.request("/admin/trims", {
+        method: "POST",
+        accessToken,
+        body: payload,
+      });
+    },
+
+    getTrim(accessToken: string, id: string) {
+      return client.request(`/admin/trims/${id}`, { accessToken });
+    },
+
+    updateTrim(accessToken: string, id: string, payload: Record<string, unknown>) {
+      return client.request(`/admin/trims/${id}`, {
+        method: "PATCH",
+        accessToken,
+        body: payload,
+      });
+    },
+
+    deleteTrim(accessToken: string, id: string) {
+      return client.request(`/admin/trims/${id}`, {
+        method: "DELETE",
+        accessToken,
+      });
+    },
+
+    verifyTrimSections(accessToken: string, id: string, payload: { sections: string[] | "all"; note?: string }) {
+      return client.request(`/admin/trims/${id}/verify`, {
+        method: "POST",
+        accessToken,
+        body: payload,
+      });
+    },
+
+    publishTrim(accessToken: string, id: string) {
+      return client.request(`/admin/trims/${id}/publish`, {
+        method: "POST",
+        accessToken,
+      });
+    },
+
+    unpublishTrim(accessToken: string, id: string) {
+      return client.request(`/admin/trims/${id}/unpublish`, {
+        method: "POST",
+        accessToken,
+      });
+    },
+
+    archiveTrim(accessToken: string, id: string) {
+      return client.request(`/admin/trims/${id}/archive`, {
+        method: "POST",
+        accessToken,
+      });
+    },
+
+    duplicateTrim(accessToken: string, id: string, payload?: { year?: number; name?: string }) {
+      return client.request(`/admin/trims/${id}/duplicate`, {
+        method: "POST",
+        accessToken,
+        body: payload ?? {},
+      });
+    },
   };
 }
+

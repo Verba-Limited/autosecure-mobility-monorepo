@@ -37,16 +37,28 @@ export const manageNavItems: NavItem[] = [
     // badge is injected dynamically by Sidebar.tsx from the live API count
     badgeClassName: "bg-portal-ink text-white",
   },
-  // {
-  //   label: "Inquiries",
-  //   href: "/inquiries",
-  //   iconSrc: "/nav-icons/%F0%9F%92%AC.png",
-  //   badge: 3,
-  //   badgeClassName: "bg-brand-green-500 text-white",
-  // },
+  {
+    label: "Assigned Quotes",
+    href: "/quotes",
+    iconSrc: "/nav-icons/%F0%9F%94%A7.png",
+    badgeClassName: "bg-amber-500 text-white",
+  },
+  {
+    label: "Bookings",
+    href: "/bookings",
+    iconSrc: "/nav-icons/%F0%9F%8F%B7%EF%B8%8F.png",
+    badgeClassName: "bg-portal-blue-600 text-white",
+  },
+  {
+    label: "Inquiries",
+    href: "/inquiries",
+    iconSrc: "/nav-icons/%F0%9F%92%AC.png",
+    badgeClassName: "bg-brand-green-500 text-white",
+  },
   {
     label: "Settings",
     href: "/settings",
     iconSrc: "/nav-icons/%E2%9A%99%EF%B8%8F.png",
   },
 ];
+

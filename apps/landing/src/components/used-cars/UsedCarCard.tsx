@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check, Lock, MessageCircle, Play } from "lucide-react";
@@ -25,11 +25,7 @@ const CONDITION_STYLES: Record<UsedCar["condition"], string> = {
 export function UsedCarCard({ car }: { car: UsedCar }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    setIsLoggedIn(Boolean(getCustomerEmail()));
-  }, []);
+  const [isLoggedIn] = useState(() => Boolean(getCustomerEmail()));
 
   const hasRealId = /^[0-9a-fA-F]{24}$/.test(car.id) || !car.id.includes("-");
 

@@ -27,6 +27,18 @@ export type VehicleFilterValues = {
   countryOfOrigin: string;
 };
 
+export type VehicleFilterOptions = Partial<{
+  brands: string[];
+  years: string[];
+  colors: { name: string; hex: string }[];
+  fuelTypes: string[];
+  bodyTypes: string[];
+  driveTypes: string[];
+  seatingOptions: string[];
+  transmissions: string[];
+  countries: string[];
+}>;
+
 export const INITIAL_FILTERS: VehicleFilterValues = {
   query: "",
   brand: "",
@@ -117,11 +129,13 @@ export function VehicleFilterSidebar({
   onChange,
   onReset,
   totalResults,
+  options,
 }: {
   filters: VehicleFilterValues;
   onChange: (updated: Partial<VehicleFilterValues>) => void;
   onReset: () => void;
   totalResults: number;
+  options?: VehicleFilterOptions;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -278,7 +292,7 @@ export function VehicleFilterSidebar({
               >
                 All
               </button>
-              {BRANDS.map((brand) => (
+              {(options?.brands?.length ? options.brands : BRANDS).map((brand) => (
                 <button
                   key={brand}
                   type="button"
@@ -367,7 +381,7 @@ export function VehicleFilterSidebar({
               >
                 Any
               </button>
-              {YEARS.map((yr) => (
+              {(options?.years?.length ? options.years : YEARS).map((yr) => (
                 <button
                   key={yr}
                   type="button"
@@ -389,7 +403,7 @@ export function VehicleFilterSidebar({
               Colour
             </span>
             <div className="flex flex-wrap gap-1.5">
-              {COLORS.map((col) => (
+              {(options?.colors?.length ? options.colors : COLORS).map((col) => (
                 <button
                   key={col.name}
                   type="button"
@@ -430,7 +444,7 @@ export function VehicleFilterSidebar({
 
         {expanded.fuel && (
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {FUEL_TYPES.map((fuel) => (
+            {(options?.fuelTypes?.length ? options.fuelTypes : FUEL_TYPES).map((fuel) => (
               <button
                 key={fuel}
                 type="button"
@@ -465,7 +479,7 @@ export function VehicleFilterSidebar({
 
         {expanded.body && (
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {BODY_TYPES.map((body) => (
+            {(options?.bodyTypes?.length ? options.bodyTypes : BODY_TYPES).map((body) => (
               <button
                 key={body}
                 type="button"
@@ -500,7 +514,7 @@ export function VehicleFilterSidebar({
 
         {expanded.drive && (
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {DRIVE_TYPES.map((drive) => (
+            {(options?.driveTypes?.length ? options.driveTypes : DRIVE_TYPES).map((drive) => (
               <button
                 key={drive}
                 type="button"
@@ -541,7 +555,7 @@ export function VehicleFilterSidebar({
                 Seating Capacity
               </span>
               <div className="flex flex-wrap gap-1">
-                {SEATING_OPTIONS.map((seat) => (
+                {(options?.seatingOptions?.length ? options.seatingOptions : SEATING_OPTIONS).map((seat) => (
                   <button
                     key={seat}
                     type="button"
@@ -566,7 +580,7 @@ export function VehicleFilterSidebar({
                 Transmission
               </span>
               <div className="flex flex-wrap gap-1">
-                {TRANSMISSIONS.map((trans) => (
+                {(options?.transmissions?.length ? options.transmissions : TRANSMISSIONS).map((trans) => (
                   <button
                     key={trans}
                     type="button"
@@ -614,7 +628,7 @@ export function VehicleFilterSidebar({
                 Country of Origin
               </span>
               <div className="flex flex-wrap gap-1">
-                {COUNTRIES.map((ctry) => (
+                {(options?.countries?.length ? options.countries : COUNTRIES).map((ctry) => (
                   <button
                     key={ctry}
                     type="button"

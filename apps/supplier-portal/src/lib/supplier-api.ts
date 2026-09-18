@@ -115,12 +115,20 @@ export const supplierPortalApi = {
   uploadAvatar(formData: FormData) {
     return withSupplierAuth((token) => supplierApi.uploadAvatar(token, formData));
   },
+  deleteAvatar() {
+    return withSupplierAuth((token) => supplierApi.deleteAvatar(token));
+  },
   getDashboard() {
     return withSupplierAuth((token) => supplierApi.getDashboard(token));
   },
-  getListings(page = 1, limit = 10) {
+  getListings(page = 1, limit = 10, sort?: string) {
     return withSupplierAuth((token) =>
-      supplierApi.getListings(token, page, limit),
+      supplierApi.getListings(token, page, limit, sort),
+    );
+  },
+  getInquiries(page = 1, limit = 10) {
+    return withSupplierAuth((token) =>
+      supplierApi.getInquiries(token, page, limit),
     );
   },
   createCarListing(payload: CreateCarListingPayload) {
@@ -141,7 +149,7 @@ export const supplierPortalApi = {
   deleteListing(id: string) {
     return withSupplierAuth((token) => supplierApi.deleteListing(token, id));
   },
-  uploadListingMedia(id: string, files: File[]) {
+  uploadListingMedia(id: string, files: File[] | FormData) {
     return withSupplierAuth((token) =>
       supplierApi.uploadListingMedia(token, id, files),
     );
@@ -149,4 +157,37 @@ export const supplierPortalApi = {
   submitListing(id: string) {
     return withSupplierAuth((token) => supplierApi.submitListing(token, id));
   },
+  getAssignedQuotes(query?: Parameters<typeof supplierApi.getAssignedQuotes>[1]) {
+    return withSupplierAuth((token) =>
+      supplierApi.getAssignedQuotes(token, query),
+    );
+  },
+  getAssignedQuote(id: string) {
+    return withSupplierAuth((token) =>
+      supplierApi.getAssignedQuote(token, id),
+    );
+  },
+  respondToQuote(
+    id: string,
+    payload: Parameters<typeof supplierApi.respondToQuote>[2],
+  ) {
+    return withSupplierAuth((token) =>
+      supplierApi.respondToQuote(token, id, payload),
+    );
+  },
+  getBookings(query?: Parameters<typeof supplierApi.getBookings>[1]) {
+    return withSupplierAuth((token) => supplierApi.getBookings(token, query));
+  },
+  getBooking(id: string) {
+    return withSupplierAuth((token) => supplierApi.getBooking(token, id));
+  },
+  confirmBooking(id: string) {
+    return withSupplierAuth((token) => supplierApi.confirmBooking(token, id));
+  },
+  rejectBooking(id: string, reason: string) {
+    return withSupplierAuth((token) =>
+      supplierApi.rejectBooking(token, id, reason),
+    );
+  },
 };
+

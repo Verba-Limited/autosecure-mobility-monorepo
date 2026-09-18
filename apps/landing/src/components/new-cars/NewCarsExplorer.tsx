@@ -6,10 +6,11 @@ import { CATEGORY_FILTERS } from "@/data/categoryStyles";
 import type { Car } from "@/data/cars";
 import { CarListingCard } from "@/components/new-cars/CarListingCard";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
-import { fetchNewCars } from "@/lib/catalog-api";
+import { fetchCatalogFilters, fetchNewCars } from "@/lib/catalog-api";
 import {
   VehicleFilterSidebar,
   type VehicleFilterValues,
+  type VehicleFilterOptions,
   INITIAL_FILTERS,
 } from "@/components/catalog/VehicleFilterSidebar";
 
@@ -108,6 +109,55 @@ export function NewCarsExplorer({ cars: initialCars }: { cars: Car[] }) {
     useState<(typeof CATEGORY_FILTERS)[number]>("All");
   const [filters, setFilters] = useState<VehicleFilterValues>(INITIAL_FILTERS);
   const [sort, setSort] = useState<SortOption>("price-asc");
+  const [backendFilterOptions, setBackendFilterOptions] =
+    useState<VehicleFilterOptions | null>(null);
+
+  // These choices follow the backend inventory, so admin-added makes, models
+  // and taxonomy values appear without a frontend release.
+  const filterOptions = useMemo<VehicleFilterOptions>(() => {
+    const unique = (values: Array<string | undefined>) =>
+      [...new Set(values.filter((value): value is string => Boolean(value)))].sort();
+    return {
+      brands: unique(cars.map((car) => car.brand)),
+      years: unique(cars.map((car) => String(car.year))).sort((a, b) => b.localeCompare(a)),
+      colors: unique(cars.flatMap((car) => car.colors?.map((color) => color.name) ?? [])).map((name) => ({ name, hex: "#7a8288" })),
+      fuelTypes: unique(cars.map((car) => car.fuelType ?? car.powertrain)),
+      bodyTypes: unique(cars.map((car) => car.bodyType ?? car.vehicleType)),
+      driveTypes: unique(cars.map((car) => car.driveType)),
+      seatingOptions: unique(cars.map((car) => car.seatingCapacity ? `${car.seatingCapacity} Seats` : undefined)),
+      transmissions: unique(cars.map((car) => car.transmission)),
+      countries: unique(cars.map((car) => car.countryOfOrigin)),
+    };
+  }, [cars]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchCatalogFilters().then((response) => {
+      if (cancelled || !response.facets) return;
+      const choices = new Map(
+        response.facets.map((facet) => [
+          facet.param || facet.key,
+          facet.options.map((option) => option.label),
+        ]),
+      );
+      const read = (...keys: string[]) =>
+        keys.flatMap((key) => choices.get(key) ?? []);
+      setBackendFilterOptions({
+        brands: read("brand"),
+        years: read("year"),
+        colors: read("colour", "color").map((name) => ({ name, hex: "#7a8288" })),
+        fuelTypes: read("powertrain", "fuelType"),
+        bodyTypes: read("bodyType"),
+        driveTypes: read("driveType"),
+        seatingOptions: read("minSeats", "seatingCapacity").map((value) => /seat/i.test(value) ? value : `${value} Seats`),
+        transmissions: read("transmission"),
+        countries: read("countryOfOrigin"),
+      });
+    }).catch(() => {
+      // The live-inventory values remain a useful non-blocking fallback.
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search).get("q")?.trim() ?? "";
@@ -373,6 +423,7 @@ export function NewCarsExplorer({ cars: initialCars }: { cars: Car[] }) {
           }
           onReset={() => setFilters(INITIAL_FILTERS)}
           totalResults={results.length}
+          options={backendFilterOptions ?? filterOptions}
         />
 
         {/* Results Area */}

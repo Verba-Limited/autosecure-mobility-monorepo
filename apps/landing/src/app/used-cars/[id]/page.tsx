@@ -12,8 +12,8 @@ import { getCustomerEmail } from "@/lib/auth-api";
 import {
   inquireVehicle,
   extractWhatsappLink,
+  fetchCatalogItem,
   type ApiInventoryItem,
-  PUBLIC_API_URL,
 } from "@/lib/catalog-api";
 import { formatVehiclePriceRange } from "@/lib/pricing-utils";
 
@@ -32,9 +32,7 @@ function readPrice(item: ApiInventoryItem): number {
 }
 
 function SkeletonBlock({ className }: { className: string }) {
-  return (
-    <div className={`animate-pulse rounded-lg bg-white/6 ${className}`} />
-  );
+  return <div className={`animate-pulse rounded-lg bg-white/6 ${className}`} />;
 }
 
 export default function UsedCarDetailPage() {
@@ -44,11 +42,7 @@ export default function UsedCarDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    setIsLoggedIn(Boolean(getCustomerEmail()));
-  }, []);
+  const [isLoggedIn] = useState(() => Boolean(getCustomerEmail()));
 
   useEffect(() => {
     if (!id) return;
@@ -56,21 +50,11 @@ export default function UsedCarDetailPage() {
 
     async function load() {
       try {
-        const baseUrl = (
-          process.env.NEXT_PUBLIC_AUTOSECURE_PUBLIC_API_URL ?? PUBLIC_API_URL
-        ).replace(/\/+$/, "");
-        const res = await fetch(`${baseUrl}/catalog/vehicles/${id}`, {
-          signal: AbortSignal.timeout(15_000),
-        });
-        if (res.status === 404) {
+        const data = await fetchCatalogItem(`/catalog/vehicles/${id}`);
+        if (!data) {
           if (!cancelled) setNotFound(true);
           return;
         }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = (await res.json()) as {
-          data?: ApiInventoryItem;
-        } & ApiInventoryItem;
-        const data: ApiInventoryItem = json.data ?? json;
         if (!cancelled) setVehicle(data);
       } catch {
         if (!cancelled) setNotFound(true);
@@ -155,7 +139,10 @@ export default function UsedCarDetailPage() {
               Home
             </Link>
             <span className="text-white/15">/</span>
-            <Link href="/used-cars" className="text-emerald-400 hover:text-emerald-300 transition-colors">
+            <Link
+              href="/used-cars"
+              className="text-emerald-400 hover:text-emerald-300 transition-colors"
+            >
               Used Cars
             </Link>
             {vehicle && (
@@ -338,7 +325,10 @@ export default function UsedCarDetailPage() {
                         </span>
                       </div>
                       <p className="mt-3 border-t border-white/8 pt-3 text-xs leading-relaxed text-white/50">
-                        The exact final price is determined when you progress toward closing the transaction based on vehicle condition report, warranty packages, registration, and landing fees.
+                        The exact final price is determined when you progress
+                        toward closing the transaction based on vehicle
+                        condition report, warranty packages, registration, and
+                        landing fees.
                       </p>
                     </div>
                   ) : (
@@ -348,7 +338,8 @@ export default function UsedCarDetailPage() {
                         <p className="text-base font-bold">Pricing Protected</p>
                       </div>
                       <p className="mt-2 text-sm text-white/60 leading-relaxed">
-                        Sign in or create an account to view certified pricing, dealer discounts, and warranty terms for this vehicle.
+                        Sign in or create an account to view certified pricing,
+                        dealer discounts, and warranty terms for this vehicle.
                       </p>
                       <div className="mt-4 flex flex-wrap items-center gap-3">
                         <Link

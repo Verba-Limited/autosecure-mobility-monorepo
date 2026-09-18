@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { CarListingCard } from "@/components/new-cars/CarListingCard";
-import { fetchNewCars } from "@/lib/catalog-api";
-import { CARS } from "@/data/cars";
+import { fetchHotDealCars } from "@/lib/catalog-api";
 import type { Car } from "@/data/cars";
 import Link from "next/link";
 
@@ -41,23 +40,21 @@ export function FeaturedCars() {
 
     async function load() {
       try {
-        const fetched = await fetchNewCars();
+        const fetched = await fetchHotDealCars();
         if (!cancelled) {
-          // Show up to 3 featured cars; fall back to static mocks if API is empty
-          setCars(fetched.length > 0 ? fetched.slice(0, 3) : CARS.slice(0, 3));
+          setCars(fetched.slice(0, 3));
         }
       } catch {
-        if (!cancelled) {
-          // API unavailable — show static mock cars
-          setCars(CARS.slice(0, 3));
-        }
+        if (!cancelled) setCars([]);
       } finally {
         if (!cancelled) setIsLoading(false);
       }
     }
 
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
@@ -69,18 +66,18 @@ export function FeaturedCars() {
         <ScrollReveal className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-[#C9943A]/20 bg-[#C9943A]/10 px-4 py-1.5 text-xs font-bold text-[#C9943A]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#C9943A]" />
-              Just Arrived
+              {/* <span className="h-1.5 w-1.5 rounded-full bg-[#C9943A]" /> */}
+              Limited-time offers
             </span>
             <h2 className="mt-6 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-              Featured <span className="text-[#C9943A]">New Cars</span>
+              Hot <span className="text-[#C9943A]">Deals</span>
             </h2>
           </div>
           <Link
             href="/new-cars"
             className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white/60 transition-all hover:bg-white/10 hover:text-white hover:border-white/20"
           >
-            View Full Catalogue
+            Browse all vehicles
             <ArrowRight className="h-4 w-4" />
           </Link>
         </ScrollReveal>
@@ -92,12 +89,17 @@ export function FeaturedCars() {
               <SkeletonCard />
               <SkeletonCard />
             </>
-          ) : (
+          ) : cars.length > 0 ? (
             cars.map((car, index) => (
               <ScrollReveal key={car.id} delay={index * 120}>
                 <CarListingCard car={car} layout="grid" />
               </ScrollReveal>
             ))
+          ) : (
+            <p className="col-span-full rounded-2xl border border-white/8 bg-white/[0.03] px-6 py-8 text-center text-sm text-white/55">
+              There are no active Hot Deals right now. Check back shortly for
+              the next offer.
+            </p>
           )}
         </div>
       </div>

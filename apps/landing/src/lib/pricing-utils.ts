@@ -18,6 +18,12 @@ export function formatVehiclePriceRange(
       priceRangeMin?: number;
       priceRangeMax?: number;
       promotional?: number;
+      priceRange?: {
+        min?: number;
+        max?: number;
+        currency?: string;
+        display?: string;
+      };
     };
   } | null,
   currency: string = "₦",
@@ -30,8 +36,13 @@ export function formatVehiclePriceRange(
     return item.priceRange;
   }
 
-  const min = item.priceRangeMin ?? item.pricing?.priceRangeMin;
-  const max = item.priceRangeMax ?? item.pricing?.priceRangeMax;
+  const apiRange = item.pricing?.priceRange;
+  if (typeof apiRange?.display === "string" && apiRange.display.trim()) {
+    return apiRange.display;
+  }
+
+  const min = item.priceRangeMin ?? item.pricing?.priceRangeMin ?? apiRange?.min;
+  const max = item.priceRangeMax ?? item.pricing?.priceRangeMax ?? apiRange?.max;
   const basePrice =
     item.price ?? item.pricing?.retail ?? item.pricing?.promotional;
 
@@ -61,7 +72,7 @@ export function formatVehiclePriceRange(
         ? String(calculatedMax / 1_000_000)
         : (calculatedMax / 1_000_000).toFixed(1).replace(/\.0$/, "");
 
-    return `${currency}${minM} million – ${currency}${maxM} million`;
+    return `${apiRange?.currency === "USD" ? "$" : currency}${minM} million – ${apiRange?.currency === "USD" ? "$" : currency}${maxM} million`;
   }
 
   // Below 1M or non-naira

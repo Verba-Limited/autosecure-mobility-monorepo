@@ -3,7 +3,8 @@
 import { FormEvent, useState } from "react";
 import { CheckCircle2, Search, Send, Wrench } from "lucide-react";
 import { PART_CATEGORIES, type PartCategory } from "@/data/parts";
-import { addCustomerRequest, getCustomerEmail } from "@/lib/auth-api";
+import { getCustomerEmail } from "@/lib/auth-api";
+import { createPartQuote } from "@/lib/quotes-api";
 
 const VEHICLE_TYPES = ["Passenger car", "SUV", "Pickup", "Van / Commercial"];
 const BRANDS = ["BMW", "Mercedes-Benz", "Toyota", "Honda", "Hyundai", "Lexus", "Land Rover", "Volkswagen", "Other"];
@@ -25,6 +26,7 @@ const EMPTY_VALUES: FinderValues = { vehicleType: "", brand: "", model: "", trim
 export function VehiclePartsFinder({ onSearch }: { onSearch: (part: string) => void }) {
   const [values, setValues] = useState<FinderValues>(EMPTY_VALUES);
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const models = MODEL_HINTS[values.brand] ?? [];
 
   function update(key: keyof FinderValues, value: string) {
@@ -39,7 +41,7 @@ export function VehiclePartsFinder({ onSearch }: { onSearch: (part: string) => v
     setMessage("Showing the closest matching parts below. Confirm fitment before ordering.");
   }
 
-  function requestQuote() {
+  async function requestQuote() {
     if (!values.vehicleType || !values.brand || !values.model || !values.part) {
       setMessage("Select your vehicle type, brand, model and required part before requesting a quote.");
       return;
@@ -48,13 +50,26 @@ export function VehiclePartsFinder({ onSearch }: { onSearch: (part: string) => v
       window.location.assign("/login?next=/parts");
       return;
     }
-    addCustomerRequest({
-      requestType: "Auto Part Sourcing",
-      vehicleOrItem: `${values.brand} ${values.model}${values.trim ? ` ${values.trim}` : ""} — ${values.part}`,
-      notes: `Vehicle type: ${values.vehicleType}. Fitment request submitted from the Parts Finder.`,
-    });
-    window.location.assign("/account");
+
+    setIsSubmitting(true);
+    try {
+      await createPartQuote({
+        productType: "PART",
+        partName: values.part,
+        notes: `Vehicle type: ${values.vehicleType}${values.trim ? ` | Trim: ${values.trim}` : ""}. Sourced via Parts Finder.`,
+        vehicle: {
+          brandSlug: values.brand.toLowerCase(),
+          modelSlug: values.model.toLowerCase(),
+        },
+      });
+      window.location.assign("/account");
+    } catch {
+      setMessage("Failed to submit quotation. You can also request via your Customer Account.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
+
 
   return (
     <section className="mb-10 overflow-hidden rounded-2xl border border-amber-400/20 bg-gradient-to-r from-[#181208] via-[#12100b] to-[#0d0d0d] p-5 sm:p-7">

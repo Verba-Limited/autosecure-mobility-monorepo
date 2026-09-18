@@ -10,8 +10,8 @@ import { getCustomerEmail } from "@/lib/auth-api";
 import {
   inquireVehicle,
   extractWhatsappLink,
+  fetchCatalogItem,
   type ApiInventoryItem,
-  PUBLIC_API_URL,
 } from "@/lib/catalog-api";
 import { formatVehiclePriceRange } from "@/lib/pricing-utils";
 
@@ -42,11 +42,7 @@ export function VehicleDetailClient({ id }: { id: string }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    setIsLoggedIn(Boolean(getCustomerEmail()));
-  }, []);
+  const [isLoggedIn] = useState(() => Boolean(getCustomerEmail()));
 
   useEffect(() => {
     let cancelled = false;
@@ -85,23 +81,14 @@ export function VehicleDetailClient({ id }: { id: string }) {
 
     async function load() {
       try {
-        const baseUrl = (
-          process.env.NEXT_PUBLIC_AUTOSECURE_PUBLIC_API_URL ?? PUBLIC_API_URL
-        ).replace(/\/+$/, "");
-        const res = await fetch(`${baseUrl}/catalog/vehicles/${id}`, {
-          signal: AbortSignal.timeout(15_000),
-        });
-        if (res.status === 404) {
+        const data = await fetchCatalogItem(`/catalog/vehicles/${id}`);
+        if (!data) {
           if (!applyFallback()) {
             if (!cancelled) setNotFound(true);
           }
           return;
         }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = (await res.json()) as {
-          data?: ApiInventoryItem;
-        } & ApiInventoryItem;
-        if (!cancelled) setVehicle(json.data ?? json);
+        if (!cancelled) setVehicle(data);
       } catch {
         if (!applyFallback()) {
           if (!cancelled) setNotFound(true);
