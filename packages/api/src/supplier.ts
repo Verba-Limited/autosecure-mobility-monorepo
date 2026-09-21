@@ -291,6 +291,28 @@ export function createSupplierApi(client: ApiClient) {
         body: { reason },
       });
     },
+
+    // ─── Customer Order Tracking (#33) ──────────────────────────────────
+
+    /**
+     * List customer vehicle orders (supplier sees orders for their listings)
+     * GET /orders
+     */
+    getOrders(
+      accessToken: string,
+      query?: { status?: string; page?: number; limit?: number },
+    ) {
+      const q = toQueryString(query ?? {});
+      return client.request(`/orders${q}`, { accessToken });
+    },
+
+    /**
+     * Get a single customer order with full timeline and history
+     * GET /orders/:id
+     */
+    getOrder(accessToken: string, id: string) {
+      return client.request(`/orders/${encodeURIComponent(id)}`, { accessToken });
+    },
   };
 }
 

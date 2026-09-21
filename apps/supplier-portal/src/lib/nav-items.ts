@@ -50,6 +50,12 @@ export const manageNavItems: NavItem[] = [
     badgeClassName: "bg-portal-blue-600 text-white",
   },
   {
+    label: "Order Tracking",
+    href: "/orders",
+    iconSrc: "/nav-icons/%F0%9F%9A%9A.png",
+    badgeClassName: "bg-blue-600 text-white",
+  },
+  {
     label: "Inquiries",
     href: "/inquiries",
     iconSrc: "/nav-icons/%F0%9F%92%AC.png",

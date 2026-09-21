@@ -189,5 +189,13 @@ export const supplierPortalApi = {
       supplierApi.rejectBooking(token, id, reason),
     );
   },
+  getOrders(query?: { status?: string; page?: number; limit?: number }) {
+    return withSupplierAuth((token) =>
+      supplierApi.getOrders(token, query),
+    );
+  },
+  getOrder(id: string) {
+    return withSupplierAuth((token) => supplierApi.getOrder(token, id));
+  },
 };
 

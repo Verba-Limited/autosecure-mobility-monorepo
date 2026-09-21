@@ -15,17 +15,24 @@ import {
   type ApiInventoryItem,
 } from "@/lib/catalog-api";
 
-function formatNaira(value?: number) {
-  if (!value || isNaN(Number(value))) return "N/A";
+function formatNaira(value?: number | null) {
+  if (!value || isNaN(Number(value))) return null;
   return `₦${Number(value).toLocaleString("en-NG")}`;
 }
 
-function readPrice(item: ApiInventoryItem): number {
+function readPrice(item: ApiInventoryItem): number | null {
+  // Check top-level price first
+  if (typeof item.price === "number" && item.price > 0) return item.price;
+  // Then nested pricing object
+  const p = item.pricing;
+  if (!p) return null;
   return (
-    item.pricing?.retail ??
-    item.pricing?.promotional ??
-    item.pricing?.financing?.downPayment ??
-    0
+    p.retail ??
+    p.promotional ??
+    p.fleet ??
+    p.priceRange?.min ??
+    p.financing?.downPayment ??
+    null
   );
 }
 
@@ -195,9 +202,19 @@ export default function PartDetailPage() {
                   <p className="mt-1 text-sm font-semibold text-white/70">Standard · 3-5 business days</p>
                 </div>
 
-                <p className="mt-6 text-[34px] font-black leading-none tracking-[-0.04em] text-[#C9943A]">
-                  {formatNaira(price)}
-                </p>
+                {/* Price */}
+                {price !== null ? (
+                  <p className="mt-6 text-[34px] font-black leading-none tracking-[-0.04em] text-[#C9943A]">
+                    {formatNaira(price)}
+                  </p>
+                ) : (
+                  <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5">
+                    <span className="text-sm font-bold text-white/50">Price on request</span>
+                    <span className="rounded-full bg-blue-500/15 px-2 py-0.5 text-[11px] font-black text-blue-400">
+                      Inquire via WhatsApp
+                    </span>
+                  </div>
+                )}
 
                 <div className="mt-5 grid grid-cols-2 gap-3">
                   <Link
