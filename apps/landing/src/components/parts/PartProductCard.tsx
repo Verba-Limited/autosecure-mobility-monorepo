@@ -5,7 +5,7 @@ import { MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { PartProduct } from "@/data/parts";
-import { inquirePart, extractWhatsappLink } from "@/lib/catalog-api";
+import { inquirePart, extractWhatsappLink, buildWhatsappUrl } from "@/lib/catalog-api";
 import { InquireModal } from "@/components/ui/InquireModal";
 
 function formatNaira(value?: number) {
@@ -28,24 +28,17 @@ export function PartProductCard({ product }: { product: PartProduct }) {
     setIsSubmitting(true);
     try {
       const res = await inquirePart(product.id, data);
-      const link = extractWhatsappLink(res);
-      if (link) {
-        window.open(link, "_blank", "noopener,noreferrer");
-      } else {
-        window.open(
-          `https://wa.me/?text=${encodeURIComponent(
-            `Hi, I'm interested in ${product.name} on autoSecure Mobility.`,
-          )}`,
-          "_blank",
-          "noopener,noreferrer",
-        );
-      }
+      const link = extractWhatsappLink(
+        res,
+        `Hi, I'm interested in ${product.name} on autoSecure Mobility.`,
+      );
+      window.open(link, "_blank", "noopener,noreferrer");
       setModalOpen(false);
     } catch {
       window.open(
-        `https://wa.me/?text=${encodeURIComponent(
+        buildWhatsappUrl(
           `Hi, I'm interested in ${product.name} on autoSecure Mobility.`,
-        )}`,
+        ),
         "_blank",
         "noopener,noreferrer",
       );

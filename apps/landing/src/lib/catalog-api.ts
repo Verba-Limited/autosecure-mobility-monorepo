@@ -878,15 +878,35 @@ export type InquireData = {
 
 export type InquireResponse = Record<string, unknown>;
 
+export const AUTOSECURE_WHATSAPP_NUMBER = "2347033812556"; // +234 703 381 2556
+export const AUTOSECURE_WHATSAPP_DISPLAY = "+234 703 381 2556";
+
+export function buildWhatsappUrl(text?: string, phone = AUTOSECURE_WHATSAPP_NUMBER): string {
+  const cleanPhone = phone.replace(/[^0-9]/g, "");
+  if (!text) {
+    return `https://wa.me/${cleanPhone}`;
+  }
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+}
+
 /** Extract the WhatsApp link from any known response shape */
-export function extractWhatsappLink(res: InquireResponse): string | undefined {
+export function extractWhatsappLink(res: InquireResponse, fallbackText?: string): string {
   const candidates = [
     res.whatsappLink,
     res.whatsappUrl,
     (res.data as Record<string, unknown> | undefined)?.whatsappLink,
     (res.data as Record<string, unknown> | undefined)?.whatsappUrl,
   ];
-  return candidates.find((c) => typeof c === "string") as string | undefined;
+  const found = candidates.find((c) => typeof c === "string") as string | undefined;
+  if (found) {
+    if (found.includes("wa.me/?") || found.includes("wa.me?")) {
+      return found
+        .replace(/wa\.me\/\?/, `wa.me/${AUTOSECURE_WHATSAPP_NUMBER}?`)
+        .replace(/wa\.me\?/, `wa.me/${AUTOSECURE_WHATSAPP_NUMBER}?`);
+    }
+    return found;
+  }
+  return buildWhatsappUrl(fallbackText);
 }
 
 async function clientPost(

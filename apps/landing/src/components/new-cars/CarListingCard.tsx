@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, Play, Lock } from "lucide-react";
+import { Heart, MessageCircle, Play, Lock } from "lucide-react";
 import type { Car } from "@/data/cars";
-import { inquireVehicle, extractWhatsappLink } from "@/lib/catalog-api";
+import { inquireVehicle, extractWhatsappLink, buildWhatsappUrl } from "@/lib/catalog-api";
 import { InquireModal } from "@/components/ui/InquireModal";
 import { getCustomerEmail } from "@/lib/auth-api";
 import { formatVehiclePriceRange } from "@/lib/pricing-utils";
+import { isVehicleSaved, toggleFavorite, subscribeToFavorites } from "@/lib/favorites";
 
 export function CarListingCard({
   car,
@@ -20,6 +21,7 @@ export function CarListingCard({
   const [modalOpen, setModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(
     car.colors?.[0]?.name ?? null,
   );
@@ -27,6 +29,34 @@ export function CarListingCard({
   useEffect(() => {
     setIsLoggedIn(Boolean(getCustomerEmail()));
   }, []);
+
+  useEffect(() => {
+    setIsSaved(isVehicleSaved(car.id));
+    return subscribeToFavorites(() => {
+      setIsSaved(isVehicleSaved(car.id));
+    });
+  }, [car.id]);
+
+  function handleToggleFavorite(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const next = toggleFavorite({
+      id: car.id,
+      title: `${car.brand} ${car.model}`,
+      brand: car.brand,
+      model: car.model,
+      year: car.year,
+      image: car.image,
+      price: car.price,
+      priceRange: car.priceRange,
+      type: "BRAND_NEW_CAR",
+      category: car.category,
+      fuelType: car.fuelType,
+      transmission: car.transmission,
+      dealBadge: car.badgeLabel,
+    });
+    setIsSaved(next);
+  }
 
   const detailHref = `/new-cars/${car.id}`;
 
@@ -37,18 +67,20 @@ export function CarListingCard({
     setIsSubmitting(true);
     try {
       const res = await inquireVehicle(car.id, data);
-      const link = extractWhatsappLink(res);
-      if (link) {
-        window.open(link, "_blank", "noopener,noreferrer");
-      } else {
-        window.open(
-          `https://wa.me/?text=${encodeURIComponent(
-            `Hi, I'm interested in the ${car.brand} ${car.model} (${car.year ?? "New"}) listed on autoSecure Mobility.`,
-          )}`,
-          "_blank",
-          "noopener,noreferrer",
-        );
-      }
+      const link = extractWhatsappLink(
+        res,
+        `Hi, I'm interested in the ${car.brand} ${car.model} (${car.year ?? "New"}) listed on autoSecure Mobility.`,
+      );
+      window.open(link, "_blank", "noopener,noreferrer");
+      setModalOpen(false);
+    } catch {
+      window.open(
+        buildWhatsappUrl(
+          `Hi, I'm interested in the ${car.brand} ${car.model} (${car.year ?? "New"}) listed on autoSecure Mobility.`,
+        ),
+        "_blank",
+        "noopener,noreferrer",
+      );
       setModalOpen(false);
     } finally {
       setIsSubmitting(false);
@@ -80,14 +112,23 @@ export function CarListingCard({
                 {car.badgeLabel || `New ${car.year ?? 2025}`}
               </span>
 
-              {car.hasVideo && (
-                <span className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-black/60 backdrop-blur-md">
-                  <Play
-                    className="h-3.5 w-3.5 text-white/80"
-                    fill="currentColor"
-                  />
-                </span>
-              )}
+              {/* Save heart button */}
+              <button
+                type="button"
+                onClick={handleToggleFavorite}
+                aria-label={isSaved ? "Remove from favorites" : "Save to favorites"}
+                className={`absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg backdrop-blur-md border transition-all ${
+                  isSaved
+                    ? "bg-rose-500/20 border-rose-500/50 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.4)]"
+                    : "bg-black/60 border-white/10 text-white/60 hover:text-rose-400 hover:bg-black/80"
+                }`}
+              >
+                <Heart
+                  className="h-4 w-4"
+                  fill={isSaved ? "currentColor" : "none"}
+                  strokeWidth={2.5}
+                />
+              </button>
             </div>
 
             {/* Content Column */}
@@ -245,6 +286,24 @@ export function CarListingCard({
             <span className="absolute left-4 top-4 rounded-full border border-[#C9943A]/30 bg-black/75 px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-[#C9943A] backdrop-blur-md">
               {car.badgeLabel || `New ${car.year ?? 2025}`}
             </span>
+
+            {/* Save heart button */}
+            <button
+              type="button"
+              onClick={handleToggleFavorite}
+              aria-label={isSaved ? "Remove from favorites" : "Save to favorites"}
+              className={`absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg backdrop-blur-md border transition-all ${
+                isSaved
+                  ? "bg-rose-500/20 border-rose-500/50 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.4)]"
+                  : "bg-black/60 border-white/10 text-white/60 hover:text-rose-400 hover:bg-black/80"
+              }`}
+            >
+              <Heart
+                className="h-4 w-4"
+                fill={isSaved ? "currentColor" : "none"}
+                strokeWidth={2.5}
+              />
+            </button>
           </div>
 
           <div className="p-6">

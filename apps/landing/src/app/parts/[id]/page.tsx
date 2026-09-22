@@ -11,6 +11,7 @@ import { InquireModal } from "@/components/ui/InquireModal";
 import {
   inquirePart,
   extractWhatsappLink,
+  buildWhatsappUrl,
   fetchCatalogItem,
   type ApiInventoryItem,
 } from "@/lib/catalog-api";
@@ -76,15 +77,19 @@ export default function PartDetailPage() {
     setIsSubmitting(true);
     try {
       const res = await inquirePart(id, data);
-      const link = extractWhatsappLink(res);
+      const link = extractWhatsappLink(res, `Hi, I'm interested in ${part?.title ?? part?.partName ?? "a part"} on autoSecure Mobility.`);
       window.open(
-        link ?? `https://wa.me/?text=${encodeURIComponent(`Hi, I'm interested in ${part?.title ?? "a part"} on autoSecure Mobility.`)}`,
+        link,
         "_blank",
         "noopener,noreferrer",
       );
       setModalOpen(false);
     } catch {
-      window.open(`https://wa.me/?text=${encodeURIComponent(`Hi, I'm interested in a part on autoSecure Mobility.`)}`, "_blank", "noopener,noreferrer");
+      window.open(
+        buildWhatsappUrl(`Hi, I'm interested in ${part?.title ?? part?.partName ?? "a part"} on autoSecure Mobility.`),
+        "_blank",
+        "noopener,noreferrer",
+      );
       setModalOpen(false);
     } finally {
       setIsSubmitting(false);

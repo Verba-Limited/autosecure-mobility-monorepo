@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Check, MessageCircle, ArrowLeft, Lock } from "lucide-react";
+import { Check, Heart, MessageCircle, ArrowLeft, Lock } from "lucide-react";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 import { InquireModal } from "@/components/ui/InquireModal";
@@ -12,10 +12,12 @@ import { getCustomerEmail } from "@/lib/auth-api";
 import {
   inquireVehicle,
   extractWhatsappLink,
+  buildWhatsappUrl,
   fetchCatalogItem,
   type ApiInventoryItem,
 } from "@/lib/catalog-api";
 import { formatVehiclePriceRange } from "@/lib/pricing-utils";
+import { isVehicleSaved, toggleFavorite, subscribeToFavorites } from "@/lib/favorites";
 
 function formatNaira(value?: number) {
   if (!value || isNaN(Number(value))) return "N/A";
@@ -43,6 +45,35 @@ export default function UsedCarDetailPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoggedIn] = useState(() => Boolean(getCustomerEmail()));
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    setIsSaved(isVehicleSaved(id));
+    return subscribeToFavorites(() => {
+      setIsSaved(isVehicleSaved(id));
+    });
+  }, [id]);
+
+  function handleToggleFavorite() {
+    if (!vehicle || !id) return;
+    const next = toggleFavorite({
+      id,
+      title: vehicle.title ?? `${vehicle.brand ?? ""} ${vehicle.model ?? ""}`.trim(),
+      brand: vehicle.brand,
+      model: vehicle.model,
+      year: vehicle.year,
+      image: vehicle.images?.[0],
+      price: readPrice(vehicle),
+      priceRange: formatVehiclePriceRange(vehicle),
+      type: "USED_CAR",
+      category: vehicle.bodyType,
+      fuelType: vehicle.fuelType,
+      mileage: vehicle.mileage ? `${vehicle.mileage} km` : undefined,
+      condition: vehicle.condition,
+    });
+    setIsSaved(next);
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -77,17 +108,16 @@ export default function UsedCarDetailPage() {
     setIsSubmitting(true);
     try {
       const res = await inquireVehicle(id, data);
-      const link = extractWhatsappLink(res);
+      const link = extractWhatsappLink(res, `Hi, I'm interested in the used car listed on autoSecure Mobility.`);
       window.open(
-        link ??
-          `https://wa.me/?text=${encodeURIComponent(`Hi, I'm interested in the used car listed on autoSecure Mobility.`)}`,
+        link,
         "_blank",
         "noopener,noreferrer",
       );
       setModalOpen(false);
     } catch {
       window.open(
-        `https://wa.me/?text=${encodeURIComponent(`Hi, I'm interested in a used car on autoSecure Mobility.`)}`,
+        buildWhatsappUrl(`Hi, I'm interested in a used car on autoSecure Mobility.`),
         "_blank",
         "noopener,noreferrer",
       );
@@ -359,12 +389,24 @@ export default function UsedCarDetailPage() {
                   )}
                 </div>
 
-                <div className="mt-5 grid grid-cols-2 gap-3">
+                <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <button
+                    type="button"
+                    onClick={handleToggleFavorite}
+                    className={`flex h-12 items-center justify-center gap-2 rounded-[10px] border text-[13px] font-black transition-all ${
+                      isSaved
+                        ? "border-rose-500/50 bg-rose-500/15 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.3)]"
+                        : "border-white/12 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    <Heart className="h-4 w-4" fill={isSaved ? "currentColor" : "none"} strokeWidth={2.5} />
+                    {isSaved ? "Saved to Favorites" : "Save Favorite"}
+                  </button>
                   <Link
                     href="/used-cars"
-                    className="flex h-12 items-center justify-center rounded-[10px] border border-emerald-500/15 bg-emerald-500/8 text-[13px] font-black text-emerald-400 hover:bg-emerald-500/15 transition-all"
+                    className="flex h-12 items-center justify-center rounded-[10px] border border-emerald-500/15 bg-emerald-500/8 text-[13px] font-black text-emerald-400 hover:bg-emerald-500/15 transition-all text-center"
                   >
-                    ← Back to Listings
+                    ← All Used Cars
                   </Link>
                   <button
                     type="button"

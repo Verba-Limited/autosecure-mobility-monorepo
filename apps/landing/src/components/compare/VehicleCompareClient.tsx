@@ -15,7 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { Car } from "@/data/cars";
-import { fetchNewCars } from "@/lib/catalog-api";
+import { fetchNewCars, buildWhatsappUrl } from "@/lib/catalog-api";
 import { getCustomerEmail } from "@/lib/auth-api";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { formatVehiclePriceRange } from "@/lib/pricing-utils";
@@ -285,9 +285,9 @@ export function VehicleCompareClient() {
                     View Details
                   </Link>
                   <Link
-                    href={`https://wa.me/?text=${encodeURIComponent(
+                    href={buildWhatsappUrl(
                       `Hi, I'm inquiring about the ${car.brand} ${car.model} on autoSecure Mobility.`,
-                    )}`}
+                    )}
                     target="_blank"
                     className="flex h-9 items-center justify-center gap-1 rounded-lg bg-[#25D366] text-xs font-bold text-black hover:bg-[#20BD5A]"
                   >

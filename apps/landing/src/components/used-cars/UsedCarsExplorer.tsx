@@ -101,7 +101,16 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
     let filtered = cars;
 
     // Quick filter chips
-    if (activeCategory === "Hybrid") {
+    if (activeCategory === "Hot Deals") {
+      filtered = filtered.filter(
+        (c) =>
+          Boolean(c.dealBadge) ||
+          Boolean((c as any).isHotDeal) ||
+          (c.originalPrice && c.originalPrice > c.price) ||
+          c.condition === "Like New" ||
+          c.condition === "Excellent",
+      );
+    } else if (activeCategory === "Hybrid") {
       filtered = filtered.filter(
         (c) =>
           c.category === "Hybrid" ||
@@ -273,7 +282,7 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
         </div>
       </ScrollReveal>
 
-      {/* Flash Sale Banner */}
+      {/* Hot Deals Banner */}
       <ScrollReveal
         className="rounded-[12px] border border-emerald-500/25 bg-gradient-to-r from-emerald-950/80 via-[#0a231c]/90 to-emerald-950/70 px-7 py-5 text-white shadow-[0_12px_24px_rgba(0,0,0,0.5)]"
         delay={80}
@@ -283,19 +292,19 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
             <Tag className="h-8 w-8 fill-emerald-400 text-emerald-400" />
             <div>
               <p className="text-[13px] font-black uppercase tracking-[0.12em] text-emerald-400">
-                Flash Sale &amp; Verified Pre-Owned
+                Hot Deals &amp; Verified Pre-Owned
               </p>
               <p className="mt-1 text-[17px] font-black text-white">
-                Special inspected inventory available with warranty options!
+                Special inspected inventory available with promotional pricing and warranty options!
               </p>
             </div>
           </div>
           <button
             type="button"
-            onClick={() => setActiveCategory("All")}
-            className="h-10 rounded-[8px] border border-emerald-500/30 bg-emerald-500/20 px-7 text-[13px] font-black text-emerald-300 hover:bg-emerald-500/30 transition-colors"
+            onClick={() => setActiveCategory("Hot Deals")}
+            className="h-10 rounded-[8px] border border-emerald-500/30 bg-emerald-500/20 px-7 text-[13px] font-black text-emerald-300 hover:bg-emerald-500/30 transition-colors shadow-[0_4px_16px_rgba(52,211,153,0.2)]"
           >
-            View All Deals
+            Hot Deals
           </button>
         </div>
       </ScrollReveal>

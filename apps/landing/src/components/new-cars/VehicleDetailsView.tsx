@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ChevronRight, CircleAlert, MessageCircle, Search } from "lucide-react";
 import type { Car } from "@/data/cars";
 import { getCustomerEmail } from "@/lib/auth-api";
+import { buildWhatsappUrl } from "@/lib/catalog-api";
 
 type CheckoutStep = 1 | 2 | 3 | 4;
 
@@ -398,7 +399,7 @@ export function VehicleDetailsView({ car }: { car: Car }) {
                   return;
                 }
                 window.open(
-                  `https://wa.me/?text=${encodeURIComponent(`Hi, I'm interested in the ${car.brand} ${car.model} listed on autoSecure Mobility.`)}`,
+                  buildWhatsappUrl(`Hi, I'm interested in the ${car.brand} ${car.model} listed on autoSecure Mobility.`),
                   "_blank",
                   "noopener,noreferrer",
                 );

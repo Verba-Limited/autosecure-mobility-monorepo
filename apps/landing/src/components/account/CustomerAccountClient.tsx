@@ -19,11 +19,13 @@ import {
   KeyRound,
   Loader2,
   Lock,
+  MessageCircle,
   Package,
   Plus,
   Scale,
   Send,
   ShieldCheck,
+  Trash2,
   Truck,
   User,
   XCircle,
@@ -48,6 +50,13 @@ import {
   fetchUserFavorites,
   type UserProfile,
 } from "@/lib/user-api";
+import {
+  getSavedFavorites,
+  removeFavorite,
+  subscribeToFavorites,
+  type SavedVehicle,
+} from "@/lib/favorites";
+import { buildWhatsappUrl } from "@/lib/catalog-api";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 function formatNaira(value?: number) {
@@ -182,16 +191,31 @@ export function CustomerAccountClient() {
         setIsLoadingRequests(false);
       }
 
-      // 4. Favorites
+      // 4. Favorites (Local storage + server sync)
       try {
-        const favs = await fetchUserFavorites();
-        setFavorites(favs || []);
+        const localFavs = getSavedFavorites();
+        const serverFavs = await fetchUserFavorites().catch(() => []);
+        const mergedMap = new Map<string, any>();
+        localFavs.forEach((f) => mergedMap.set(String(f.id), f));
+        serverFavs.forEach((f: any) => {
+          const id = String(f._id || f.id);
+          if (!mergedMap.has(id)) mergedMap.set(id, f);
+        });
+        setFavorites(Array.from(mergedMap.values()));
       } catch {
-        setFavorites([]);
+        setFavorites(getSavedFavorites());
       }
     }
 
     loadData();
+
+    const unsubscribe = subscribeToFavorites(() => {
+      setFavorites(getSavedFavorites());
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   async function handleToggleTrackOrder(id: string) {
@@ -441,13 +465,6 @@ export function CustomerAccountClient() {
             <Scale className="h-3.5 w-3.5 text-[#C9943A]" />
             Compare Vehicles
           </Link>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="flex h-10 items-center rounded-lg border border-white/10 bg-white/4 px-4 text-xs font-semibold text-white/60 hover:text-white hover:bg-white/8 transition-all"
-          >
-            Sign Out
-          </button>
         </div>
       </div>
 
@@ -926,39 +943,86 @@ export function CustomerAccountClient() {
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {favorites.map((fav: any) => (
-                <div
-                  key={fav._id || fav.id}
-                  className="rounded-2xl border border-white/8 bg-[#0d0d0d] p-5 overflow-hidden"
-                >
-                  <div className="relative h-44 w-full rounded-xl overflow-hidden bg-black/40 mb-3">
-                    {fav.images?.[0] ? (
-                      <Image
-                        src={fav.images[0]}
-                        alt={fav.title || "Car"}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-white/20">
-                        <Truck className="h-8 w-8" />
+              {favorites.map((fav: any) => {
+                const favId = String(fav.id || fav._id);
+                const favImg = fav.image || fav.images?.[0];
+                const favTitle = fav.title || `${fav.brand || ""} ${fav.model || ""}`.trim() || "Saved Vehicle";
+                const isUsed = fav.type === "USED_CAR" || fav.category === "Used";
+                const detailLink = isUsed ? `/used-cars/${favId}` : `/new-cars/${favId}`;
+                const priceDisplay = fav.priceRange || (fav.price ? formatNaira(fav.price) : (fav.pricing?.priceRange?.display || formatNaira(fav.pricing?.retail)));
+
+                return (
+                  <div
+                    key={favId}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/8 bg-[#0d0d0d] p-5 transition-all duration-300 hover:border-[#C9943A]/30 hover:shadow-[0_12px_28px_rgba(0,0,0,0.6)]"
+                  >
+                    <div>
+                      <div className="relative h-44 w-full rounded-xl overflow-hidden bg-black/40 mb-3.5">
+                        {favImg ? (
+                          <Image
+                            src={favImg}
+                            alt={favTitle}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-white/20">
+                            <Truck className="h-8 w-8" />
+                          </div>
+                        )}
+                        <span className="absolute left-3 top-3 rounded-full border border-white/10 bg-black/70 px-2.5 py-0.5 text-[10px] font-bold text-white/70 backdrop-blur-md">
+                          {isUsed ? "Used Car" : "Brand New"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => removeFavorite(favId)}
+                          aria-label="Remove from favorites"
+                          className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-lg bg-black/70 border border-white/10 text-white/60 hover:text-rose-400 hover:bg-black/90 transition-all backdrop-blur-md"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </div>
-                    )}
+
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          {fav.brand && (
+                            <p className="text-[11px] font-black uppercase tracking-wider text-white/40">
+                              {fav.brand} {fav.year ? `· ${fav.year}` : ""}
+                            </p>
+                          )}
+                          <h3 className="font-bold text-white text-base mt-0.5 leading-snug">
+                            {favTitle}
+                          </h3>
+                        </div>
+                      </div>
+
+                      {priceDisplay && (
+                        <p className="text-sm font-extrabold text-[#C9943A] mt-2">
+                          {priceDisplay}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="mt-5 grid grid-cols-2 gap-2 border-t border-white/6 pt-4">
+                      <Link
+                        href={detailLink}
+                        className="flex h-9 items-center justify-center rounded-lg bg-white/10 text-xs font-bold text-white hover:bg-white/20 transition-all text-center"
+                      >
+                        View Details
+                      </Link>
+                      <a
+                        href={buildWhatsappUrl(`Hi, I'm inquiring about the saved vehicle ${favTitle} on autoSecure Mobility.`)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[#25D366] text-xs font-bold text-black hover:bg-[#20BD5A] transition-all"
+                      >
+                        <MessageCircle className="h-3.5 w-3.5" fill="currentColor" />
+                        WhatsApp
+                      </a>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-white">{fav.title}</h3>
-                  <p className="text-xs text-[#C9943A] font-extrabold mt-1">
-                    {fav.pricing?.priceRange?.display || formatNaira(fav.pricing?.retail)}
-                  </p>
-                  <div className="mt-4 flex gap-2">
-                    <Link
-                      href={fav.type === "USED_CAR" ? `/used-cars/${fav._id || fav.id}` : `/new-cars/${fav._id || fav.id}`}
-                      className="flex-1 text-center rounded-lg bg-white/10 py-2 text-xs font-bold text-white hover:bg-white/20"
-                    >
-                      View Details
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

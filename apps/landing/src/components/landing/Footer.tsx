@@ -32,13 +32,18 @@ const LINK_COLUMNS = [
 ];
 
 const CONTACT = [
-  { icon: Mail, text: "hello@autosecure.ng" },
-  { icon: MessageCircle, text: "WhatsApp Support" },
+  { icon: Mail, text: "hello@autosecure.ng", href: "mailto:hello@autosecure.ng" },
+  { icon: MessageCircle, text: "+234 703 381 2556 (WhatsApp)", href: "https://wa.me/2347033812556" },
   { icon: MapPin, text: "Lagos, Nigeria" },
   { icon: Clock, text: "Mon-Sat, 8am-8pm" },
 ];
 
-const SOCIALS = [Globe, Briefcase, MessageCircle, Users];
+const SOCIALS = [
+  { icon: Globe, href: "#" },
+  { icon: Briefcase, href: "#" },
+  { icon: MessageCircle, href: "https://wa.me/2347033812556" },
+  { icon: Users, href: "#" },
+];
 
 export function Footer() {
   return (
@@ -74,13 +79,15 @@ export function Footer() {
               A Nigerian automotive marketplace for new cars, pre-owned vehicles and parts—designed to make every next step clearer.
             </p>
             <div className="mt-8 flex gap-3">
-              {SOCIALS.map((Icon, index) => (
+              {SOCIALS.map((social, index) => (
                 <a
                   key={index}
-                  href="#"
+                  href={social.href}
+                  target={social.href.startsWith("http") ? "_blank" : undefined}
+                  rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
                   className="flex h-8 w-8 items-center justify-center rounded-md border border-white/8 bg-white/4 text-white/35 transition-all hover:border-[#C9943A]/30 hover:bg-[#C9943A]/10 hover:text-[#C9943A]"
                 >
-                  <Icon className="h-3.5 w-3.5" />
+                  <social.icon className="h-3.5 w-3.5" />
                 </a>
               ))}
             </div>
@@ -115,7 +122,18 @@ export function Footer() {
                   className="flex items-center gap-2 text-[14px] font-semibold text-white/35"
                 >
                   <item.icon className="h-4 w-4 shrink-0 text-[#C9943A]/60" />
-                  {item.text}
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      target={item.href.startsWith("http") ? "_blank" : undefined}
+                      rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                      className="hover:text-white transition-colors"
+                    >
+                      {item.text}
+                    </a>
+                  ) : (
+                    <span>{item.text}</span>
+                  )}
                 </li>
               ))}
             </ul>

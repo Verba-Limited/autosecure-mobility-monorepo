@@ -29,6 +29,7 @@ export function Header() {
     clearCustomerSession();
     setIsSignedIn(false);
     setIsOpen(false);
+    window.location.href = "/";
   }
 
   return (

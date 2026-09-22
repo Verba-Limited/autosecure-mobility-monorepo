@@ -3,17 +3,19 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, ArrowLeft, Lock } from "lucide-react";
+import { Heart, MessageCircle, ArrowLeft, Lock } from "lucide-react";
 import { InquireModal } from "@/components/ui/InquireModal";
 import { CARS } from "@/data/cars";
 import { getCustomerEmail } from "@/lib/auth-api";
 import {
   inquireVehicle,
   extractWhatsappLink,
+  buildWhatsappUrl,
   fetchCatalogItem,
   type ApiInventoryItem,
 } from "@/lib/catalog-api";
 import { formatVehiclePriceRange } from "@/lib/pricing-utils";
+import { isVehicleSaved, toggleFavorite, subscribeToFavorites } from "@/lib/favorites";
 
 function formatNaira(value?: number) {
   if (!value || isNaN(Number(value))) return "N/A";
@@ -25,6 +27,7 @@ function readPrice(item: ApiInventoryItem): number {
     item.pricing?.retail ??
     item.pricing?.promotional ??
     item.pricing?.financing?.downPayment ??
+    item.price ??
     0
   );
 }
@@ -43,6 +46,34 @@ export function VehicleDetailClient({ id }: { id: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isLoggedIn] = useState(() => Boolean(getCustomerEmail()));
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    setIsSaved(isVehicleSaved(id));
+    return subscribeToFavorites(() => {
+      setIsSaved(isVehicleSaved(id));
+    });
+  }, [id]);
+
+  function handleToggleFavorite() {
+    if (!vehicle || !id) return;
+    const next = toggleFavorite({
+      id,
+      title: (vehicle.title ?? `${vehicle.brand ?? ""} ${vehicle.model ?? ""}`.trim()) || "Brand New Vehicle",
+      brand: vehicle.brand,
+      model: vehicle.model,
+      year: vehicle.year,
+      image: vehicle.images?.[0],
+      price: readPrice(vehicle),
+      priceRange: formatVehiclePriceRange(vehicle),
+      type: "BRAND_NEW_CAR",
+      category: vehicle.bodyType,
+      fuelType: vehicle.fuelType,
+      transmission: vehicle.transmission,
+    });
+    setIsSaved(next);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -111,21 +142,17 @@ export function VehicleDetailClient({ id }: { id: string }) {
     setIsSubmitting(true);
     try {
       const res = await inquireVehicle(id, data);
-      const link = extractWhatsappLink(res);
-      window.open(
-        link ??
-          `https://wa.me/?text=${encodeURIComponent(
-            `Hi, I'm interested in the ${vehicle?.title ?? "vehicle"} listed on autoSecure Mobility.`,
-          )}`,
-        "_blank",
-        "noopener,noreferrer",
+      const link = extractWhatsappLink(
+        res,
+        `Hi, I'm interested in the ${vehicle?.title ?? "vehicle"} listed on autoSecure Mobility.`,
       );
+      window.open(link, "_blank", "noopener,noreferrer");
       setModalOpen(false);
     } catch {
       window.open(
-        `https://wa.me/?text=${encodeURIComponent(
+        buildWhatsappUrl(
           `Hi, I'm interested in a vehicle on autoSecure Mobility.`,
-        )}`,
+        ),
         "_blank",
         "noopener,noreferrer",
       );
@@ -419,10 +446,22 @@ export function VehicleDetailClient({ id }: { id: string }) {
           </div>
 
           {/* Actions */}
-          <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button
+              type="button"
+              onClick={handleToggleFavorite}
+              className={`flex h-12 items-center justify-center gap-2 rounded-[10px] border text-[13px] font-black transition-all ${
+                isSaved
+                  ? "border-rose-500/50 bg-rose-500/15 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.3)]"
+                  : "border-white/12 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <Heart className="h-4 w-4" fill={isSaved ? "currentColor" : "none"} strokeWidth={2.5} />
+              {isSaved ? "Saved to Favorites" : "Save Favorite"}
+            </button>
             <Link
               href="/new-cars"
-              className="flex h-12 items-center justify-center rounded-[10px] border border-white/10 bg-white/5 text-[13px] font-black text-white/50 hover:bg-white/8 hover:text-white/70 transition-all"
+              className="flex h-12 items-center justify-center rounded-[10px] border border-white/10 bg-white/5 text-[13px] font-black text-white/50 hover:bg-white/8 hover:text-white/70 transition-all text-center"
             >
               ← All New Cars
             </Link>

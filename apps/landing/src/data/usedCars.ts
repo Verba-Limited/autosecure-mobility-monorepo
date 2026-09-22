@@ -2,6 +2,7 @@ export type UsedCarCategory = "Sedan" | "SUV" | "Hybrid";
 
 export const USED_CAR_FILTERS = [
   "All",
+  "Hot Deals",
   "Hybrid",
   "Sedan",
   "SUV",
