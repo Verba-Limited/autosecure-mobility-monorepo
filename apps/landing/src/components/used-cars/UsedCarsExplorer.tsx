@@ -344,14 +344,14 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
               ))}
             </div>
 
-            <div className="flex items-center gap-4">
-              <span className="text-xs font-bold text-white/40">
+            <div className="flex w-full items-center justify-between gap-4 sm:w-auto sm:justify-end">
+              <span className="flex flex-col text-xs font-bold leading-tight text-white/40">
                 {isLoading ? (
                   "Loading…"
                 ) : (
                   <>
-                    <span className="text-white font-black">{results.length}</span>{" "}
-                    results
+                    <span className="text-white font-black">{results.length}</span>
+                    <span>results</span>
                   </>
                 )}
               </span>
@@ -374,13 +374,13 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
           </div>
 
           {isLoading ? (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="space-y-6">
               {[1, 2, 3].map((i) => (
                 <SkeletonCard key={i} />
               ))}
             </div>
           ) : results.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="space-y-6">
               {results.map((car, index) => (
                 <ScrollReveal key={car.id} delay={(index % 3) * 80}>
                   <UsedCarCard car={car} />
