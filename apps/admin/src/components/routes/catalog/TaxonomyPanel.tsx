@@ -54,6 +54,8 @@ export function TaxonomyPanel() {
   const [active, setActive] = useState<ActiveFilter>("");
   const [searchDraft, setSearchDraft] = useState("");
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
   const [editing, setEditing] = useState<AdminTaxonomyTerm | "new" | null>(null);
   const [deleting, setDeleting] = useState<AdminTaxonomyTerm | null>(null);
   const [conflictTerm, setConflictTerm] = useState<AdminTaxonomyTerm | null>(null);
@@ -107,6 +109,9 @@ export function TaxonomyPanel() {
     [parentOptions],
   );
   const canReorder = Boolean(kind) && !query && !active;
+  const pageCount = Math.max(1, Math.ceil(terms.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const pagedTerms = terms.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   async function openEditor(term: AdminTaxonomyTerm) {
     if (!accessToken) return;
@@ -196,6 +201,7 @@ export function TaxonomyPanel() {
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setPage(1);
     setQuery(searchDraft.trim());
   }
 
@@ -210,14 +216,14 @@ export function TaxonomyPanel() {
           </form>
           <label>
             <span className="sr-only">Filter by taxonomy kind</span>
-            <select value={kind} onChange={(event) => setKind(event.target.value)} className="h-10 w-full rounded-lg border border-[var(--admin-line)] bg-white px-3 text-sm font-semibold">
+            <select value={kind} onChange={(event) => { setKind(event.target.value); setPage(1); }} className="h-10 w-full rounded-lg border border-[var(--admin-line)] bg-white px-3 text-sm font-semibold">
               <option value="">All kinds</option>
               {taxonomyKinds.map((item) => <option key={item} value={item}>{formatLabel(item)}</option>)}
             </select>
           </label>
           <label>
             <span className="sr-only">Filter by parent</span>
-            <select value={parent} onChange={(event) => setParent(event.target.value)} className="h-10 w-full rounded-lg border border-[var(--admin-line)] bg-white px-3 text-sm font-semibold">
+            <select value={parent} onChange={(event) => { setParent(event.target.value); setPage(1); }} className="h-10 w-full rounded-lg border border-[var(--admin-line)] bg-white px-3 text-sm font-semibold">
               <option value="">All parent relationships</option>
               <option value="null">Top-level only</option>
               {parentOptions.map((term) => <option key={term._id} value={term._id}>Children of {term.name}</option>)}
@@ -226,7 +232,7 @@ export function TaxonomyPanel() {
           <div className="flex gap-2">
             <label>
               <span className="sr-only">Filter by active state</span>
-              <select value={active} onChange={(event) => setActive(event.target.value as ActiveFilter)} className="h-10 rounded-lg border border-[var(--admin-line)] bg-white px-3 text-sm font-semibold">
+              <select value={active} onChange={(event) => { setActive(event.target.value as ActiveFilter); setPage(1); }} className="h-10 rounded-lg border border-[var(--admin-line)] bg-white px-3 text-sm font-semibold">
                 <option value="">Any status</option><option value="true">Active</option><option value="false">Inactive</option>
               </select>
             </label>
@@ -242,10 +248,12 @@ export function TaxonomyPanel() {
       ) : isLoading && !terms.length ? (
         <AdminLoadingState label="Loading taxonomy" />
       ) : terms.length ? (
-        <section className="overflow-x-auto rounded-2xl border border-[var(--admin-line)] bg-white">
+        <><section className="overflow-x-auto rounded-2xl border border-[var(--admin-line)] bg-white">
           <div className="min-w-[940px]">
             <div className="grid grid-cols-[1.15fr_1fr_1fr_0.45fr_0.55fr_1.15fr] gap-4 bg-slate-50 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--admin-muted)]"><span>Name</span><span>Kind</span><span>Parent</span><span>Order</span><span>Status</span><span className="text-right">Actions</span></div>
-            {terms.map((term, index) => (
+            {pagedTerms.map((term, pageIndex) => {
+              const index = (currentPage - 1) * pageSize + pageIndex;
+              return (
               <div key={term._id} className="grid grid-cols-[1.15fr_1fr_1fr_0.45fr_0.55fr_1.15fr] items-center gap-4 border-t border-[var(--admin-line)] px-5 py-4">
                 <div className="min-w-0"><p className="truncate text-sm font-bold">{term.name}</p><p className="mt-1 truncate text-xs text-[var(--admin-muted)]">{term.slug}{term.metadata ? " · Metadata configured" : ""}</p></div>
                 <span className="text-sm text-[var(--admin-muted)]">{formatLabel(term.kind)}</span>
@@ -260,9 +268,10 @@ export function TaxonomyPanel() {
                   <button type="button" onClick={() => setDeleting(term)} aria-label={`Delete ${term.name}`} className="rounded-lg p-2 text-red-600 hover:bg-red-50"><FiTrash2 aria-hidden="true" /></button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
-        </section>
+        </section><ListPagination total={terms.length} page={currentPage} pageCount={pageCount} onPage={setPage} /></>
       ) : (
         <AdminEmptyState title="No taxonomy terms" description="No terms match the selected filters. Adjust the filters or add a new term." />
       )}
@@ -353,4 +362,8 @@ function TaxonomyEditor({ item, parentOptions, accessToken, onClose, onSaved }: 
 
 function formatLabel(value: string) {
   return value.replaceAll("_", " ").toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function ListPagination({ total, page, pageCount, onPage }: { total: number; page: number; pageCount: number; onPage: (page: number) => void }) {
+  return <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--admin-muted)]"><span>{total} taxonomy terms · Page {page} of {pageCount}</span><div className="flex gap-2"><button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Previous</button><button type="button" disabled={page >= pageCount} onClick={() => onPage(page + 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Next</button></div></div>;
 }

@@ -212,7 +212,7 @@ export function QuotesRoute() {
       ) : loading ? (
         <AdminLoadingState label="Loading quotation requests" />
       ) : quotes.length === 0 ? (
-        <AdminEmptyState title="No quotation requests found" description="Try changing or clearing the queue filters." />
+        <AdminEmptyState title="No quotation requests found" description="This queue contains customer requests for parts, tyres, batteries, or accessories. New requests appear here for supplier assignment, an AutoSecure response, or closure. Try clearing the filters if requests already exist." />
       ) : (
         <>
           <section className="overflow-x-auto rounded-2xl border border-[var(--admin-line)] bg-white">
