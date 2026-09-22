@@ -44,6 +44,15 @@ button {
   background: #e6b94f55;
 }
 
+.admin-sidebar-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 .Toastify__toast {
   border: 1px solid var(--admin-line);
   box-shadow: 0 12px 30px rgb(12 24 52 / 12%);

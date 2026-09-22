@@ -222,7 +222,7 @@ function ShellNavigation({
           Operations console
         </p>
       </div>
-      <nav aria-label="Primary" className="flex-1 overflow-y-auto px-4 py-5">
+      <nav aria-label="Primary" className="admin-sidebar-scroll flex-1 overflow-y-auto px-4 py-5">
         {navigationGroups.map((group) => (
           <div key={group.label} className="mb-5">
             <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
