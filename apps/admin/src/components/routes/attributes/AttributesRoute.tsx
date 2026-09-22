@@ -33,6 +33,8 @@ export function AttributesRoute() {
   const [filterable, setFilterable] = useState<BooleanFilter>("");
   const [comparable, setComparable] = useState<BooleanFilter>("");
   const [active, setActive] = useState<BooleanFilter>("");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
   const [editing, setEditing] = useState<AdminAttribute | "new" | null>(null);
   const [deleting, setDeleting] = useState<AdminAttribute | null>(null);
   const [actionId, setActionId] = useState<string | null>(null);
@@ -70,6 +72,9 @@ export function AttributesRoute() {
     const matchesActive = !active || item.isActive === (active === "true");
     return matchesComparable && matchesActive;
   }), [active, attributes, comparable]);
+  const pageCount = Math.max(1, Math.ceil(visibleAttributes.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const pagedAttributes = visibleAttributes.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   async function openEditor(attribute: AdminAttribute) {
     if (!accessToken) return;
@@ -126,11 +131,11 @@ export function AttributesRoute() {
       </div>
 
       <section aria-label="Attribute filters" className="mb-5 grid gap-3 rounded-2xl border border-[var(--admin-line)] bg-white p-4 sm:grid-cols-2 xl:grid-cols-[1.2fr_1fr_1fr_1fr_1fr_auto]">
-        <FilterSelect label="Group" value={group} onChange={setGroup} options={availableGroups.map((value) => ({ value, label: formatLabel(value) }))} allLabel="All groups" />
-        <FilterSelect label="Scope" value={scope} onChange={setScope} options={scopes.map((value) => ({ value, label: formatLabel(value) }))} allLabel="All scopes" />
-        <FilterSelect label="Filter use" value={filterable} onChange={(value) => setFilterable(value as BooleanFilter)} options={[{ value: "true", label: "Filterable" }, { value: "false", label: "Not filterable" }]} allLabel="Any filter use" />
-        <FilterSelect label="Comparison" value={comparable} onChange={(value) => setComparable(value as BooleanFilter)} options={[{ value: "true", label: "Comparable" }, { value: "false", label: "Not comparable" }]} allLabel="Any comparison" />
-        <FilterSelect label="Status" value={active} onChange={(value) => setActive(value as BooleanFilter)} options={[{ value: "true", label: "Active" }, { value: "false", label: "Inactive" }]} allLabel="Any status" />
+        <FilterSelect label="Group" value={group} onChange={(value) => { setGroup(value); setPage(1); }} options={availableGroups.map((value) => ({ value, label: formatLabel(value) }))} allLabel="All groups" />
+        <FilterSelect label="Scope" value={scope} onChange={(value) => { setScope(value); setPage(1); }} options={scopes.map((value) => ({ value, label: formatLabel(value) }))} allLabel="All scopes" />
+        <FilterSelect label="Filter use" value={filterable} onChange={(value) => { setFilterable(value as BooleanFilter); setPage(1); }} options={[{ value: "true", label: "Filterable" }, { value: "false", label: "Not filterable" }]} allLabel="Any filter use" />
+        <FilterSelect label="Comparison" value={comparable} onChange={(value) => { setComparable(value as BooleanFilter); setPage(1); }} options={[{ value: "true", label: "Comparable" }, { value: "false", label: "Not comparable" }]} allLabel="Any comparison" />
+        <FilterSelect label="Status" value={active} onChange={(value) => { setActive(value as BooleanFilter); setPage(1); }} options={[{ value: "true", label: "Active" }, { value: "false", label: "Inactive" }]} allLabel="Any status" />
         <button type="button" onClick={() => void loadAttributes()} disabled={isLoading} className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-[var(--admin-line)] px-3 text-sm font-bold hover:bg-slate-50 disabled:opacity-50"><FiRefreshCw className={isLoading ? "animate-spin" : ""} aria-hidden="true" /> Refresh</button>
       </section>
 
@@ -139,10 +144,10 @@ export function AttributesRoute() {
       ) : isLoading && !attributes.length ? (
         <AdminLoadingState label="Loading attributes" />
       ) : visibleAttributes.length ? (
-        <section className="overflow-x-auto rounded-2xl border border-[var(--admin-line)] bg-white">
+        <><section className="overflow-x-auto rounded-2xl border border-[var(--admin-line)] bg-white">
           <div className="min-w-[980px]">
             <div className="grid grid-cols-[1.25fr_0.8fr_0.8fr_1fr_0.75fr_1.15fr] gap-4 bg-slate-50 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--admin-muted)]"><span>Field</span><span>Group / type</span><span>Scopes</span><span>Usage</span><span>Status</span><span className="text-right">Actions</span></div>
-            {visibleAttributes.map((attribute) => (
+            {pagedAttributes.map((attribute) => (
               <div key={attribute._id} className="grid grid-cols-[1.25fr_0.8fr_0.8fr_1fr_0.75fr_1.15fr] items-center gap-4 border-t border-[var(--admin-line)] px-5 py-4">
                 <div className="min-w-0"><div className="flex items-center gap-2"><p className="truncate text-sm font-bold">{attribute.label}</p>{attribute.isCore ? <FiLock className="shrink-0 text-slate-400" aria-label="Core attribute" /> : null}</div><p className="mt-1 truncate font-mono text-xs text-[var(--admin-muted)]">{attribute.key} · {attribute.path}</p></div>
                 <div><p className="text-sm font-semibold">{formatLabel(attribute.group)}</p><p className="mt-1 text-xs text-[var(--admin-muted)]">{formatLabel(attribute.dataType)}{attribute.unit ? ` / ${attribute.unit}` : ""}</p></div>
@@ -157,7 +162,7 @@ export function AttributesRoute() {
               </div>
             ))}
           </div>
-        </section>
+        </section><ListPagination total={visibleAttributes.length} page={currentPage} pageCount={pageCount} noun="attributes" onPage={setPage} /></>
       ) : (
         <AdminEmptyState title="No attributes found" description="No attribute definitions match the selected filters." />
       )}
@@ -170,6 +175,10 @@ export function AttributesRoute() {
 
 function FilterSelect({ label, value, onChange, options, allLabel }: { label: string; value: string; onChange: (value: string) => void; options: { value: string; label: string }[]; allLabel: string }) {
   return <label className="text-xs font-bold text-[var(--admin-muted)]">{label}<select value={value} onChange={(event) => onChange(event.target.value)} className="mt-1.5 h-10 w-full rounded-lg border border-[var(--admin-line)] bg-white px-3 text-sm font-semibold text-[var(--admin-ink)]"><option value="">{allLabel}</option>{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>;
+}
+
+function ListPagination({ total, page, pageCount, noun, onPage }: { total: number; page: number; pageCount: number; noun: string; onPage: (page: number) => void }) {
+  return <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--admin-muted)]"><span>{total} {noun} · Page {page} of {pageCount}</span><div className="flex gap-2"><button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Previous</button><button type="button" disabled={page >= pageCount} onClick={() => onPage(page + 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Next</button></div></div>;
 }
 
 function AttributeEditor({ item, accessToken, onClose, onSaved }: { item: AdminAttribute | null; accessToken: string | null; onClose: () => void; onSaved: () => Promise<void> }) {

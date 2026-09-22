@@ -251,6 +251,39 @@ function SendNotificationDrawer({ accessToken, onClose, onSent }: {
   const [validation, setValidation] = useState("");
   const [confirmBroadcast, setConfirmBroadcast] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [recipients, setRecipients] = useState<RecipientOption[]>([]);
+  const [recipientsLoading, setRecipientsLoading] = useState(true);
+  const [recipientsError, setRecipientsError] = useState("");
+
+  useEffect(() => {
+    if (!accessToken) return;
+    let active = true;
+    async function loadRecipients() {
+      setRecipientsLoading(true);
+      setRecipientsError("");
+      const results = await Promise.allSettled([
+        adminApi.getOrders(accessToken as string, { page: 1, limit: 100 }),
+        adminApi.getQuotes(accessToken as string, { page: 1, limit: 100 }),
+        adminApi.getSuppliers(accessToken as string, 1, 100),
+      ]);
+      if (!active) return;
+      const options = new Map<string, RecipientOption>();
+      const orders = results[0].status === "fulfilled" ? results[0].value.data.items : [];
+      const quotes = results[1].status === "fulfilled" ? results[1].value.data.items : [];
+      const suppliers = results[2].status === "fulfilled" ? results[2].value.data.items : [];
+      for (const person of [...orders.map((item) => item.customer), ...quotes.map((item) => item.customer)]) {
+        options.set(person._id, { id: person._id, email: person.email, name: [person.firstName, person.lastName].filter(Boolean).join(" "), role: "Customer" });
+      }
+      for (const supplier of suppliers) {
+        options.set(supplier._id, { id: supplier._id, email: supplier.email, name: supplier.companyName || [supplier.firstName, supplier.lastName].filter(Boolean).join(" "), role: "Supplier" });
+      }
+      setRecipients(Array.from(options.values()).sort((a, b) => (a.name || a.email).localeCompare(b.name || b.email)));
+      if (results.every((result) => result.status === "rejected")) setRecipientsError("Known users could not be loaded.");
+      setRecipientsLoading(false);
+    }
+    void loadRecipients();
+    return () => { active = false; };
+  }, [accessToken]);
 
   useEffect(() => {
     function closeOnEscape(event: KeyboardEvent) {
@@ -320,7 +353,16 @@ function SendNotificationDrawer({ accessToken, onClose, onSent }: {
               <option value="CUSTOMERS">All customers</option>
             </select>
           </Field>
-          {audience === "USER" ? <TextInput label="User ID" value={userId} onChange={setUserId} placeholder="User document ID" /> : (
+          {audience === "USER" ? (
+            <Field label="Recipient">
+              <select value={userId} onChange={(event) => setUserId(event.target.value)} disabled={recipientsLoading} className="mt-2 h-11 w-full rounded-lg border bg-white px-3 disabled:bg-slate-100">
+                <option value="">{recipientsLoading ? "Loading users..." : "Select a user by name or email"}</option>
+                {recipients.map((recipient) => <option key={recipient.id} value={recipient.id}>{recipient.name ? `${recipient.name} · ` : ""}{recipient.email} · {recipient.role}</option>)}
+              </select>
+              {recipientsError ? <span className="mt-2 block text-xs font-normal text-red-700">{recipientsError}</span> : null}
+              {!recipientsLoading && !recipientsError && recipients.length === 0 ? <span className="mt-2 block text-xs font-normal text-[var(--admin-muted)]">No users are available from existing orders, quotes, or supplier records.</span> : null}
+            </Field>
+          ) : (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">This is an audience-wide message. You will be asked to confirm before it is sent.</p>
           )}
           <TextInput label="Title" value={title} onChange={setTitle} maxLength={120} />
@@ -371,6 +413,7 @@ function NotificationMetadata({ data }: { data: Record<string, unknown> }) {
     </dl>
   );
 }
+type RecipientOption = { id: string; email: string; name: string; role: "Customer" | "Supplier" };
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <label className="block text-sm font-semibold">{label}{children}</label>;
 }

@@ -27,11 +27,16 @@ export function ConfigPanel() {
   const accessToken = useAdminAuthStore((state) => state.accessToken);
   const [items, setItems] = useState<AdminConfigItem[]>([]);
   const [typeFilter, setTypeFilter] = useState<AdminConfigType | "">("");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
   const [editing, setEditing] = useState<AdminConfigItem | "new" | null>(null);
   const [deleting, setDeleting] = useState<AdminConfigItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [actionId, setActionId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const pagedItems = items.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const loadItems = useCallback(async () => {
     if (!accessToken) return;
@@ -89,7 +94,7 @@ export function ConfigPanel() {
       <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-[var(--admin-line)] bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
         <label>
           <span className="sr-only">Filter configuration by type</span>
-          <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as AdminConfigType | "")} className="h-10 rounded-lg border border-[var(--admin-line)] bg-white px-3 text-sm font-semibold outline-none focus:border-[var(--admin-gold)]">
+          <select value={typeFilter} onChange={(event) => { setTypeFilter(event.target.value as AdminConfigType | ""); setPage(1); }} className="h-10 rounded-lg border border-[var(--admin-line)] bg-white px-3 text-sm font-semibold outline-none focus:border-[var(--admin-gold)]">
             <option value="">All configuration types</option>
             {configTypes.map((type) => <option key={type} value={type}>{formatLabel(type)}</option>)}
           </select>
@@ -104,10 +109,10 @@ export function ConfigPanel() {
       ) : isLoading && !items.length ? (
         <AdminLoadingState label="Loading platform configuration" />
       ) : items.length ? (
-        <section className="overflow-x-auto rounded-2xl border border-[var(--admin-line)] bg-white">
+        <><section className="overflow-x-auto rounded-2xl border border-[var(--admin-line)] bg-white">
           <div className="min-w-[720px]">
             <div className="grid grid-cols-[1fr_1fr_0.55fr_0.8fr] gap-4 bg-slate-50 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--admin-muted)]"><span>Value</span><span>Type</span><span>Status</span><span className="text-right">Actions</span></div>
-            {items.map((item) => (
+            {pagedItems.map((item) => (
               <div key={item._id} className="grid grid-cols-[1fr_1fr_0.55fr_0.8fr] items-center gap-4 border-t border-[var(--admin-line)] px-5 py-4">
                 <div className="min-w-0"><p className="truncate text-sm font-bold">{item.value}</p>{item.metadata !== undefined ? <p className="mt-1 truncate text-xs text-[var(--admin-muted)]">Metadata configured</p> : null}</div>
                 <span className="text-sm text-[var(--admin-muted)]">{formatLabel(item.type)}</span>
@@ -120,7 +125,7 @@ export function ConfigPanel() {
               </div>
             ))}
           </div>
-        </section>
+        </section><ListPagination total={items.length} page={currentPage} pageCount={pageCount} onPage={setPage} /></>
       ) : <AdminEmptyState title="No configuration values" description="No values match the selected type." />}
 
       {editing ? <ConfigEditor key={editing === "new" ? "new" : editing._id} item={editing === "new" ? null : editing} accessToken={accessToken} onClose={() => setEditing(null)} onSaved={async () => { setEditing(null); await loadItems(); }} /> : null}
@@ -173,3 +178,4 @@ function ConfigEditor({ item, accessToken, onClose, onSaved }: { item: AdminConf
 }
 
 function formatLabel(value: string) { return value.replaceAll("_", " ").toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase()); }
+function ListPagination({ total, page, pageCount, onPage }: { total: number; page: number; pageCount: number; onPage: (page: number) => void }) { return <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--admin-muted)]"><span>{total} configuration values · Page {page} of {pageCount}</span><div className="flex gap-2"><button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Previous</button><button type="button" disabled={page >= pageCount} onClick={() => onPage(page + 1)} className="rounded-lg border px-3 py-2 font-bold disabled:opacity-40">Next</button></div></div>; }
