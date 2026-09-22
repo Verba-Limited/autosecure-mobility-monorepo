@@ -14,6 +14,12 @@
   --admin-paper: #f5f7fa;
   --admin-line: #e4e8ef;
   --admin-muted: #78849a;
+  --toastify-color-success: #21864a;
+  --toastify-color-error: #c8463b;
+  --toastify-color-warning: #a87513;
+  --toastify-color-info: #3158c9;
+  --toastify-font-family: var(--font-body), sans-serif;
+  --toastify-toast-bd-radius: 0.75rem;
 }
 
 * {
@@ -36,4 +42,18 @@ button {
 }
 ::selection {
   background: #e6b94f55;
+}
+
+.admin-sidebar-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.admin-sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.Toastify__toast {
+  border: 1px solid var(--admin-line);
+  box-shadow: 0 12px 30px rgb(12 24 52 / 12%);
 }

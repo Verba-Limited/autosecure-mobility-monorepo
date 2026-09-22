@@ -1,29 +1,65 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { ArrowRight, Loader2, LockKeyhole, ShieldCheck } from "lucide-react";
+import { FormEvent, useEffect, useState } from "react";
+import {
+  FiArrowRight as ArrowRight,
+  FiLoader as Loader2,
+  FiLock as LockKeyhole,
+  FiShield as ShieldCheck,
+} from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import {
   adminApi,
   getAdminErrorMessage,
   saveAdminTokens,
 } from "@/lib/admin-api";
+import { notifySuccess } from "@/lib/admin-notifications";
+import { useAdminAuthStore } from "@/stores/auth-store";
+
+type LoginErrors = Partial<Record<"email" | "password", string>>;
+
+function safeReturnPath() {
+  const value = new URLSearchParams(window.location.search).get("returnTo");
+  return value?.startsWith("/") && !value.startsWith("//") ? value : "/";
+}
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<LoginErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+  const { accessToken, hasHydrated, hydrate } = useAdminAuthStore();
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
+  useEffect(() => {
+    if (hasHydrated && accessToken) router.replace(safeReturnPath());
+  }, [accessToken, hasHydrated, router]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    const normalizedEmail = email.trim().toLowerCase();
+    const nextErrors: LoginErrors = {};
+    if (!normalizedEmail) nextErrors.email = "Enter your email address.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail))
+      nextErrors.email = "Enter a valid email address.";
+    if (!password) nextErrors.password = "Enter your password.";
+    setFieldErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
     setIsLoading(true);
     try {
-      const tokens = await adminApi.login({ email, password });
+      const tokens = await adminApi.login({
+        email: normalizedEmail,
+        password,
+      });
       saveAdminTokens(tokens);
-      router.replace("/");
+      notifySuccess("Signed in successfully.");
+      router.replace(safeReturnPath());
     } catch (requestError) {
       setError(getAdminErrorMessage(requestError));
     } finally {
@@ -81,11 +117,22 @@ export default function AdminLoginPage() {
               <input
                 required
                 type="email"
+                autoComplete="email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={(event) => {
+                  setEmail(event.target.value);
+                  setFieldErrors((current) => ({ ...current, email: undefined }));
+                }}
+                aria-invalid={Boolean(fieldErrors.email)}
+                aria-describedby={fieldErrors.email ? "login-email-error" : undefined}
                 className="mt-2 h-12 w-full rounded-xl border border-[var(--admin-line)] bg-white px-4 outline-none transition focus:border-[var(--admin-gold)] focus:ring-4 focus:ring-[var(--admin-gold)]/15"
                 placeholder="admin@autosecure.com"
               />
+              {fieldErrors.email ? (
+                <span id="login-email-error" className="mt-2 block text-xs font-medium text-red-700">
+                  {fieldErrors.email}
+                </span>
+              ) : null}
             </label>
             <label className="block text-sm font-semibold">
               Password
@@ -94,20 +141,32 @@ export default function AdminLoginPage() {
                 <input
                   required
                   type="password"
+                  autoComplete="current-password"
                   value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    setFieldErrors((current) => ({ ...current, password: undefined }));
+                  }}
+                  aria-invalid={Boolean(fieldErrors.password)}
+                  aria-describedby={fieldErrors.password ? "login-password-error" : undefined}
                   className="h-12 w-full rounded-xl border border-[var(--admin-line)] bg-white pl-11 pr-4 outline-none transition focus:border-[var(--admin-gold)] focus:ring-4 focus:ring-[var(--admin-gold)]/15"
                   placeholder="Enter your password"
                 />
               </div>
+              {fieldErrors.password ? (
+                <span id="login-password-error" className="mt-2 block text-xs font-medium text-red-700">
+                  {fieldErrors.password}
+                </span>
+              ) : null}
             </label>
             {error && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+              <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
                 {error}
               </p>
             )}
             <button
               disabled={isLoading}
+              type="submit"
               className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--admin-navy)] font-bold text-white transition hover:bg-[var(--admin-navy-soft)] disabled:cursor-wait disabled:opacity-60"
             >
               {isLoading ? (

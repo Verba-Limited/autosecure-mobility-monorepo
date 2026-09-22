@@ -44,13 +44,26 @@ export const useAdminAuthStore = create<AdminAuthState>((set) => ({
       typeof tokens === "string"
         ? tokens
         : findToken(tokens, ["accessToken", "access_token", "token", "jwt"]);
-    const refreshToken = findToken(tokens, ["refreshToken", "refresh_token"]);
-    if (typeof window !== "undefined" && accessToken) {
-      localStorage.setItem(ADMIN_ACCESS_TOKEN_KEY, accessToken);
-      if (refreshToken)
-        localStorage.setItem(ADMIN_REFRESH_TOKEN_KEY, refreshToken);
-    }
-    set({ accessToken, refreshToken, hasHydrated: true });
+    const nextRefreshToken = findToken(tokens, [
+      "refreshToken",
+      "refresh_token",
+    ]);
+    set((state) => {
+      const refreshToken = nextRefreshToken ?? state.refreshToken;
+      if (typeof window !== "undefined") {
+        if (accessToken) {
+          localStorage.setItem(ADMIN_ACCESS_TOKEN_KEY, accessToken);
+        }
+        if (refreshToken) {
+          localStorage.setItem(ADMIN_REFRESH_TOKEN_KEY, refreshToken);
+        }
+      }
+      return {
+        accessToken: accessToken ?? state.accessToken,
+        refreshToken,
+        hasHydrated: true,
+      };
+    });
   },
   logout: () => {
     if (typeof window !== "undefined") {
