@@ -86,16 +86,14 @@ export function CategoryHero() {
                   <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/8 bg-white/5 text-[32px] transition-transform duration-300 group-hover:scale-110">
                     {cat.emoji}
                   </span>
-                  <span
-                    className={`text-[13px] font-black ${cat.statClass}`}
-                  >
+                  <span className={`text-[13px] font-black ${cat.statClass}`}>
                     {cat.stat}
                   </span>
                 </div>
 
                 {/* Label */}
                 <p className="mt-6 text-[11px] font-black tracking-[0.2em] text-white/30">
-                  CATEGORY
+                  {/* CATEGORY */}
                 </p>
                 <h3 className="mt-2 text-[26px] font-black leading-none text-white">
                   {cat.label}

@@ -245,7 +245,7 @@ export function CarListingCard({
                     onClick={() => setModalOpen(true)}
                     className="flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#25D366] px-4 text-[13px] font-bold text-[#071b0e] transition-colors hover:bg-[#20BD5A]"
                   >
-                    <MessageCircle className="h-4 w-4" fill="currentColor" />
+                    <MessageCircle className="h-4 w-4 shrink-0" fill="currentColor" strokeWidth={2.5} aria-hidden="true" />
                     WhatsApp
                   </button>
                 </div>
@@ -403,7 +403,7 @@ export function CarListingCard({
               onClick={() => setModalOpen(true)}
               className="flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-[#25D366] text-[12px] font-bold text-[#071b0e] transition-colors hover:bg-[#20BD5A]"
             >
-              <MessageCircle className="h-3.5 w-3.5" fill="currentColor" />
+              <MessageCircle className="h-3.5 w-3.5 shrink-0" fill="currentColor" strokeWidth={2.5} aria-hidden="true" />
               WhatsApp
             </button>
           </div>

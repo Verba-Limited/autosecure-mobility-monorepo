@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { AUTOSECURE_WHATSAPP_DISPLAY, buildWhatsappUrl } from "@/lib/catalog-api";
 
 const LINK_COLUMNS = [
   {
@@ -33,7 +34,7 @@ const LINK_COLUMNS = [
 
 const CONTACT = [
   { icon: Mail, text: "hello@autosecure.ng", href: "mailto:hello@autosecure.ng" },
-  { icon: MessageCircle, text: "+234 703 381 2556 (WhatsApp)", href: "https://wa.me/2347033812556" },
+  { icon: MessageCircle, text: `${AUTOSECURE_WHATSAPP_DISPLAY} (WhatsApp)`, href: buildWhatsappUrl() },
   { icon: MapPin, text: "Lagos, Nigeria" },
   { icon: Clock, text: "Mon-Sat, 8am-8pm" },
 ];
@@ -41,7 +42,7 @@ const CONTACT = [
 const SOCIALS = [
   { icon: Globe, href: "#" },
   { icon: Briefcase, href: "#" },
-  { icon: MessageCircle, href: "https://wa.me/2347033812556" },
+  { icon: MessageCircle, href: buildWhatsappUrl() },
   { icon: Users, href: "#" },
 ];
 

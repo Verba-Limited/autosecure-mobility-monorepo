@@ -34,7 +34,9 @@ export function SupplierCta() {
               Put your inventory in front of customers who are ready to decide.
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-white/45">
-              Bring your vehicles and parts into a marketplace built for discovery, considered comparison and direct, qualified customer conversations.
+              Bring your vehicles and parts into a marketplace built for
+              discovery, considered comparison and direct, qualified customer
+              conversations.
             </p>
             <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium text-white/45">
               {BULLETS.map((bullet) => (
@@ -52,7 +54,7 @@ export function SupplierCta() {
               className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#C9943A] px-6 py-3.5 text-sm font-bold text-black transition-all hover:bg-[#E0AE5A] shadow-[0_4px_20px_rgba(201,148,58,0.3)]"
             >
               Request Supplier Access
-              <Mail className="h-4 w-4" />
+              {/* <Mail className="h-4 w-4" /> */}
             </a>
             <a
               href="mailto:hello@autosecure.ng?subject=Supplier%20onboarding%20question"

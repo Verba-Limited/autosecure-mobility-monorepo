@@ -91,9 +91,10 @@ export function UsedCarCard({ car }: { car: UsedCar }) {
     <>
       <article
         id={car.id}
-        className="group overflow-hidden rounded-[18px] border border-white/8 bg-[#0d0d0d] transition-all duration-300 hover:border-emerald-500/25 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.7)]"
+        className="group overflow-hidden rounded-2xl border border-white/8 bg-[#0d0d0d] transition-all duration-300 hover:border-emerald-500/25 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.7)]"
       >
-        <div className="relative aspect-[16/10] overflow-hidden bg-[#111]">
+        <div className="grid items-stretch lg:grid-cols-12">
+        <div className="relative aspect-[16/10] overflow-hidden bg-[#111] lg:col-span-5 lg:aspect-auto lg:min-h-[290px]">
           <Image
             src={car.image}
             alt={`${car.brand} ${car.model}`}
@@ -138,7 +139,7 @@ export function UsedCarCard({ car }: { car: UsedCar }) {
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="flex flex-col justify-between p-6 lg:col-span-7 lg:p-7">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[12px] font-black uppercase tracking-wide text-white/30">
@@ -213,7 +214,7 @@ export function UsedCarCard({ car }: { car: UsedCar }) {
             )}
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3">
+          <div className="mt-5 grid grid-cols-2 gap-3 lg:max-w-md">
             {hasRealId ? (
               <Link
                 href={`/used-cars/${car.id}`}
@@ -239,6 +240,7 @@ export function UsedCarCard({ car }: { car: UsedCar }) {
               WhatsApp
             </button>
           </div>
+        </div>
         </div>
       </article>
 

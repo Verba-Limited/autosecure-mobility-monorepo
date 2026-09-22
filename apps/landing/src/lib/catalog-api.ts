@@ -899,12 +899,12 @@ export function extractWhatsappLink(res: InquireResponse, fallbackText?: string)
   ];
   const found = candidates.find((c) => typeof c === "string") as string | undefined;
   if (found) {
-    if (found.includes("wa.me/?") || found.includes("wa.me?")) {
-      return found
-        .replace(/wa\.me\/\?/, `wa.me/${AUTOSECURE_WHATSAPP_NUMBER}?`)
-        .replace(/wa\.me\?/, `wa.me/${AUTOSECURE_WHATSAPP_NUMBER}?`);
+    try {
+      const message = new URL(found).searchParams.get("text");
+      return buildWhatsappUrl(message ?? fallbackText);
+    } catch {
+      return buildWhatsappUrl(fallbackText);
     }
-    return found;
   }
   return buildWhatsappUrl(fallbackText);
 }

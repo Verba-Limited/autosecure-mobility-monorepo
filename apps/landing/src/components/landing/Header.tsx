@@ -15,11 +15,10 @@ const NAV_LINKS = [
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(() => Boolean(getCustomerEmail()));
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    setIsSignedIn(Boolean(getCustomerEmail()));
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
