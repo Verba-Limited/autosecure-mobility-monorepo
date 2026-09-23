@@ -153,13 +153,13 @@ export function PartsExplorer({
       </ScrollReveal>
 
       {isLoading ? (
-        <div className="mt-16 grid gap-x-7 gap-y-8 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-16 grid gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4].map((i) => (
             <SkeletonCard key={i} />
           ))}
         </div>
       ) : filtered.length > 0 ? (
-        <div className="mt-16 grid gap-x-7 gap-y-8 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-16 grid gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((product, index) => (
             <ScrollReveal key={product.id} delay={(index % 4) * 80}>
               <PartProductCard product={product} />

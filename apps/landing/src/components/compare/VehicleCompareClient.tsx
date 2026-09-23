@@ -4,18 +4,10 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-  Check,
-  Lock,
-  MessageCircle,
-  Plus,
-  Scale,
-  Sparkles,
-  X,
-  Zap,
-} from "lucide-react";
+import { Check, Lock, Plus, Scale, Sparkles, X, Zap } from "lucide-react";
 import type { Car } from "@/data/cars";
 import { fetchNewCars, buildWhatsappUrl } from "@/lib/catalog-api";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { getCustomerEmail } from "@/lib/auth-api";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 import { formatVehiclePriceRange } from "@/lib/pricing-utils";
@@ -39,8 +31,12 @@ export function VehicleCompareClient() {
         if (fetched.length > 0) {
           setAllCars(fetched);
           setSelectedIds(
-            [v1, v2].filter((id): id is string => Boolean(id && fetched.some((car) => car.id === id))).length
-              ? [v1, v2].filter((id): id is string => Boolean(id && fetched.some((car) => car.id === id)))
+            [v1, v2].filter((id): id is string =>
+              Boolean(id && fetched.some((car) => car.id === id)),
+            ).length
+              ? [v1, v2].filter((id): id is string =>
+                  Boolean(id && fetched.some((car) => car.id === id)),
+                )
               : fetched.slice(0, 2).map((car) => car.id),
           );
         }
@@ -80,11 +76,14 @@ export function VehicleCompareClient() {
           </span>
 
           <h1 className="mt-6 text-3xl font-black tracking-tight text-white sm:text-5xl">
-            Compare Vehicles <span className="text-[#C9943A]">Side-by-Side</span>
+            Compare Vehicles{" "}
+            <span className="text-[#C9943A]">Side-by-Side</span>
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-base font-normal leading-relaxed text-white/60 sm:text-lg">
-            Authentication is required before comparing vehicles. Log in or create an account to unlock side-by-side technical specifications, acceleration metrics, protected pricing, and feature comparisons.
+            Authentication is required before comparing vehicles. Log in or
+            create an account to unlock side-by-side technical specifications,
+            acceleration metrics, protected pricing, and feature comparisons.
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -108,21 +107,28 @@ export function VehicleCompareClient() {
               <Zap className="h-5 w-5 text-[#C9943A]" />
               <h3 className="mt-3 text-sm font-bold text-white">Performance</h3>
               <p className="mt-1 text-xs text-white/50 leading-relaxed">
-                Compare horsepower, 0-100 km/h, top speed, and powertrain efficiency across models.
+                Compare horsepower, 0-100 km/h, top speed, and powertrain
+                efficiency across models.
               </p>
             </div>
             <div className="rounded-2xl border border-white/6 bg-white/3 p-5">
               <Scale className="h-5 w-5 text-[#C9943A]" />
-              <h3 className="mt-3 text-sm font-bold text-white">Specs &amp; Dimensions</h3>
+              <h3 className="mt-3 text-sm font-bold text-white">
+                Specs &amp; Dimensions
+              </h3>
               <p className="mt-1 text-xs text-white/50 leading-relaxed">
-                Review seating capacity, transmission types, drive systems, and body dimensions.
+                Review seating capacity, transmission types, drive systems, and
+                body dimensions.
               </p>
             </div>
             <div className="rounded-2xl border border-white/6 bg-white/3 p-5">
               <Sparkles className="h-5 w-5 text-[#C9943A]" />
-              <h3 className="mt-3 text-sm font-bold text-white">Unlocked Pricing</h3>
+              <h3 className="mt-3 text-sm font-bold text-white">
+                Unlocked Pricing
+              </h3>
               <p className="mt-1 text-xs text-white/50 leading-relaxed">
-                View verified price ranges, monthly financing estimates, and available promotions.
+                View verified price ranges, monthly financing estimates, and
+                available promotions.
               </p>
             </div>
           </div>
@@ -147,9 +153,12 @@ export function VehicleCompareClient() {
   if (allCars.length === 0) {
     return (
       <div className="py-20 text-center">
-        <h1 className="text-2xl font-black text-white">No live vehicles available to compare</h1>
+        <h1 className="text-2xl font-black text-white">
+          No live vehicles available to compare
+        </h1>
         <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-white/55">
-          Vehicle comparison uses the current authenticated catalogue. Please try again shortly.
+          Vehicle comparison uses the current authenticated catalogue. Please
+          try again shortly.
         </p>
       </div>
     );
@@ -189,7 +198,8 @@ export function VehicleCompareClient() {
             Compare Vehicles
           </h1>
           <p className="mt-1 text-sm text-white/50">
-            Compare up to 4 models side-by-side to make your buying decision with confidence.
+            Compare up to 4 models side-by-side to make your buying decision
+            with confidence.
           </p>
         </div>
 
@@ -241,7 +251,11 @@ export function VehicleCompareClient() {
                       className="mt-1 block w-full rounded-lg border border-white/10 bg-[#141414] px-3 py-2 text-xs font-bold text-white focus:border-[#C9943A] focus:outline-none"
                     >
                       {allCars.map((c) => (
-                        <option key={c.id} value={c.id} className="bg-[#141414] text-white">
+                        <option
+                          key={c.id}
+                          value={c.id}
+                          className="bg-[#141414] text-white"
+                        >
                           {c.brand} {c.model} ({c.year ?? "2025"})
                         </option>
                       ))}
@@ -291,7 +305,7 @@ export function VehicleCompareClient() {
                     target="_blank"
                     className="flex h-9 items-center justify-center gap-1 rounded-lg bg-[#25D366] text-xs font-bold text-black hover:bg-[#20BD5A]"
                   >
-                    <MessageCircle className="h-3 w-3" fill="currentColor" />
+                    <WhatsAppIcon className="h-3 w-3" />
                     WhatsApp
                   </Link>
                 </div>
@@ -314,7 +328,8 @@ export function VehicleCompareClient() {
                   },
                   {
                     label: "Body Type",
-                    getVal: (c: Car) => c.bodyType || c.vehicleType || c.category || "N/A",
+                    getVal: (c: Car) =>
+                      c.bodyType || c.vehicleType || c.category || "N/A",
                   },
                   {
                     label: "Fuel / Powertrain",
@@ -330,7 +345,8 @@ export function VehicleCompareClient() {
                   },
                   {
                     label: "Transmission",
-                    getVal: (c: Car) => c.transmission || c.keySpec || "Automatic",
+                    getVal: (c: Car) =>
+                      c.transmission || c.keySpec || "Automatic",
                   },
                   {
                     label: "EV Range",
@@ -352,9 +368,14 @@ export function VehicleCompareClient() {
                       gridTemplateColumns: `180px repeat(${comparedCars.length}, minmax(0, 1fr))`,
                     }}
                   >
-                    <span className="font-semibold text-white/40">{row.label}</span>
+                    <span className="font-semibold text-white/40">
+                      {row.label}
+                    </span>
                     {comparedCars.map((car, idx) => (
-                      <span key={car.id + idx} className="font-bold text-white pr-4">
+                      <span
+                        key={car.id + idx}
+                        className="font-bold text-white pr-4"
+                      >
                         {row.getVal(car)}
                       </span>
                     ))}
@@ -393,7 +414,9 @@ export function VehicleCompareClient() {
                           </span>
                         ))
                       ) : (
-                        <span className="text-white/40 text-xs">Standard palette</span>
+                        <span className="text-white/40 text-xs">
+                          Standard palette
+                        </span>
                       )}
                     </div>
                   ))}
@@ -422,9 +445,14 @@ export function VehicleCompareClient() {
                       gridTemplateColumns: `180px repeat(${comparedCars.length}, minmax(0, 1fr))`,
                     }}
                   >
-                    <span className="font-semibold text-white/40">{feature}</span>
+                    <span className="font-semibold text-white/40">
+                      {feature}
+                    </span>
                     {comparedCars.map((car, idx) => (
-                      <span key={car.id + idx} className="flex items-center gap-1.5 text-emerald-400 font-bold">
+                      <span
+                        key={car.id + idx}
+                        className="flex items-center gap-1.5 text-emerald-400 font-bold"
+                      >
                         <Check className="h-4 w-4 stroke-[3]" />
                         Included
                       </span>

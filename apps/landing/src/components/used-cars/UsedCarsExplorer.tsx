@@ -118,15 +118,11 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
       );
     } else if (activeCategory === "Sedan") {
       filtered = filtered.filter(
-        (c) =>
-          c.category === "Sedan" ||
-          c.bodyType?.toLowerCase() === "sedan",
+        (c) => c.category === "Sedan" || c.bodyType?.toLowerCase() === "sedan",
       );
     } else if (activeCategory === "SUV") {
       filtered = filtered.filter(
-        (c) =>
-          c.category === "SUV" ||
-          c.bodyType?.toLowerCase() === "suv",
+        (c) => c.category === "SUV" || c.bodyType?.toLowerCase() === "suv",
       );
     } else if (activeCategory === "Under ₦35m") {
       filtered = filtered.filter((c) => c.price < 35_000_000);
@@ -190,7 +186,8 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
         if (fuel.includes("plug-in")) return carFuel.includes("plug-in");
         if (fuel.includes("hybrid")) return carFuel.includes("hybrid");
         if (fuel.includes("diesel")) return carFuel.includes("diesel");
-        if (fuel.includes("petrol")) return carFuel.includes("petrol") || carFuel.includes("gas");
+        if (fuel.includes("petrol"))
+          return carFuel.includes("petrol") || carFuel.includes("gas");
         return carFuel.includes(fuel);
       });
     }
@@ -210,10 +207,16 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
       filtered = filtered.filter((car) => {
         const carDt = (car.driveType || "").toLowerCase();
         if (dt.includes("awd") || dt.includes("4wd")) {
-          return carDt.includes("awd") || carDt.includes("4wd") || carDt.includes("all");
+          return (
+            carDt.includes("awd") ||
+            carDt.includes("4wd") ||
+            carDt.includes("all")
+          );
         }
-        if (dt.includes("fwd")) return carDt.includes("fwd") || carDt.includes("front");
-        if (dt.includes("rwd")) return carDt.includes("rwd") || carDt.includes("rear");
+        if (dt.includes("fwd"))
+          return carDt.includes("fwd") || carDt.includes("front");
+        if (dt.includes("rwd"))
+          return carDt.includes("rwd") || carDt.includes("rear");
         return carDt.includes(dt);
       });
     }
@@ -222,7 +225,8 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
     if (filters.seatingCapacity) {
       const seatsCount = filters.seatingCapacity.replace(/\D/g, "");
       filtered = filtered.filter((car) => {
-        if (car.seatingCapacity === undefined || car.seatingCapacity === null) return true;
+        if (car.seatingCapacity === undefined || car.seatingCapacity === null)
+          return true;
         return String(car.seatingCapacity).includes(seatsCount);
       });
     }
@@ -295,7 +299,8 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
                 Hot Deals &amp; Verified Pre-Owned
               </p>
               <p className="mt-1 text-[17px] font-black text-white">
-                Special inspected inventory available with promotional pricing and warranty options!
+                Special inspected inventory available with promotional pricing
+                and warranty options!
               </p>
             </div>
           </div>
@@ -326,7 +331,7 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
 
         {/* Results Area */}
         <div className="flex-1 min-w-0 w-full space-y-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/8 pb-4">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-white/8 pb-4">
             <div className="flex flex-wrap gap-2.5">
               {USED_CAR_FILTERS.map((filter) => (
                 <button
@@ -344,27 +349,35 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
               ))}
             </div>
 
-            <div className="flex w-full items-center justify-between gap-4 sm:w-auto sm:justify-end">
-              <span className="flex flex-col text-xs font-bold leading-tight text-white/40">
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="text-xs font-bold text-white/40">
                 {isLoading ? (
                   "Loading…"
                 ) : (
                   <>
-                    <span className="text-white font-black">{results.length}</span>
-                    <span>results</span>
+                    <span className="text-white font-black">
+                      {results.length}
+                    </span>
+                    {" results"}
                   </>
                 )}
               </span>
 
-              <label className="flex items-center gap-2 text-xs font-semibold text-white/40">
+              <label className="flex items-center gap-2 text-xs font-semibold text-white/40 whitespace-nowrap">
                 Sort:
                 <select
                   value={sort}
-                  onChange={(event) => setSort(event.target.value as SortOption)}
+                  onChange={(event) =>
+                    setSort(event.target.value as SortOption)
+                  }
                   className="h-9 rounded-lg border border-white/10 bg-[#141414] px-3 text-xs font-semibold text-white focus:outline-none"
                 >
                   {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
-                    <option key={key} value={key} className="bg-[#141414] text-white">
+                    <option
+                      key={key}
+                      value={key}
+                      className="bg-[#141414] text-white"
+                    >
                       {SORT_LABELS[key]}
                     </option>
                   ))}
@@ -389,7 +402,9 @@ export function UsedCarsExplorer({ cars: initialCars }: { cars: UsedCar[] }) {
             </div>
           ) : (
             <ScrollReveal className="rounded-2xl border border-dashed border-white/10 bg-white/2 py-16 text-center">
-              <p className="text-base font-black text-white">No matching used cars</p>
+              <p className="text-base font-black text-white">
+                No matching used cars
+              </p>
               <p className="mt-1 text-sm font-semibold text-white/40">
                 Try loosening your filters or resetting your search parameters.
               </p>

@@ -22,7 +22,7 @@ export type PartProduct = {
   description: string;
   imageToneClassName: string;
   name: string;
-  price: number;
+  price: number | null;
   ratingCount: number;
   tag?: string;
   tagClassName?: string;

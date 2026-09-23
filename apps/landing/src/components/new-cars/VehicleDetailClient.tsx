@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, MessageCircle, ArrowLeft, Lock } from "lucide-react";
+import { Heart, ArrowLeft, Lock } from "lucide-react";
 import { InquireModal } from "@/components/ui/InquireModal";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { CARS } from "@/data/cars";
 import { getCustomerEmail } from "@/lib/auth-api";
 import {
@@ -15,7 +16,11 @@ import {
   type ApiInventoryItem,
 } from "@/lib/catalog-api";
 import { formatVehiclePriceRange } from "@/lib/pricing-utils";
-import { isVehicleSaved, toggleFavorite, subscribeToFavorites } from "@/lib/favorites";
+import {
+  isVehicleSaved,
+  toggleFavorite,
+  subscribeToFavorites,
+} from "@/lib/favorites";
 
 function formatNaira(value?: number) {
   if (!value || isNaN(Number(value))) return "N/A";
@@ -33,9 +38,7 @@ function readPrice(item: ApiInventoryItem): number {
 }
 
 function SkeletonBlock({ className }: { className: string }) {
-  return (
-    <div className={`animate-pulse rounded-lg bg-white/6 ${className}`} />
-  );
+  return <div className={`animate-pulse rounded-lg bg-white/6 ${className}`} />;
 }
 
 export function VehicleDetailClient({ id }: { id: string }) {
@@ -60,7 +63,10 @@ export function VehicleDetailClient({ id }: { id: string }) {
     if (!vehicle || !id) return;
     const next = toggleFavorite({
       id,
-      title: (vehicle.title ?? `${vehicle.brand ?? ""} ${vehicle.model ?? ""}`.trim()) || "Brand New Vehicle",
+      title:
+        (vehicle.title ??
+          `${vehicle.brand ?? ""} ${vehicle.model ?? ""}`.trim()) ||
+        "Brand New Vehicle",
       brand: vehicle.brand,
       model: vehicle.model,
       year: vehicle.year,
@@ -406,7 +412,10 @@ export function VehicleDetailClient({ id }: { id: string }) {
                   </span>
                 </div>
                 <p className="mt-3 border-t border-white/8 pt-3 text-xs leading-relaxed text-white/55">
-                  The exact final price is determined when you progress toward closing the transaction based on selected trim, detailed specifications, duty, port clearance, and other applicable landing costs.
+                  The exact final price is determined when you progress toward
+                  closing the transaction based on selected trim, detailed
+                  specifications, duty, port clearance, and other applicable
+                  landing costs.
                 </p>
                 {vehicle.pricing?.financing && (
                   <p className="mt-2 text-xs text-white/40">
@@ -425,7 +434,8 @@ export function VehicleDetailClient({ id }: { id: string }) {
                   <p className="text-base font-bold">Pricing Protected</p>
                 </div>
                 <p className="mt-2 text-sm text-white/60 leading-relaxed">
-                  Sign in or create an account to view full pricing, breakdown calculations, and financing options for this vehicle.
+                  Sign in or create an account to view full pricing, breakdown
+                  calculations, and financing options for this vehicle.
                 </p>
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   <Link
@@ -456,7 +466,11 @@ export function VehicleDetailClient({ id }: { id: string }) {
                   : "border-white/12 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
               }`}
             >
-              <Heart className="h-4 w-4" fill={isSaved ? "currentColor" : "none"} strokeWidth={2.5} />
+              <Heart
+                className="h-4 w-4"
+                fill={isSaved ? "currentColor" : "none"}
+                strokeWidth={2.5}
+              />
               {isSaved ? "Saved to Favorites" : "Save Favorite"}
             </button>
             <Link
@@ -470,7 +484,7 @@ export function VehicleDetailClient({ id }: { id: string }) {
               onClick={() => setModalOpen(true)}
               className="flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#25D366] text-[13px] font-black text-black hover:bg-[#20BD5A] transition-colors"
             >
-              <MessageCircle className="h-4 w-4" fill="currentColor" />
+              <WhatsAppIcon className="h-4 w-4" />
               WhatsApp Seller
             </button>
           </div>

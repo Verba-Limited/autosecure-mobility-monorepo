@@ -3,13 +3,22 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, MessageCircle, Play, Lock } from "lucide-react";
+import { Heart, Play, Lock } from "lucide-react";
 import type { Car } from "@/data/cars";
-import { inquireVehicle, extractWhatsappLink, buildWhatsappUrl } from "@/lib/catalog-api";
+import {
+  inquireVehicle,
+  extractWhatsappLink,
+  buildWhatsappUrl,
+} from "@/lib/catalog-api";
 import { InquireModal } from "@/components/ui/InquireModal";
 import { getCustomerEmail } from "@/lib/auth-api";
 import { formatVehiclePriceRange } from "@/lib/pricing-utils";
-import { isVehicleSaved, toggleFavorite, subscribeToFavorites } from "@/lib/favorites";
+import {
+  isVehicleSaved,
+  toggleFavorite,
+  subscribeToFavorites,
+} from "@/lib/favorites";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
 export function CarListingCard({
   car,
@@ -116,7 +125,9 @@ export function CarListingCard({
               <button
                 type="button"
                 onClick={handleToggleFavorite}
-                aria-label={isSaved ? "Remove from favorites" : "Save to favorites"}
+                aria-label={
+                  isSaved ? "Remove from favorites" : "Save to favorites"
+                }
                 className={`absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg backdrop-blur-md border transition-all ${
                   isSaved
                     ? "bg-rose-500/20 border-rose-500/50 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.4)]"
@@ -218,7 +229,8 @@ export function CarListingCard({
                         {formatVehiclePriceRange(car)}
                       </p>
                       <p className="text-[10px] font-medium text-white/40">
-                        Final cost confirmed at closing (varies by trim &amp; duty)
+                        Final cost confirmed at closing (varies by trim &amp;
+                        duty)
                       </p>
                     </div>
                   ) : (
@@ -226,8 +238,8 @@ export function CarListingCard({
                       href="/login?next=/new-cars"
                       className="inline-flex h-10 w-fit items-center gap-2 whitespace-nowrap rounded-lg border border-[#C9943A]/30 bg-[#C9943A]/10 px-3.5 text-xs font-bold text-[#F0C46E] transition-colors hover:bg-[#C9943A]/20 hover:text-[#FFE0A2]"
                     >
-                        <Lock className="h-3.5 w-3.5" />
-                        Sign in to view price
+                      <Lock className="h-3.5 w-3.5" />
+                      Sign in to view price
                     </Link>
                   )}
                 </div>
@@ -245,7 +257,7 @@ export function CarListingCard({
                     onClick={() => setModalOpen(true)}
                     className="flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-[#25D366] px-4 text-[13px] font-bold text-[#071b0e] transition-colors hover:bg-[#20BD5A]"
                   >
-                    <MessageCircle className="h-4 w-4 shrink-0" fill="currentColor" strokeWidth={2.5} aria-hidden="true" />
+                    <WhatsAppIcon className="h-4 w-4 shrink-0" />
                     WhatsApp
                   </button>
                 </div>
@@ -291,7 +303,9 @@ export function CarListingCard({
             <button
               type="button"
               onClick={handleToggleFavorite}
-              aria-label={isSaved ? "Remove from favorites" : "Save to favorites"}
+              aria-label={
+                isSaved ? "Remove from favorites" : "Save to favorites"
+              }
               className={`absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg backdrop-blur-md border transition-all ${
                 isSaved
                   ? "bg-rose-500/20 border-rose-500/50 text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.4)]"
@@ -403,7 +417,7 @@ export function CarListingCard({
               onClick={() => setModalOpen(true)}
               className="flex h-10 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-[#25D366] text-[12px] font-bold text-[#071b0e] transition-colors hover:bg-[#20BD5A]"
             >
-              <MessageCircle className="h-3.5 w-3.5 shrink-0" fill="currentColor" strokeWidth={2.5} aria-hidden="true" />
+              <WhatsAppIcon className="h-3.5 w-3.5 shrink-0" />
               WhatsApp
             </button>
           </div>

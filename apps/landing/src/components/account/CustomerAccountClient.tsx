@@ -19,7 +19,6 @@ import {
   KeyRound,
   Loader2,
   Lock,
-  MessageCircle,
   Package,
   Plus,
   Scale,
@@ -57,6 +56,7 @@ import {
   type SavedVehicle,
 } from "@/lib/favorites";
 import { buildWhatsappUrl } from "@/lib/catalog-api";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 function formatNaira(value?: number) {
@@ -81,7 +81,9 @@ function formatDate(dateStr?: string) {
 
 export function CustomerAccountClient() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const [activeTab, setActiveTab] = useState<"orders" | "requests" | "favorites" | "profile">("orders");
+  const [activeTab, setActiveTab] = useState<
+    "orders" | "requests" | "favorites" | "profile"
+  >("orders");
 
   // Data States
   const [orders, setOrders] = useState<CustomerTrackedOrder[]>([]);
@@ -96,7 +98,9 @@ export function CustomerAccountClient() {
 
   // Expanded Order ID for full timeline/logs
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
-  const [trackingDetails, setTrackingDetails] = useState<Record<string, CustomerTrackedOrder>>({});
+  const [trackingDetails, setTrackingDetails] = useState<
+    Record<string, CustomerTrackedOrder>
+  >({});
   const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null);
 
   // New Request Modal state
@@ -269,7 +273,9 @@ export function CustomerAccountClient() {
       const updated = await uploadUserAvatar(file);
       setProfile(updated);
     } catch (err: any) {
-      setAvatarError(err?.message || "Failed to upload photo. Try a smaller image.");
+      setAvatarError(
+        err?.message || "Failed to upload photo. Try a smaller image.",
+      );
     } finally {
       setIsUploadingAvatar(false);
       if (avatarInputRef.current) avatarInputRef.current.value = "";
@@ -279,7 +285,9 @@ export function CustomerAccountClient() {
   async function handleSaveNotifications() {
     setIsSavingNotif(true);
     try {
-      const updated = await updateUserProfile({ notificationPreferences: notifPrefs });
+      const updated = await updateUserProfile({
+        notificationPreferences: notifPrefs,
+      });
       setProfile(updated);
       setNotifSaved(true);
       setTimeout(() => setNotifSaved(false), 3000);
@@ -304,7 +312,9 @@ export function CustomerAccountClient() {
     setIsChangingPassword(true);
     try {
       // POST /auth/change-password
-      const apiBase = (process.env.NEXT_PUBLIC_AUTOSECURE_PUBLIC_API_URL ?? "").replace(/\/+$/, "");
+      const apiBase = (
+        process.env.NEXT_PUBLIC_AUTOSECURE_PUBLIC_API_URL ?? ""
+      ).replace(/\/+$/, "");
       const token = localStorage.getItem("autosecure_customer_access_token");
       const res = await fetch(`${apiBase}/auth/change-password`, {
         method: "POST",
@@ -327,7 +337,9 @@ export function CustomerAccountClient() {
       setShowChangePassword(false);
       setTimeout(() => setPasswordSaved(false), 4000);
     } catch (err: any) {
-      setPasswordError(err?.message || "Failed to change password. Please try again.");
+      setPasswordError(
+        err?.message || "Failed to change password. Please try again.",
+      );
     } finally {
       setIsChangingPassword(false);
     }
@@ -366,7 +378,9 @@ export function CustomerAccountClient() {
       setQuantity(1);
       setRequestNotes("");
     } catch (err: any) {
-      setRequestError(err?.message || "Failed to submit request. Please try again.");
+      setRequestError(
+        err?.message || "Failed to submit request. Please try again.",
+      );
     } finally {
       setIsSubmittingRequest(false);
     }
@@ -375,18 +389,24 @@ export function CustomerAccountClient() {
   async function handleAcceptQuote(quoteId: string, responseId: string) {
     try {
       const updated = await acceptPartQuote(quoteId, responseId);
-      setRequests((prev) => prev.map((q) => (q._id === quoteId || q.id === quoteId ? updated : q)));
+      setRequests((prev) =>
+        prev.map((q) => (q._id === quoteId || q.id === quoteId ? updated : q)),
+      );
     } catch (err: any) {
       alert(err?.message || "Failed to accept quotation.");
     }
   }
 
   async function handleDeclineQuote(quoteId: string) {
-    const reason = window.prompt("Please provide a reason for declining this quotation:");
+    const reason = window.prompt(
+      "Please provide a reason for declining this quotation:",
+    );
     if (!reason) return;
     try {
       const updated = await declinePartQuote(quoteId, reason);
-      setRequests((prev) => prev.map((q) => (q._id === quoteId || q.id === quoteId ? updated : q)));
+      setRequests((prev) =>
+        prev.map((q) => (q._id === quoteId || q.id === quoteId ? updated : q)),
+      );
     } catch (err: any) {
       alert(err?.message || "Failed to decline quotation.");
     }
@@ -419,7 +439,9 @@ export function CustomerAccountClient() {
             Customer Portal Access
           </h1>
           <p className="mt-3 text-base text-white/60 leading-relaxed">
-            Please log in or create an account to access order tracking, submit vehicle requests, view your order history, and unlock customer pricing.
+            Please log in or create an account to access order tracking, submit
+            vehicle requests, view your order history, and unlock customer
+            pricing.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
             <Link
@@ -481,7 +503,9 @@ export function CustomerAccountClient() {
             {isLoadingOrders ? "..." : orders.length}
           </p>
           <p className="mt-1 text-xs text-emerald-400 font-semibold">
-            {orders.some((o) => o.status === "ACTIVE") ? "● Active in progress" : "All orders up to date"}
+            {orders.some((o) => o.status === "ACTIVE")
+              ? "● Active in progress"
+              : "All orders up to date"}
           </p>
         </div>
 
@@ -520,7 +544,9 @@ export function CustomerAccountClient() {
             </span>
             <Heart className="h-5 w-5 text-[#C9943A]" />
           </div>
-          <p className="mt-3 text-3xl font-black text-white">{favorites.length}</p>
+          <p className="mt-3 text-3xl font-black text-white">
+            {favorites.length}
+          </p>
           <p className="mt-1 text-xs text-white/40 font-semibold">
             In your wishlist
           </p>
@@ -588,14 +614,20 @@ export function CustomerAccountClient() {
           {isLoadingOrders ? (
             <div className="flex h-48 flex-col items-center justify-center rounded-2xl border border-white/8 bg-[#0d0d0d]">
               <Loader2 className="h-8 w-8 animate-spin text-[#C9943A]" />
-              <p className="mt-3 text-sm text-white/50">Loading your vehicle orders...</p>
+              <p className="mt-3 text-sm text-white/50">
+                Loading your vehicle orders...
+              </p>
             </div>
           ) : orders.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0d0d0d] py-16 text-center">
               <Truck className="h-12 w-12 text-white/20" />
-              <h3 className="mt-4 text-base font-bold text-white">No vehicle orders tracked yet</h3>
+              <h3 className="mt-4 text-base font-bold text-white">
+                No vehicle orders tracked yet
+              </h3>
               <p className="mt-1.5 max-w-md text-sm text-white/45">
-                Once you progress with a vehicle purchase on AutoSecure, your tracking timeline, progress history logs, and shipment milestones will appear here in real-time.
+                Once you progress with a vehicle purchase on AutoSecure, your
+                tracking timeline, progress history logs, and shipment
+                milestones will appear here in real-time.
               </p>
               <Link
                 href="/new-cars"
@@ -606,8 +638,10 @@ export function CustomerAccountClient() {
             </div>
           ) : (
             orders.map((order) => {
-              const isExpanded = expandedOrderId === order._id || expandedOrderId === order.id;
-              const detail = trackingDetails[order._id || order.id || ""] || order;
+              const isExpanded =
+                expandedOrderId === order._id || expandedOrderId === order.id;
+              const detail =
+                trackingDetails[order._id || order.id || ""] || order;
               const isLoadingThis = loadingTrackId === (order._id || order.id);
 
               return (
@@ -636,12 +670,14 @@ export function CustomerAccountClient() {
                           Order #{order.reference}
                         </span>
                         <h2 className="mt-1 text-xl font-black text-white">
-                          {order.vehicle?.title || `${order.vehicle?.brand || ""} ${order.vehicle?.model || ""}`}
+                          {order.vehicle?.title ||
+                            `${order.vehicle?.brand || ""} ${order.vehicle?.model || ""}`}
                         </h2>
                         <p className="mt-1 text-xs text-white/50">
                           Placed on {formatDate(order.createdAt)}
                           {order.vehicle?.vin && ` · VIN: ${order.vehicle.vin}`}
-                          {order.vehicle?.colour && ` · Colour: ${order.vehicle.colour}`}
+                          {order.vehicle?.colour &&
+                            ` · Colour: ${order.vehicle.colour}`}
                         </p>
                         {order.deliveryAddress && (
                           <p className="mt-1 text-xs text-white/50">
@@ -654,11 +690,12 @@ export function CustomerAccountClient() {
                     <div className="lg:text-right">
                       <span
                         className={`inline-block rounded-full px-3 py-1 text-xs font-black uppercase ${
-                          order.status === "DELIVERED" || order.currentStage?.key === "DELIVERED"
+                          order.status === "DELIVERED" ||
+                          order.currentStage?.key === "DELIVERED"
                             ? "border border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
                             : order.status === "CANCELLED"
-                            ? "border border-red-500/25 bg-red-500/10 text-red-400"
-                            : "border border-[#C9943A]/30 bg-[#C9943A]/10 text-[#C9943A]"
+                              ? "border border-red-500/25 bg-red-500/10 text-red-400"
+                              : "border border-[#C9943A]/30 bg-[#C9943A]/10 text-[#C9943A]"
                         }`}
                       >
                         {order.currentStage?.label || order.status}
@@ -668,7 +705,8 @@ export function CustomerAccountClient() {
                       </p>
                       {order.estimatedDeliveryDate && (
                         <p className="text-xs text-white/40">
-                          Est. Arrival: {formatDate(order.estimatedDeliveryDate)}
+                          Est. Arrival:{" "}
+                          {formatDate(order.estimatedDeliveryDate)}
                         </p>
                       )}
                     </div>
@@ -681,7 +719,9 @@ export function CustomerAccountClient() {
                     </p>
                     <button
                       type="button"
-                      onClick={() => handleToggleTrackOrder(order._id || order.id || "")}
+                      onClick={() =>
+                        handleToggleTrackOrder(order._id || order.id || "")
+                      }
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-[#C9943A] hover:underline"
                     >
                       {isExpanded ? (
@@ -690,7 +730,8 @@ export function CustomerAccountClient() {
                         </>
                       ) : (
                         <>
-                          View Detailed Timeline <ChevronDown className="h-4 w-4" />
+                          View Detailed Timeline{" "}
+                          <ChevronDown className="h-4 w-4" />
                         </>
                       )}
                     </button>
@@ -721,8 +762,8 @@ export function CustomerAccountClient() {
                                         isCurr
                                           ? "border-[#C9943A] bg-[#C9943A]/10 text-white shadow-[0_0_12px_rgba(201,148,58,0.2)]"
                                           : isDone
-                                          ? "border-emerald-500/30 bg-emerald-500/5 text-white/80"
-                                          : "border-white/6 bg-white/2 text-white/30"
+                                            ? "border-emerald-500/30 bg-emerald-500/5 text-white/80"
+                                            : "border-white/6 bg-white/2 text-white/30"
                                       }`}
                                     >
                                       <div className="flex items-center gap-2">
@@ -735,10 +776,14 @@ export function CustomerAccountClient() {
                                             {step.order / 10}
                                           </span>
                                         )}
-                                        <p className="text-xs font-bold truncate">{step.label}</p>
+                                        <p className="text-xs font-bold truncate">
+                                          {step.label}
+                                        </p>
                                       </div>
                                       {step.at && (
-                                        <p className="mt-1 text-[10px] text-white/40">{formatDate(step.at)}</p>
+                                        <p className="mt-1 text-[10px] text-white/40">
+                                          {formatDate(step.at)}
+                                        </p>
                                       )}
                                     </div>
                                   );
@@ -762,9 +807,15 @@ export function CustomerAccountClient() {
                                     <span className="font-bold text-white flex items-center gap-2">
                                       <span className="h-1.5 w-1.5 rounded-full bg-[#C9943A]" />
                                       {log.stageLabel}
-                                      {log.note && <span className="font-normal italic text-white/60">&ldquo;{log.note}&rdquo;</span>}
+                                      {log.note && (
+                                        <span className="font-normal italic text-white/60">
+                                          &ldquo;{log.note}&rdquo;
+                                        </span>
+                                      )}
                                     </span>
-                                    <span className="text-white/40 font-mono text-[11px]">{formatDate(log.at)}</span>
+                                    <span className="text-white/40 font-mono text-[11px]">
+                                      {formatDate(log.at)}
+                                    </span>
                                   </div>
                                 ))}
                               </div>
@@ -786,9 +837,12 @@ export function CustomerAccountClient() {
         <div className="mt-6 space-y-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-white/8 bg-[#0d0d0d] p-6">
             <div>
-              <h2 className="text-lg font-black text-white">Submit New Sourcing Request</h2>
+              <h2 className="text-lg font-black text-white">
+                Submit New Sourcing Request
+              </h2>
               <p className="mt-1 text-xs text-white/50">
-                Request a quotation for replacement parts, performance upgrades, accessories, or custom vehicle orders.
+                Request a quotation for replacement parts, performance upgrades,
+                accessories, or custom vehicle orders.
               </p>
             </div>
             <button
@@ -804,14 +858,20 @@ export function CustomerAccountClient() {
           {isLoadingRequests ? (
             <div className="flex h-48 flex-col items-center justify-center rounded-2xl border border-white/8 bg-[#0d0d0d]">
               <Loader2 className="h-8 w-8 animate-spin text-[#C9943A]" />
-              <p className="mt-3 text-sm text-white/50">Loading your quotation requests...</p>
+              <p className="mt-3 text-sm text-white/50">
+                Loading your quotation requests...
+              </p>
             </div>
           ) : requests.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0d0d0d] py-16 text-center">
               <FileText className="h-12 w-12 text-white/20" />
-              <h3 className="mt-4 text-base font-bold text-white">No requests submitted yet</h3>
+              <h3 className="mt-4 text-base font-bold text-white">
+                No requests submitted yet
+              </h3>
               <p className="mt-1.5 max-w-md text-sm text-white/45">
-                Need a specific vehicle trim, tyre set, battery, or hard-to-find auto part? Click the button above to request a direct quotation through AutoSecure.
+                Need a specific vehicle trim, tyre set, battery, or hard-to-find
+                auto part? Click the button above to request a direct quotation
+                through AutoSecure.
               </p>
             </div>
           ) : (
@@ -832,11 +892,15 @@ export function CustomerAccountClient() {
                         </span>
                       </div>
                       <h3 className="mt-2 text-base font-bold text-white">
-                        {req.partName} {req.quantity > 1 ? `(Qty: ${req.quantity})` : ""}
+                        {req.partName}{" "}
+                        {req.quantity > 1 ? `(Qty: ${req.quantity})` : ""}
                       </h3>
                       {req.vehicle && (
                         <p className="mt-1 text-xs text-white/50">
-                          Vehicle: {req.vehicle.brandName || req.vehicle.brandSlug || ""} {req.vehicle.modelName || req.vehicle.modelSlug || ""} {req.vehicle.year ? `(${req.vehicle.year})` : ""}
+                          Vehicle:{" "}
+                          {req.vehicle.brandName || req.vehicle.brandSlug || ""}{" "}
+                          {req.vehicle.modelName || req.vehicle.modelSlug || ""}{" "}
+                          {req.vehicle.year ? `(${req.vehicle.year})` : ""}
                         </p>
                       )}
                       {req.notes && (
@@ -851,17 +915,20 @@ export function CustomerAccountClient() {
                         className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
                           req.status === "ACCEPTED"
                             ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                            : req.status === "DECLINED" || req.status === "CANCELLED"
-                            ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                            : req.status === "QUOTED"
-                            ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                            : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            : req.status === "DECLINED" ||
+                                req.status === "CANCELLED"
+                              ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                              : req.status === "QUOTED"
+                                ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                                : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                         }`}
                       >
                         <Clock className="h-3 w-3" />
                         {req.status}
                       </span>
-                      <p className="mt-1.5 text-xs text-white/40">Submitted: {formatDate(req.createdAt)}</p>
+                      <p className="mt-1.5 text-xs text-white/40">
+                        Submitted: {formatDate(req.createdAt)}
+                      </p>
                     </div>
                   </div>
 
@@ -882,26 +949,39 @@ export function CustomerAccountClient() {
                                 {formatNaira(resp.price?.amount)}
                               </p>
                               <p className="text-xs text-white/60 mt-1">
-                                Availability: <strong>{resp.availability}</strong>
-                                {resp.leadTimeDays ? ` · Delivery in ${resp.leadTimeDays} days` : ""}
+                                Availability:{" "}
+                                <strong>{resp.availability}</strong>
+                                {resp.leadTimeDays
+                                  ? ` · Delivery in ${resp.leadTimeDays} days`
+                                  : ""}
                               </p>
                               {resp.message && (
-                                <p className="text-xs text-white/50 italic mt-1">&ldquo;{resp.message}&rdquo;</p>
+                                <p className="text-xs text-white/50 italic mt-1">
+                                  &ldquo;{resp.message}&rdquo;
+                                </p>
                               )}
                             </div>
 
-                            {req.status === "QUOTED" || req.status === "OPEN" ? (
+                            {req.status === "QUOTED" ||
+                            req.status === "OPEN" ? (
                               <div className="flex items-center gap-2 shrink-0">
                                 <button
                                   type="button"
-                                  onClick={() => handleAcceptQuote(req._id || req.id || "", resp.id)}
+                                  onClick={() =>
+                                    handleAcceptQuote(
+                                      req._id || req.id || "",
+                                      resp.id,
+                                    )
+                                  }
                                   className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700"
                                 >
                                   Accept Quote
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => handleDeclineQuote(req._id || req.id || "")}
+                                  onClick={() =>
+                                    handleDeclineQuote(req._id || req.id || "")
+                                  }
                                   className="rounded-lg border border-white/15 px-3 py-2 text-xs font-bold text-white/60 hover:text-white hover:bg-white/5"
                                 >
                                   Decline
@@ -909,7 +989,9 @@ export function CustomerAccountClient() {
                               </div>
                             ) : (
                               <span className="text-xs font-bold text-white/40 uppercase">
-                                {req.status === "ACCEPTED" ? "Quote Accepted ✓" : "Quote Closed"}
+                                {req.status === "ACCEPTED"
+                                  ? "Quote Accepted ✓"
+                                  : "Quote Closed"}
                               </span>
                             )}
                           </div>
@@ -930,9 +1012,12 @@ export function CustomerAccountClient() {
           {favorites.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0d0d0d] py-16 text-center">
               <Heart className="h-12 w-12 text-white/20" />
-              <h3 className="mt-4 text-base font-bold text-white">No saved favorites</h3>
+              <h3 className="mt-4 text-base font-bold text-white">
+                No saved favorites
+              </h3>
               <p className="mt-1.5 max-w-md text-sm text-white/45">
-                Browse our new and used vehicle listings and click the heart icon to save vehicles for quick comparison later.
+                Browse our new and used vehicle listings and click the heart
+                icon to save vehicles for quick comparison later.
               </p>
               <Link
                 href="/new-cars"
@@ -946,10 +1031,21 @@ export function CustomerAccountClient() {
               {favorites.map((fav: any) => {
                 const favId = String(fav.id || fav._id);
                 const favImg = fav.image || fav.images?.[0];
-                const favTitle = fav.title || `${fav.brand || ""} ${fav.model || ""}`.trim() || "Saved Vehicle";
-                const isUsed = fav.type === "USED_CAR" || fav.category === "Used";
-                const detailLink = isUsed ? `/used-cars/${favId}` : `/new-cars/${favId}`;
-                const priceDisplay = fav.priceRange || (fav.price ? formatNaira(fav.price) : (fav.pricing?.priceRange?.display || formatNaira(fav.pricing?.retail)));
+                const favTitle =
+                  fav.title ||
+                  `${fav.brand || ""} ${fav.model || ""}`.trim() ||
+                  "Saved Vehicle";
+                const isUsed =
+                  fav.type === "USED_CAR" || fav.category === "Used";
+                const detailLink = isUsed
+                  ? `/used-cars/${favId}`
+                  : `/new-cars/${favId}`;
+                const priceDisplay =
+                  fav.priceRange ||
+                  (fav.price
+                    ? formatNaira(fav.price)
+                    : fav.pricing?.priceRange?.display ||
+                      formatNaira(fav.pricing?.retail));
 
                 return (
                   <div
@@ -1011,12 +1107,14 @@ export function CustomerAccountClient() {
                         View Details
                       </Link>
                       <a
-                        href={buildWhatsappUrl(`Hi, I'm inquiring about the saved vehicle ${favTitle} on autoSecure Mobility.`)}
+                        href={buildWhatsappUrl(
+                          `Hi, I'm inquiring about the saved vehicle ${favTitle} on autoSecure Mobility.`,
+                        )}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[#25D366] text-xs font-bold text-black hover:bg-[#20BD5A] transition-all"
                       >
-                        <MessageCircle className="h-3.5 w-3.5" fill="currentColor" />
+                        <WhatsAppIcon className="h-3.5 w-3.5" />
                         WhatsApp
                       </a>
                     </div>
@@ -1031,12 +1129,14 @@ export function CustomerAccountClient() {
       {/* TAB 4: Profile Settings */}
       {activeTab === "profile" && (
         <div className="mt-6 max-w-2xl space-y-6">
-
           {/* ── Avatar Card ──────────────────────────────────────── */}
           <div className="rounded-2xl border border-white/8 bg-[#0d0d0d] p-6 lg:p-8">
-            <h2 className="text-base font-black text-white mb-1">Profile Photo</h2>
+            <h2 className="text-base font-black text-white mb-1">
+              Profile Photo
+            </h2>
             <p className="text-xs text-white/50 mb-5">
-              Upload a profile photo. Accepted formats: JPG, PNG, WEBP (max 5 MB).
+              Upload a profile photo. Accepted formats: JPG, PNG, WEBP (max 5
+              MB).
             </p>
             <div className="flex items-center gap-5">
               <div className="relative h-20 w-20 shrink-0">
@@ -1069,7 +1169,9 @@ export function CustomerAccountClient() {
                   {isUploadingAvatar ? "Uploading…" : "Change Photo"}
                 </button>
                 {avatarError && (
-                  <p className="text-xs text-red-400 font-semibold">{avatarError}</p>
+                  <p className="text-xs text-red-400 font-semibold">
+                    {avatarError}
+                  </p>
                 )}
               </div>
               <input
@@ -1088,21 +1190,26 @@ export function CustomerAccountClient() {
             className="rounded-2xl border border-white/8 bg-[#0d0d0d] p-6 lg:p-8 space-y-6"
           >
             <div>
-              <h2 className="text-base font-black text-white">Contact Information</h2>
+              <h2 className="text-base font-black text-white">
+                Contact Information
+              </h2>
               <p className="mt-1 text-xs text-white/50">
-                Update your contact details for vehicle order updates, delivery paperwork, and quote notifications.
+                Update your contact details for vehicle order updates, delivery
+                paperwork, and quote notifications.
               </p>
             </div>
 
             {profileSaved && (
               <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-3.5 text-xs font-bold text-emerald-400 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" /> Profile information updated successfully.
+                <CheckCircle2 className="h-4 w-4" /> Profile information updated
+                successfully.
               </div>
             )}
 
             {passwordSaved && (
               <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 p-3.5 text-xs font-bold text-emerald-400 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" /> Password changed successfully.
+                <CheckCircle2 className="h-4 w-4" /> Password changed
+                successfully.
               </div>
             )}
 
@@ -1170,7 +1277,9 @@ export function CustomerAccountClient() {
                 disabled={isSavingProfile}
                 className="inline-flex items-center gap-2 rounded-xl bg-[#C9943A] px-8 py-3 text-xs font-black text-black hover:bg-[#E0AE5A] disabled:opacity-50 transition-all"
               >
-                {isSavingProfile && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isSavingProfile && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
                 Save Changes
               </button>
             </div>
@@ -1185,7 +1294,8 @@ export function CustomerAccountClient() {
                   Notification Preferences
                 </h2>
                 <p className="mt-1 text-xs text-white/50">
-                  Choose how you receive order updates, quote alerts, and delivery notifications.
+                  Choose how you receive order updates, quote alerts, and
+                  delivery notifications.
                 </p>
               </div>
               {notifSaved && (
@@ -1197,9 +1307,21 @@ export function CustomerAccountClient() {
 
             <div className="space-y-3">
               {[
-                { key: "email", label: "Email Notifications", desc: "Order confirmations, quote updates, delivery alerts" },
-                { key: "sms", label: "SMS / WhatsApp Alerts", desc: "Real-time dispatch and tracking updates" },
-                { key: "push", label: "In-App Notifications", desc: "Price drops, new listings matching your requests" },
+                {
+                  key: "email",
+                  label: "Email Notifications",
+                  desc: "Order confirmations, quote updates, delivery alerts",
+                },
+                {
+                  key: "sms",
+                  label: "SMS / WhatsApp Alerts",
+                  desc: "Real-time dispatch and tracking updates",
+                },
+                {
+                  key: "push",
+                  label: "In-App Notifications",
+                  desc: "Price drops, new listings matching your requests",
+                },
               ].map(({ key, label, desc }) => (
                 <label
                   key={key}
@@ -1234,7 +1356,9 @@ export function CustomerAccountClient() {
                 disabled={isSavingNotif}
                 className="inline-flex items-center gap-2 rounded-xl border border-[#C9943A]/40 bg-[#C9943A]/10 px-6 py-2.5 text-xs font-bold text-[#C9943A] hover:bg-[#C9943A]/20 disabled:opacity-50 transition-all"
               >
-                {isSavingNotif && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {isSavingNotif && (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                )}
                 Save Preferences
               </button>
             </div>
@@ -1249,7 +1373,8 @@ export function CustomerAccountClient() {
                   Change Password
                 </h2>
                 <p className="mt-1 text-xs text-white/50">
-                  Update your account password. Use a strong password of at least 8 characters.
+                  Update your account password. Use a strong password of at
+                  least 8 characters.
                 </p>
               </div>
               <button
@@ -1321,14 +1446,15 @@ export function CustomerAccountClient() {
                     disabled={isChangingPassword}
                     className="inline-flex items-center gap-2 rounded-xl bg-[#C9943A] px-8 py-3 text-xs font-black text-black hover:bg-[#E0AE5A] disabled:opacity-50 transition-all"
                   >
-                    {isChangingPassword && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {isChangingPassword && (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    )}
                     Update Password
                   </button>
                 </div>
               </form>
             )}
           </div>
-
         </div>
       )}
 
@@ -1338,8 +1464,12 @@ export function CustomerAccountClient() {
           <div className="w-full max-w-lg rounded-2xl border border-white/15 bg-[#111] p-6 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-white/8 pb-4">
               <div>
-                <h3 className="font-bold text-white text-lg">Request Quotation</h3>
-                <p className="text-xs text-white/50">Direct enquiry to AutoSecure network</p>
+                <h3 className="font-bold text-white text-lg">
+                  Request Quotation
+                </h3>
+                <p className="text-xs text-white/50">
+                  Direct enquiry to AutoSecure network
+                </p>
               </div>
               <button
                 onClick={() => setRequestModalOpen(false)}
@@ -1493,7 +1623,9 @@ export function CustomerAccountClient() {
                   disabled={isSubmittingRequest}
                   className="inline-flex items-center gap-2 rounded-lg bg-[#C9943A] px-5 py-2 text-xs font-black text-black hover:bg-[#E0AE5A] disabled:opacity-50"
                 >
-                  {isSubmittingRequest && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  {isSubmittingRequest && (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  )}
                   Submit Sourcing Request
                 </button>
               </div>

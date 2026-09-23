@@ -75,7 +75,7 @@ export function Hero() {
               href="/new-cars"
               className="inline-flex items-center justify-center gap-2 rounded-[14px] bg-[#C9943A] px-6 py-3.5 text-sm font-bold text-black transition-all hover:bg-[#E0AE5A] shadow-[0_8px_24px_rgba(201,148,58,0.35)]"
             >
-              🚗 Browse New Cars
+              Browse New Cars
             </Link>
             <Link
               href="/used-cars/"

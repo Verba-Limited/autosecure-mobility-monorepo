@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { MessageCircle, X } from "lucide-react";
+import { X } from "lucide-react";
 import { toast } from "react-toastify";
 import { getCustomerEmail } from "@/lib/auth-api";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
 interface InquireModalProps {
   isOpen: boolean;
@@ -42,7 +43,16 @@ export function InquireModal({
         const next = `${pathname}${query ? `?${query}` : ""}`;
         toast.error(
           <span>
-            Sign in or create an account to contact this supplier. <button type="button" onClick={() => router.push(`/login?next=${encodeURIComponent(next)}`)} className="ml-1 font-bold underline">Sign in</button>
+            Sign in or create an account to contact this supplier.{" "}
+            <button
+              type="button"
+              onClick={() =>
+                router.push(`/login?next=${encodeURIComponent(next)}`)
+              }
+              className="ml-1 font-bold underline"
+            >
+              Sign in
+            </button>
           </span>,
         );
         onClose();
@@ -88,7 +98,10 @@ export function InquireModal({
       return;
     }
     try {
-      await onSubmit({ customerPhone: phone.trim(), customerEmail: email.trim() });
+      await onSubmit({
+        customerPhone: phone.trim(),
+        customerEmail: email.trim(),
+      });
     } catch {
       setError("Something went wrong. Please try again.");
     }
@@ -110,7 +123,7 @@ export function InquireModal({
         {/* Header */}
         <div className="inquire-modal-header">
           <div className="inquire-modal-icon">
-            <MessageCircle className="h-5 w-5" fill="currentColor" />
+            <WhatsAppIcon className="h-5 w-5" />
           </div>
           <div className="inquire-modal-title-group">
             <h2 id="inquire-modal-title" className="inquire-modal-title">
@@ -164,7 +177,10 @@ export function InquireModal({
           <div className="inquire-modal-field">
             <label htmlFor="inquire-email" className="inquire-modal-label">
               Account Email Address
-              <span className="inquire-modal-required" aria-hidden="true"> *</span>
+              <span className="inquire-modal-required" aria-hidden="true">
+                {" "}
+                *
+              </span>
             </label>
             <input
               id="inquire-email"
@@ -204,7 +220,7 @@ export function InquireModal({
                 </>
               ) : (
                 <>
-                  <MessageCircle className="h-4 w-4" fill="currentColor" />
+                  <WhatsAppIcon className="h-4 w-4" />
                   Get WhatsApp Link
                 </>
               )}

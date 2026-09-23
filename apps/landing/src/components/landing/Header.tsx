@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Loader2, Menu, X } from "lucide-react";
 import { clearCustomerSession, getCustomerEmail } from "@/lib/auth-api";
 
 const NAV_LINKS = [
@@ -15,8 +15,11 @@ const NAV_LINKS = [
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(() => Boolean(getCustomerEmail()));
+  const [isSignedIn, setIsSignedIn] = useState(() =>
+    Boolean(getCustomerEmail()),
+  );
   const [scrolled, setScrolled] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -25,10 +28,14 @@ export function Header() {
   }, []);
 
   function signOut() {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
     clearCustomerSession();
     setIsSignedIn(false);
     setIsOpen(false);
-    window.location.href = "/";
+    window.setTimeout(() => {
+      window.location.href = "/";
+    }, 450);
   }
 
   return (
@@ -88,9 +95,22 @@ export function Header() {
               <button
                 type="button"
                 onClick={signOut}
-                className="inline-flex h-10 items-center rounded-[8px] border border-white/15 bg-white/5 px-4 text-[13px] font-semibold text-white/70 transition-all hover:bg-white/10 hover:text-white"
+                disabled={isSigningOut}
+                className={`inline-flex h-10 items-center gap-2 rounded-[8px] border px-4 text-[13px] font-semibold transition-all disabled:cursor-wait ${
+                  isSigningOut
+                    ? "border-white/20 bg-white/10 text-white/50 animate-pulse"
+                    : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                }`}
               >
-                Sign out
+                <span
+                  className={`inline-flex transition-all duration-200 ${isSigningOut ? "opacity-100" : "opacity-0 w-0 overflow-hidden"}`}
+                >
+                  <Loader2
+                    className="h-3.5 w-3.5 animate-spin"
+                    aria-hidden="true"
+                  />
+                </span>
+                {isSigningOut ? "Signing out…" : "Sign out"}
               </button>
             </div>
           ) : (
@@ -140,9 +160,22 @@ export function Header() {
                 <button
                   type="button"
                   onClick={signOut}
-                  className="flex h-11 w-full items-center justify-center rounded-lg border border-white/15 bg-white/5 text-[14px] font-semibold text-white hover:bg-white/10"
+                  disabled={isSigningOut}
+                  className={`flex h-11 w-full items-center justify-center gap-2 rounded-lg border text-[14px] font-semibold transition-all disabled:cursor-wait ${
+                    isSigningOut
+                      ? "border-white/20 bg-white/10 text-white/50 animate-pulse"
+                      : "border-white/15 bg-white/5 text-white hover:bg-white/10"
+                  }`}
                 >
-                  Sign out
+                  <span
+                    className={`inline-flex transition-all duration-200 ${isSigningOut ? "opacity-100" : "opacity-0 w-0 overflow-hidden"}`}
+                  >
+                    <Loader2
+                      className="h-4 w-4 animate-spin"
+                      aria-hidden="true"
+                    />
+                  </span>
+                  {isSigningOut ? "Signing out…" : "Sign out"}
                 </button>
               </div>
             ) : (

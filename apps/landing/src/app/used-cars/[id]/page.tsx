@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Check, Heart, MessageCircle, ArrowLeft, Lock } from "lucide-react";
+import { Check, Heart, ArrowLeft, Lock } from "lucide-react";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 import { InquireModal } from "@/components/ui/InquireModal";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import { getCustomerEmail } from "@/lib/auth-api";
 import {
   inquireVehicle,
@@ -17,7 +18,11 @@ import {
   type ApiInventoryItem,
 } from "@/lib/catalog-api";
 import { formatVehiclePriceRange } from "@/lib/pricing-utils";
-import { isVehicleSaved, toggleFavorite, subscribeToFavorites } from "@/lib/favorites";
+import {
+  isVehicleSaved,
+  toggleFavorite,
+  subscribeToFavorites,
+} from "@/lib/favorites";
 
 function formatNaira(value?: number) {
   if (!value || isNaN(Number(value))) return "N/A";
@@ -59,7 +64,8 @@ export default function UsedCarDetailPage() {
     if (!vehicle || !id) return;
     const next = toggleFavorite({
       id,
-      title: vehicle.title ?? `${vehicle.brand ?? ""} ${vehicle.model ?? ""}`.trim(),
+      title:
+        vehicle.title ?? `${vehicle.brand ?? ""} ${vehicle.model ?? ""}`.trim(),
       brand: vehicle.brand,
       model: vehicle.model,
       year: vehicle.year,
@@ -108,16 +114,17 @@ export default function UsedCarDetailPage() {
     setIsSubmitting(true);
     try {
       const res = await inquireVehicle(id, data);
-      const link = extractWhatsappLink(res, `Hi, I'm interested in the used car listed on autoSecure Mobility.`);
-      window.open(
-        link,
-        "_blank",
-        "noopener,noreferrer",
+      const link = extractWhatsappLink(
+        res,
+        `Hi, I'm interested in the used car listed on autoSecure Mobility.`,
       );
+      window.open(link, "_blank", "noopener,noreferrer");
       setModalOpen(false);
     } catch {
       window.open(
-        buildWhatsappUrl(`Hi, I'm interested in a used car on autoSecure Mobility.`),
+        buildWhatsappUrl(
+          `Hi, I'm interested in a used car on autoSecure Mobility.`,
+        ),
         "_blank",
         "noopener,noreferrer",
       );
@@ -399,7 +406,11 @@ export default function UsedCarDetailPage() {
                         : "border-white/12 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white"
                     }`}
                   >
-                    <Heart className="h-4 w-4" fill={isSaved ? "currentColor" : "none"} strokeWidth={2.5} />
+                    <Heart
+                      className="h-4 w-4"
+                      fill={isSaved ? "currentColor" : "none"}
+                      strokeWidth={2.5}
+                    />
                     {isSaved ? "Saved to Favorites" : "Save Favorite"}
                   </button>
                   <Link
@@ -413,7 +424,7 @@ export default function UsedCarDetailPage() {
                     onClick={() => setModalOpen(true)}
                     className="flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#25D366] text-[13px] font-black text-black hover:bg-[#20BD5A] transition-colors"
                   >
-                    <MessageCircle className="h-4 w-4" fill="currentColor" />
+                    <WhatsAppIcon className="h-4 w-4" />
                     WhatsApp Seller
                   </button>
                 </div>

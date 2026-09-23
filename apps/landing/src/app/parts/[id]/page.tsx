@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle, ArrowLeft, Package } from "lucide-react";
+import { ArrowLeft, Package } from "lucide-react";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 import { InquireModal } from "@/components/ui/InquireModal";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 import {
   inquirePart,
   extractWhatsappLink,
@@ -69,24 +70,30 @@ export default function PartDetailPage() {
     }
 
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
-  async function handleInquire(data: { customerPhone: string; customerEmail: string }) {
+  async function handleInquire(data: {
+    customerPhone: string;
+    customerEmail: string;
+  }) {
     if (!id) return;
     setIsSubmitting(true);
     try {
       const res = await inquirePart(id, data);
-      const link = extractWhatsappLink(res, `Hi, I'm interested in ${part?.title ?? part?.partName ?? "a part"} on autoSecure Mobility.`);
-      window.open(
-        link,
-        "_blank",
-        "noopener,noreferrer",
+      const link = extractWhatsappLink(
+        res,
+        `Hi, I'm interested in ${part?.title ?? part?.partName ?? "a part"} on autoSecure Mobility.`,
       );
+      window.open(link, "_blank", "noopener,noreferrer");
       setModalOpen(false);
     } catch {
       window.open(
-        buildWhatsappUrl(`Hi, I'm interested in ${part?.title ?? part?.partName ?? "a part"} on autoSecure Mobility.`),
+        buildWhatsappUrl(
+          `Hi, I'm interested in ${part?.title ?? part?.partName ?? "a part"} on autoSecure Mobility.`,
+        ),
         "_blank",
         "noopener,noreferrer",
       );
@@ -107,9 +114,16 @@ export default function PartDetailPage() {
         <div className="mx-auto max-w-[1210px]">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-[13px] font-semibold text-white/30">
-            <Link href="/" className="hover:text-white/60 transition-colors">Home</Link>
+            <Link href="/" className="hover:text-white/60 transition-colors">
+              Home
+            </Link>
             <span className="text-white/15">/</span>
-            <Link href="/parts" className="text-blue-400 hover:text-blue-300 transition-colors">Aftermarket Parts</Link>
+            <Link
+              href="/parts"
+              className="text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              Aftermarket Parts
+            </Link>
             {part && (
               <>
                 <span className="text-white/15">/</span>
@@ -143,8 +157,13 @@ export default function PartDetailPage() {
                 <Package className="h-10 w-10 text-white/20" />
               </div>
               <p className="text-2xl font-black text-white">Part not found</p>
-              <p className="mt-2 text-sm text-white/40">This listing may have been removed or is no longer available.</p>
-              <Link href="/parts" className="mt-6 inline-block rounded-lg bg-blue-500 px-6 py-3 text-sm font-bold text-white hover:bg-blue-400">
+              <p className="mt-2 text-sm text-white/40">
+                This listing may have been removed or is no longer available.
+              </p>
+              <Link
+                href="/parts"
+                className="mt-6 inline-block rounded-lg bg-blue-500 px-6 py-3 text-sm font-bold text-white hover:bg-blue-400"
+              >
                 Browse Parts
               </Link>
             </div>
@@ -154,7 +173,13 @@ export default function PartDetailPage() {
               <div className="flex items-center justify-center overflow-hidden rounded-2xl border border-white/8 bg-[#0d0d0d] p-10">
                 {image ? (
                   <div className="relative h-[320px] w-full">
-                    <Image src={image} alt={title} fill className="object-contain drop-shadow-2xl" sizes="(min-width: 1024px) 50vw, 100vw" />
+                    <Image
+                      src={image}
+                      alt={title}
+                      fill
+                      className="object-contain drop-shadow-2xl"
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                    />
                   </div>
                 ) : (
                   <Package className="h-32 w-32 text-blue-400/30" />
@@ -189,7 +214,10 @@ export default function PartDetailPage() {
                     </span>
                   )}
                   {part.vehicleCompatibility?.map((v) => (
-                    <span key={v} className="rounded-full border border-blue-500/20 bg-blue-500/8 px-3 py-1.5 text-[11px] font-black text-blue-400">
+                    <span
+                      key={v}
+                      className="rounded-full border border-blue-500/20 bg-blue-500/8 px-3 py-1.5 text-[11px] font-black text-blue-400"
+                    >
                       {v}
                     </span>
                   ))}
@@ -203,8 +231,12 @@ export default function PartDetailPage() {
 
                 {/* Delivery */}
                 <div className="mt-5 rounded-xl border border-white/8 bg-white/4 p-4">
-                  <p className="text-[12px] font-black uppercase tracking-wide text-white/30">Delivery</p>
-                  <p className="mt-1 text-sm font-semibold text-white/70">Standard · 3-5 business days</p>
+                  <p className="text-[12px] font-black uppercase tracking-wide text-white/30">
+                    Delivery
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-white/70">
+                    Standard · 3-5 business days
+                  </p>
                 </div>
 
                 {/* Price */}
@@ -214,7 +246,9 @@ export default function PartDetailPage() {
                   </p>
                 ) : (
                   <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5">
-                    <span className="text-sm font-bold text-white/50">Price on request</span>
+                    <span className="text-sm font-bold text-white/50">
+                      Price on request
+                    </span>
                     <span className="rounded-full bg-blue-500/15 px-2 py-0.5 text-[11px] font-black text-blue-400">
                       Inquire via WhatsApp
                     </span>
@@ -233,7 +267,7 @@ export default function PartDetailPage() {
                     onClick={() => setModalOpen(true)}
                     className="flex h-12 items-center justify-center gap-2 rounded-[10px] bg-[#25D366] text-[13px] font-black text-black hover:bg-[#20BD5A] transition-colors"
                   >
-                    <MessageCircle className="h-4 w-4" fill="currentColor" />
+                    <WhatsAppIcon className="h-4 w-4" />
                     WhatsApp Seller
                   </button>
                 </div>

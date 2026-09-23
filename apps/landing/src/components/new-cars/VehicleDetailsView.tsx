@@ -3,10 +3,11 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ChevronRight, CircleAlert, MessageCircle, Search } from "lucide-react";
+import { ChevronRight, CircleAlert, Search } from "lucide-react";
 import type { Car } from "@/data/cars";
 import { getCustomerEmail } from "@/lib/auth-api";
 import { buildWhatsappUrl } from "@/lib/catalog-api";
+import { WhatsAppIcon } from "@/components/ui/WhatsAppIcon";
 
 type CheckoutStep = 1 | 2 | 3 | 4;
 
@@ -399,14 +400,16 @@ export function VehicleDetailsView({ car }: { car: Car }) {
                   return;
                 }
                 window.open(
-                  buildWhatsappUrl(`Hi, I'm interested in the ${car.brand} ${car.model} listed on autoSecure Mobility.`),
+                  buildWhatsappUrl(
+                    `Hi, I'm interested in the ${car.brand} ${car.model} listed on autoSecure Mobility.`,
+                  ),
                   "_blank",
                   "noopener,noreferrer",
                 );
               }}
               className="flex h-11 items-center justify-center gap-1.5 rounded-[8px] bg-[#25D366] text-[13px] font-black text-white transition-colors hover:bg-[#20BD5A]"
             >
-              <MessageCircle className="h-3.5 w-3.5" fill="currentColor" />
+              <WhatsAppIcon className="h-3.5 w-3.5" />
               WhatsApp
             </button>
           </div>
